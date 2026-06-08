@@ -18,6 +18,9 @@ __pycache__/
 # 临时测试文件
 _test_isolated_kg.json
 
+# 对话导出记录
+对话导出_*.md
+
 # Claude Code 会话
 .claude/
 
