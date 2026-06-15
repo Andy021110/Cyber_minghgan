@@ -586,6 +586,7 @@ def process_review_decision(
     user_note: str = "",
     importance: "int | None" = None,
     description: "str | None" = None,
+    visibility: str = "private",
 ) -> dict:
     """
     执行单条审批决策，返回 {"success": bool, "item_id": str}。
@@ -629,6 +630,7 @@ def process_review_decision(
             batch_id="Review",
             importance=final_importance,
             source_mode=item.get("source_mode", "health"),
+            visibility=visibility,
         )
         resolve_approval(item_id, "approved_kg", user_note)
         if pending_id:
