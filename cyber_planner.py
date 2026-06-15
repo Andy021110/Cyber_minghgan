@@ -243,6 +243,44 @@ def build_system_prompt() -> str:
 """
 
 
+def build_public_system_prompt(
+    persona_path: Path = None,
+    kg_path: Path = KG_PATH,
+    top_n: int = 20,
+) -> str:
+    """
+    构建公开模式 system prompt：persona.md 全文 + visibility=public 的 KG 节点。
+    供 API 公开访问时使用，不暴露 private 节点。
+    """
+    if persona_path is None:
+        persona_path = Path(__file__).parent / "persona.md"
+
+    persona_text = (
+        persona_path.read_text(encoding="utf-8")
+        if persona_path.exists()
+        else "# 赛博明翰\n（persona.md 尚未创建）"
+    )
+
+    store = CyberBrainStore(kg_path=kg_path)
+    public_nodes = [
+        node
+        for lst in store._node_lists()
+        for node in lst
+        if not node.get("archived") and node.get("visibility") == "public"
+    ]
+    public_nodes.sort(key=lambda n: n.get("importance", 0), reverse=True)
+    public_nodes = public_nodes[:top_n]
+
+    if not public_nodes:
+        return persona_text
+
+    nodes_lines = "\n".join(
+        f"- [{n['layer']}] {n['event_label']}: {n.get('description', '')}"
+        for n in public_nodes
+    )
+    return f"{persona_text}\n\n## 认知模式\n\n{nodes_lines}\n"
+
+
 # ══════════════════════════════════════════════════════════════════
 #  CYBER_TOOLS — Anthropic Tool Use Schema（Phase 3）
 #  LLM 通过这张清单决定"何时调哪个函数、传什么参数"。

@@ -71,8 +71,48 @@ def test_visibility_persisted_to_file():
     print("✓ 场景3 通过：visibility 持久化到 JSON 文件")
 
 
+# ── 场景 4：build_public_system_prompt 只含 public 节点 ──────────
+
+def test_public_prompt_filters_visibility():
+    import tempfile, shutil
+    from pathlib import Path
+    from cyber_planner import build_public_system_prompt
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        kg_path = _make_tmp_kg(tmp_path)
+
+        # 写一个临时 persona.md
+        persona_path = tmp_path / "persona.md"
+        persona_path.write_text("# 测试人格\n我是测试用的人格描述。", encoding="utf-8")
+
+        # 新建一个 public 节点和一个 private 节点
+        store = CyberBrainStore(kg_path=kg_path)
+        pub_node = store.create(
+            layer="Ego", event_label="公开行为模式",
+            description="这条应该出现在公开 prompt 里",
+            evidence="证据", visibility="public",
+        )
+        priv_node = store.create(
+            layer="Id", event_label="私密冲动",
+            description="这条不应该出现在公开 prompt 里",
+            evidence="证据", visibility="private",
+        )
+
+        prompt = build_public_system_prompt(
+            persona_path=persona_path, kg_path=kg_path
+        )
+
+        assert "测试人格" in prompt, "persona.md 内容未出现在 prompt 中"
+        assert "公开行为模式" in prompt, "public 节点未出现在 prompt 中"
+        assert "私密冲动" not in prompt, "private 节点不应出现在 public prompt 中"
+
+    print("✓ 场景4 通过：public prompt 正确过滤 visibility")
+
+
 if __name__ == "__main__":
     test_default_visibility_is_private()
     test_explicit_public_visibility()
     test_visibility_persisted_to_file()
+    test_public_prompt_filters_visibility()
     print("\n所有测试通过 ✓")
