@@ -1,0 +1,33 @@
+/* ── 色彩 Token（TECH_SPEC 1.5）─────────────────────────────────── */
+:root {
+  --color-bg:       #0d1117;  /* 游戏世界底色 */
+  --color-card-bg:  #161b22;  /* 功能面板底色 */
+  --color-border:   #30363d;  /* 边框 / 分割线 */
+  --color-text:     #c9d1d9;  /* 正文主色 */
+
+  --color-id:       #e05c5c;  /* Id 层 / 危险 / 警告 */
+  --color-ego:      #3fb950;  /* Ego 层 / 成功 / 写入 */
+  --color-superego: #f0a500;  /* Superego 层 / 提示 */
+}
+
+/* ── 全局 Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Noto Sans Mono', 'Consolas', monospace;
+  overflow: hidden;
+}
+
+/* ── 像素渲染（TECH_SPEC 1.6 / 3.6）────────────────────────────── */
+img, canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}

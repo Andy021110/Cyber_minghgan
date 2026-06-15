@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>赛博明翰</title>
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+
+  <!-- 样式：tokens 先于其他 CSS，确保变量在面板样式前定义 -->
+  <link rel="stylesheet" href="style/tokens.css">
+  <link rel="stylesheet" href="style/panels.css">
+  <link rel="stylesheet" href="style/hud.css">
+</head>
+<body>
+
+  <!-- HUD 顶部栏（F9 填充内容）-->
+  <div id="hud">
+    <span id="hud-room">中央区</span>
+    <span id="hud-badge" hidden></span>
+  </div>
+
+  <!-- Phaser Canvas 挂载点（main.js 通过 parent: 'game-container' 绑定）-->
+  <div id="game-container"></div>
+
+  <!-- HTML 功能面板容器（各面板 JS 动态注入 DOM）-->
+  <div id="panel-layer"></div>
+
+  <!--
+    Phaser CDN：必须在所有 ES Module 之前加载，
+    否则 game/main.js 执行时 window.Phaser 尚未就绪。
+    （见 OPEN_QUESTIONS Q1，Agent 3 已确认此顺序要求）
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+
+  <!-- API 客户端（面板模块 import 它，需在面板前声明；但 ES Module 加载是并行的，
+       实际依赖通过 import 语句保证，此处顺序仅为可读性）-->
+  <script type="module" src="client.js"></script>
+
+  <!-- 功能面板 -->
+  <script type="module" src="panels/dialogue.js"></script>
+  <script type="module" src="panels/taskboard.js"></script>
+  <script type="module" src="panels/review.js"></script>
+  <script type="module" src="panels/kg.js"></script>
+  <script type="module" src="panels/prune.js"></script>
+  <script type="module" src="panels/room-entry.js"></script>
+
+  <!-- HUD 逻辑 -->
+  <script type="module" src="hud.js"></script>
+
+  <!-- Phaser 游戏层（必须在 Phaser CDN script 之后）-->
+  <script type="module" src="game/main.js"></script>
+
+</body>
+</html>
