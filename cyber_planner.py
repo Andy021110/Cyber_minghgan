@@ -244,7 +244,7 @@ def build_system_prompt() -> str:
 
 
 def build_public_system_prompt(
-    persona_path: Path = None,
+    persona_path: "Path | None" = None,
     kg_path: Path = KG_PATH,
     top_n: int = 20,
 ) -> str:

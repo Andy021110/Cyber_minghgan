@@ -88,12 +88,12 @@ def test_public_prompt_filters_visibility():
 
         # 新建一个 public 节点和一个 private 节点
         store = CyberBrainStore(kg_path=kg_path)
-        pub_node = store.create(
+        store.create(
             layer="Ego", event_label="公开行为模式",
             description="这条应该出现在公开 prompt 里",
             evidence="证据", visibility="public",
         )
-        priv_node = store.create(
+        store.create(
             layer="Id", event_label="私密冲动",
             description="这条不应该出现在公开 prompt 里",
             evidence="证据", visibility="private",
