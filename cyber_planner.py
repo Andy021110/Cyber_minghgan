@@ -1645,11 +1645,17 @@ def _startup_check(store: "CyberBrainStore") -> None:
 #  process_message — 对话核心（无 I/O，供 FastAPI 调用）
 # ══════════════════════════════════════════════════════════════════
 
-async def process_message(user_input: str) -> AsyncGenerator[str, None]:
+async def process_message(
+    user_input: str,
+    system_prompt_override: "str | None" = None,
+) -> AsyncGenerator[str, None]:
     """
     处理一条用户消息，流式 yield token 字符串。
     对话历史维护在模块级 _CHAT（单用户 MVP，无需 session 管理）。
     反刍条件满足时 yield "[REFLECTION_TRIGGERED]"，调用层自行决策是否写 KG。
+
+    system_prompt_override: 若提供，优先使用该 prompt，而非读取 state["system_prompt"]。
+    这样调用方可以在不修改全局状态的情况下切换 prompt，避免并发竞态。
     """
     state = _CHAT
     if state["async_client"] is None:
@@ -1661,7 +1667,7 @@ async def process_message(user_input: str) -> AsyncGenerator[str, None]:
     aclient       = state["async_client"]
     store         = state["store"]
     msgs          = state["messages"]
-    system_prompt = state["system_prompt"]
+    system_prompt = system_prompt_override or state["system_prompt"]
 
     turn_start = len(msgs)
     msgs.append({"role": "user", "content": user_input})

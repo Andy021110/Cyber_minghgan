@@ -2,12 +2,16 @@
 api/routes/chat.py — /api/chat 路由（SSE 流式对话）
 """
 
+import hmac
 import json
+import os
 import asyncio
 import anthropic
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from cyber_planner import process_message
+from cyber_planner import _CHAT as _state
 
 router = APIRouter()
 
@@ -55,12 +59,9 @@ async def _auto_reflect() -> None:
 @router.post("/chat")
 async def chat(req: ChatRequest):
     """向 NPC 发送消息，以 SSE 流式返回 AI 回复。"""
-    from cyber_planner import process_message
-    import os
-    from cyber_planner import _CHAT as _state
     _PRIVATE_KEY = os.environ.get("PRIVATE_KEY", "")
-    is_private = bool(_PRIVATE_KEY) and req.privateKey == _PRIVATE_KEY
-    _state["system_prompt"] = (
+    is_private = bool(_PRIVATE_KEY) and hmac.compare_digest(req.privateKey, _PRIVATE_KEY)
+    resolved_prompt = (
         _state.get("system_prompt_private", _state["system_prompt"])
         if is_private
         else _state.get("system_prompt_public", _state["system_prompt"])
@@ -71,7 +72,7 @@ async def chat(req: ChatRequest):
         reflection_triggered: bool     = False
 
         try:
-            async for token in process_message(req.message):
+            async for token in process_message(req.message, system_prompt_override=resolved_prompt):
                 if token == "[REFLECTION_TRIGGERED]":
                     reflection_triggered = True
                     if is_private:
