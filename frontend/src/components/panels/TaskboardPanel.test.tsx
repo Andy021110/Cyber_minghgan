@@ -49,10 +49,19 @@ describe('TaskboardPanel', () => {
     expect(onNavigate).toHaveBeenCalledWith('review');
   });
 
-  it('shows empty state when all counts are zero', async () => {
+  it('shows empty state message and KG row when action counts are zero', async () => {
     vi.mocked(getReviewItems).mockResolvedValueOnce([]);
     vi.mocked(getPruneCandidates).mockResolvedValueOnce({ stats: { critical: 0, warning: 0, healthy: 5 }, candidates: [] });
     render(<TaskboardPanel onNavigate={vi.fn()} onClose={vi.fn()} />);
     await waitFor(() => expect(screen.getByTestId('taskboard-empty')).toBeInTheDocument());
+    expect(screen.getByTestId('taskboard-kg-row')).toBeInTheDocument();
+  });
+
+  it('calls onNavigate("prune") when prune row clicked', async () => {
+    const onNavigate = vi.fn();
+    render(<TaskboardPanel onNavigate={onNavigate} onClose={vi.fn()} />);
+    await waitFor(() => screen.getByTestId('taskboard-prune-row'));
+    fireEvent.click(screen.getByTestId('taskboard-prune-row'));
+    expect(onNavigate).toHaveBeenCalledWith('prune');
   });
 });

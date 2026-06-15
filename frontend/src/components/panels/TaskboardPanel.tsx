@@ -15,21 +15,18 @@ export function TaskboardPanel({ onNavigate, onClose }: TaskboardPanelProps) {
 
   useEffect(() => {
     dispatch('cyber:panel:opened', { panelId: 'taskboard' });
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [items, prune] = await Promise.all([getReviewItems(), getPruneCandidates()]);
+        setReviewCount(items.length);
+        setPruneCount(prune.stats.critical + prune.stats.warning);
+      } catch { /* backend offline */ }
+      finally { setLoading(false); }
+    };
     void load();
     return () => dispatch('cyber:panel:closed', { panelId: 'taskboard' });
   }, []);
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      const [items, prune] = await Promise.all([getReviewItems(), getPruneCandidates()]);
-      setReviewCount(items.length);
-      setPruneCount(prune.stats.critical + prune.stats.warning);
-    } catch { /* backend offline */ }
-    finally { setLoading(false); }
-  };
-
-  const total = reviewCount + pruneCount;
 
   return (
     <div className="taskboard-overlay">
@@ -41,12 +38,13 @@ export function TaskboardPanel({ onNavigate, onClose }: TaskboardPanelProps) {
 
         {loading ? (
           <div className="taskboard-loading">加载中…</div>
-        ) : total === 0 ? (
-          <div className="taskboard-empty" data-testid="taskboard-empty">
-            所有任务已处理完毕 ✓
-          </div>
         ) : (
           <div className="taskboard-items">
+            {reviewCount === 0 && pruneCount === 0 && (
+              <div className="taskboard-empty" data-testid="taskboard-empty">
+                审批任务已全部处理完毕 ✓
+              </div>
+            )}
             {reviewCount > 0 && (
               <button
                 className="taskboard-row taskboard-row--review"
