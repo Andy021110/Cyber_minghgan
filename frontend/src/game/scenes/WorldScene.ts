@@ -18,6 +18,13 @@ export class WorldScene extends Phaser.Scene {
 
   constructor() { super({ key: 'WorldScene' }); }
 
+  preload(): void {
+    this.load.spritesheet('sebastian', '/assets/stardew/Sebastian.png', {
+      frameWidth: 16, frameHeight: 32,
+    });
+    this.load.image('floors', '/assets/stardew/Floors.png');
+  }
+
   create(): void {
     this.drawLayout();
     this.taskboard = this.add.rectangle(310, 190, 24, 16, COLORS.SUPEREGO, 0.7);
