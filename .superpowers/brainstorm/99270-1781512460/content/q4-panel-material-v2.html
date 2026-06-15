@@ -1,0 +1,76 @@
+<h2>面板质感选哪种「暖」？</h2>
+<p class="subtitle">用对话框举例——这是你每天用得最多的界面。</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a0a00;padding:0;font-family:'Courier New',monospace;min-height:140px;display:flex;align-items:flex-end;">
+      <!-- 游戏世界背景 -->
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,#1a0a00,#1a0a00 10px,#1c0c02 10px,#1c0c02 20px);opacity:0.6;"></div>
+      <!-- 羊皮纸对话框 -->
+      <div style="position:relative;width:100%;background:#c8a060;border-top:4px solid #6b4010;border-left:3px solid #6b4010;border-right:3px solid #6b4010;padding:10px;">
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="width:28px;height:40px;background:#a07840;border:2px solid #6b4010;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;">🧑</div>
+          <div>
+            <div style="color:#4a2800;font-size:8px;font-weight:bold;margin-bottom:3px;">赛博明翰</div>
+            <div style="color:#2c1a08;font-size:9px;line-height:1.5;">今天你在开会前又查了三遍手机，我注意到这个模式已经出现好几次了...</div>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #8b6020;margin-top:8px;padding-top:6px;">
+          <div style="background:#b89050;border:1px solid #6b4010;padding:3px 6px;font-size:8px;color:#2c1a08;display:inline-block;">说点什么...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · 羊皮纸</h3>
+      <p>米黄底色，深棕边框和文字。RPG 感最强，像游戏里的对话书卷。装饰感高，文字对比度偏低。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a0a00;padding:0;font-family:'Courier New',monospace;min-height:140px;display:flex;align-items:flex-end;position:relative;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,#1a0a00,#1a0a00 10px,#1c0c02 10px,#1c0c02 20px);opacity:0.6;"></div>
+      <!-- 深木色对话框 -->
+      <div style="position:relative;width:100%;background:#1c0e04;border-top:3px solid #c8a060;padding:10px;">
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="width:28px;height:40px;background:#2c1a08;border:2px solid #c8a060;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;">🧑</div>
+          <div>
+            <div style="color:#f0d090;font-size:8px;margin-bottom:3px;">赛博明翰</div>
+            <div style="color:#e8d0a8;font-size:9px;line-height:1.5;">今天你在开会前又查了三遍手机，我注意到这个模式已经出现好几次了...</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #3d2208;margin-top:8px;padding-top:6px;">
+          <div style="background:#2c1a08;border:1px solid #6b4010;padding:3px 8px;font-size:8px;color:#8b6840;display:inline-block;">说点什么...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · 深木色（推荐）</h3>
+      <p>深棕底色，金色边框，暖白文字。远看是暖色，近看文字清晰。像星露谷的夜间室内，有灯火感。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a0a00;padding:0;font-family:'Courier New',monospace;min-height:140px;display:flex;align-items:flex-end;position:relative;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,#1a0a00,#1a0a00 10px,#1c0c02 10px,#1c0c02 20px);opacity:0.6;"></div>
+      <!-- 中间调木色对话框 -->
+      <div style="position:relative;width:100%;background:#5c3810;border-top:3px solid #e8c070;padding:10px;">
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="width:28px;height:40px;background:#4a2c0a;border:2px solid #e8c070;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;">🧑</div>
+          <div>
+            <div style="color:#ffe8a0;font-size:8px;margin-bottom:3px;">赛博明翰</div>
+            <div style="color:#fff0d0;font-size:9px;line-height:1.5;">今天你在开会前又查了三遍手机，我注意到这个模式已经出现好几次了...</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #8b5820;margin-top:8px;padding-top:6px;">
+          <div style="background:#4a2c0a;border:1px solid #a07030;padding:3px 8px;font-size:8px;color:#c8a050;display:inline-block;">说点什么...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · 中间木棕</h3>
+      <p>比 B 亮一些，像白天室内。整体明快，跟游戏世界地板色调更接近，过渡更自然。</p>
+    </div>
+  </div>
+
+</div>

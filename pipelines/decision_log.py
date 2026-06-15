@@ -29,9 +29,8 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional
 
-ROOT      = Path(__file__).parent.parent
-LOGS_DIR  = ROOT / "decision_logs"
-
+ROOT               = Path(__file__).parent.parent
+LOGS_DIR           = ROOT / "decision_logs"
 PENDING_PATH       = LOGS_DIR / "pending.jsonl"
 APPROVAL_PATH      = LOGS_DIR / "awaiting_approval.jsonl"
 NOTIFICATIONS_PATH = LOGS_DIR / "notifications.jsonl"
@@ -73,6 +72,7 @@ def write_pending(
     content: str,
     raw_evidence: str,
     trigger_context: str = "",
+    logs_dir: Path = LOGS_DIR,
 ) -> dict:
     """向蓄水池追加一条待处理条目，返回写入的完整 entry。"""
     entry = {
@@ -86,25 +86,32 @@ def write_pending(
         "proposed_layer":  None,
         "status":          "pending",
     }
-    _append(PENDING_PATH, entry)
+    _append(logs_dir / "pending.jsonl", entry)
     return entry
 
 
-def read_pending(status: Optional[str] = "pending") -> list:
+def read_pending(status: Optional[str] = "pending", logs_dir: Path = LOGS_DIR) -> list:
     """读取蓄水池条目，按 status 过滤；status=None 返回全部。"""
-    entries = _read_all(PENDING_PATH)
+    entries = _read_all(logs_dir / "pending.jsonl")
     if status is None:
         return entries
     return [e for e in entries if e.get("status") == status]
 
 
-def count_pending(status: str = "pending") -> int:
-    return len(read_pending(status))
+def count_pending(status: str = "pending", logs_dir: Path = LOGS_DIR) -> int:
+    return len(read_pending(status, logs_dir=logs_dir))
 
 
-def update_pending_status(entry_id: str, status: str, **extra_fields) -> bool:
+def update_pending_status(
+    entry_id: str,
+    status: str,
+    *,
+    logs_dir: Path = LOGS_DIR,
+    **extra_fields,
+) -> bool:
     """按 id 更新 pending 条目的 status 及其他字段，返回是否找到并更新。"""
-    entries = _read_all(PENDING_PATH)
+    pending_path = logs_dir / "pending.jsonl"
+    entries = _read_all(pending_path)
     found = False
     for e in entries:
         if e.get("id") == entry_id:
@@ -113,7 +120,7 @@ def update_pending_status(entry_id: str, status: str, **extra_fields) -> bool:
             found = True
             break
     if found:
-        _rewrite(PENDING_PATH, entries)
+        _rewrite(pending_path, entries)
     return found
 
 
@@ -131,6 +138,7 @@ def write_approval_item(
     ai_rationale: str,
     importance: Optional[int] = None,
     importance_note: Optional[str] = None,
+    logs_dir: Path = LOGS_DIR,
 ) -> dict:
     """批处理完成后，写入一条待人工审批的分类结果。"""
     entry = {
@@ -147,21 +155,27 @@ def write_approval_item(
         "importance_note":  importance_note,
         "status":           "awaiting",
     }
-    _append(APPROVAL_PATH, entry)
+    _append(logs_dir / "awaiting_approval.jsonl", entry)
     return entry
 
 
-def read_awaiting() -> list:
-    return [e for e in _read_all(APPROVAL_PATH) if e.get("status") == "awaiting"]
+def read_awaiting(logs_dir: Path = LOGS_DIR) -> list:
+    return [e for e in _read_all(logs_dir / "awaiting_approval.jsonl") if e.get("status") == "awaiting"]
 
 
-def resolve_approval(entry_id: str, decision: str, user_note: str = "") -> bool:
+def resolve_approval(
+    entry_id: str,
+    decision: str,
+    user_note: str = "",
+    logs_dir: Path = LOGS_DIR,
+) -> bool:
     """
     记录审批结果。
     decision: "approved_kg" / "approved_log" / "rejected"
     user_note: 用户输入的理解或拒绝理由
     """
-    entries = _read_all(APPROVAL_PATH)
+    approval_path = logs_dir / "awaiting_approval.jsonl"
+    entries = _read_all(approval_path)
     found = False
     for e in entries:
         if e.get("id") == entry_id:
@@ -171,7 +185,7 @@ def resolve_approval(entry_id: str, decision: str, user_note: str = "") -> bool:
             found = True
             break
     if found:
-        _rewrite(APPROVAL_PATH, entries)
+        _rewrite(approval_path, entries)
     return found
 
 
@@ -179,7 +193,7 @@ def resolve_approval(entry_id: str, decision: str, user_note: str = "") -> bool:
 #  Notifications 通知队列
 # ══════════════════════════════════════════════════════════════════
 
-def write_notification(msg_type: str, message: str) -> dict:
+def write_notification(msg_type: str, message: str, logs_dir: Path = LOGS_DIR) -> dict:
     """
     msg_type: "pending_ready" | "protocol_updated"
     """
@@ -190,17 +204,18 @@ def write_notification(msg_type: str, message: str) -> dict:
         "message":   message,
         "consumed":  False,
     }
-    _append(NOTIFICATIONS_PATH, entry)
+    _append(logs_dir / "notifications.jsonl", entry)
     return entry
 
 
-def read_unconsumed_notifications() -> list:
-    return [e for e in _read_all(NOTIFICATIONS_PATH) if not e.get("consumed", False)]
+def read_unconsumed_notifications(logs_dir: Path = LOGS_DIR) -> list:
+    return [e for e in _read_all(logs_dir / "notifications.jsonl") if not e.get("consumed", False)]
 
 
-def consume_notification(entry_id: str) -> bool:
+def consume_notification(entry_id: str, logs_dir: Path = LOGS_DIR) -> bool:
     """标记通知已展示。"""
-    entries = _read_all(NOTIFICATIONS_PATH)
+    notifications_path = logs_dir / "notifications.jsonl"
+    entries = _read_all(notifications_path)
     found = False
     for e in entries:
         if e.get("id") == entry_id:
@@ -208,5 +223,5 @@ def consume_notification(entry_id: str) -> bool:
             found = True
             break
     if found:
-        _rewrite(NOTIFICATIONS_PATH, entries)
+        _rewrite(notifications_path, entries)
     return found

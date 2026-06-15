@@ -1,0 +1,119 @@
+<h2>设计第三段：任务板 + 审批流程</h2>
+<p class="subtitle">走到任务板按 E 弹出，先看汇总，点进去逐条审批。</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">任务板（汇总入口）</div>
+    <div class="mockup-body" style="background:#2c1608cc;padding:16px;font-family:'Courier New',monospace;">
+      <div style="background:#c8a060;border:4px solid #6b3a10;box-shadow:6px 6px 0 #1a0800;max-width:280px;margin:0 auto;">
+        <!-- 标题 -->
+        <div style="background:#8b6020;border-bottom:3px solid #6b3a10;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="color:#f0d090;font-size:10px;font-weight:bold;">📋 任务板</div>
+          <div style="color:#f0d090;font-size:10px;cursor:pointer;">×</div>
+        </div>
+
+        <div style="padding:12px;">
+          <!-- 待审批条目 -->
+          <div style="background:#b89050;border:2px solid #8b6020;padding:8px 10px;margin-bottom:6px;cursor:pointer;position:relative;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#6b3a10;font-size:7px;margin-bottom:2px;">蓄水池待审批</div>
+                <div style="color:#2c1608;font-size:9px;">健身房 · 3 条观察</div>
+              </div>
+              <div style="background:#e05c5c;color:#fff;font-size:8px;padding:2px 6px;font-weight:bold;">3</div>
+            </div>
+            <div style="position:absolute;right:8px;bottom:6px;color:#6b3a10;font-size:8px;">→</div>
+          </div>
+
+          <div style="background:#b89050;border:2px solid #8b6020;padding:8px 10px;margin-bottom:6px;cursor:pointer;position:relative;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#6b3a10;font-size:7px;margin-bottom:2px;">反刍发现新模式</div>
+                <div style="color:#2c1608;font-size:9px;">赛博明翰 · 1 条待确认</div>
+              </div>
+              <div style="background:#f0a500;color:#fff;font-size:8px;padding:2px 6px;font-weight:bold;">1</div>
+            </div>
+            <div style="position:absolute;right:8px;bottom:6px;color:#6b3a10;font-size:8px;">→</div>
+          </div>
+
+          <div style="background:#b89050;border:2px solid #8b6020;padding:8px 10px;margin-bottom:10px;cursor:pointer;position:relative;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#6b3a10;font-size:7px;margin-bottom:2px;">节点老化提醒</div>
+                <div style="color:#2c1608;font-size:9px;">图谱 · 5 个节点待处理</div>
+              </div>
+              <div style="background:#8b8b8b;color:#fff;font-size:8px;padding:2px 6px;font-weight:bold;">5</div>
+            </div>
+            <div style="position:absolute;right:8px;bottom:6px;color:#6b3a10;font-size:8px;">→</div>
+          </div>
+
+          <!-- 空状态提示 -->
+          <div style="text-align:center;color:#8b6020;font-size:8px;border-top:1px dashed #8b6020;padding-top:8px;">
+            全部处理完后这里会清空 ✓
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">审批面板（逐条处理）</div>
+    <div class="mockup-body" style="background:#2c1608cc;padding:16px;font-family:'Courier New',monospace;">
+      <div style="background:#c8a060;border:4px solid #6b3a10;box-shadow:6px 6px 0 #1a0800;max-width:280px;margin:0 auto;">
+        <!-- 标题栏 -->
+        <div style="background:#8b6020;border-bottom:3px solid #6b3a10;padding:8px 12px;display:flex;align-items:center;gap:8px;">
+          <div style="color:#c8a060;font-size:9px;cursor:pointer;">← 返回</div>
+          <div style="color:#f0d090;font-size:10px;font-weight:bold;">审批 · 3/8</div>
+          <div style="margin-left:auto;color:#c8a060;font-size:9px;">健身房</div>
+        </div>
+
+        <div style="padding:10px;">
+          <!-- 观察内容 -->
+          <div style="background:#b89050;border:2px solid #8b6020;padding:8px;margin-bottom:8px;">
+            <div style="color:#6b3a10;font-size:7px;margin-bottom:4px;">AI 观察 · 2026-06-15</div>
+            <div style="color:#2c1608;font-size:9px;line-height:1.5;">运动后体重出现规律性反弹，连续三周的数据显示训练当天体重下降约 0.8kg，次日恢复。</div>
+          </div>
+
+          <!-- AI 建议路由 -->
+          <div style="background:#a07840;border:1px solid #6b3a10;padding:6px 8px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+            <div style="color:#f0d090;font-size:7px;">AI 建议 →</div>
+            <div style="background:#3fb950;color:#fff;font-size:7px;padding:1px 5px;">写入图谱</div>
+            <div style="color:#f0d090;font-size:7px;">Ego 层 · importance 6</div>
+          </div>
+
+          <!-- Importance 滑块 -->
+          <div style="margin-bottom:8px;">
+            <div style="color:#2c1608;font-size:8px;margin-bottom:4px;">重要程度 <span style="color:#6b3a10;">（可调整）</span></div>
+            <div style="background:#b89050;border:1px solid #8b6020;height:8px;position:relative;margin-bottom:2px;">
+              <div style="background:#6b3a10;height:100%;width:60%;"></div>
+              <div style="position:absolute;top:-3px;left:60%;width:6px;height:14px;background:#2c1608;border:1px solid #1a0800;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;color:#6b3a10;font-size:7px;"><span>1</span><span style="color:#2c1608;font-weight:bold;">6</span><span>10</span></div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div style="background:#3fb950;border:2px solid #1a6b20;padding:6px;text-align:center;box-shadow:2px 2px 0 #1a0800;cursor:pointer;">
+              <div style="color:#fff;font-size:8px;font-weight:bold;">[ Y ] 写入图谱</div>
+            </div>
+            <div style="background:#e05c5c;border:2px solid #8b1a1a;padding:6px;text-align:center;box-shadow:2px 2px 0 #1a0800;cursor:pointer;">
+              <div style="color:#fff;font-size:8px;font-weight:bold;">[ N ] 拒绝</div>
+            </div>
+            <div style="background:#b89050;border:2px solid #8b6020;padding:6px;text-align:center;box-shadow:2px 2px 0 #1a0800;cursor:pointer;">
+              <div style="color:#2c1608;font-size:8px;">[ S ] 只记日志</div>
+            </div>
+            <div style="background:#b89050;border:2px solid #8b6020;padding:6px;text-align:center;box-shadow:2px 2px 0 #1a0800;cursor:pointer;">
+              <div style="color:#2c1608;font-size:8px;">[ Q ] 跳过</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px;padding:12px;background:#1a0800;border:1px solid #6b3a10;">
+  <p style="color:#c8a060;font-size:13px;margin:0;line-height:1.6;">任务板列出三类待处理条目，点任意一类进入逐条审批。审批面板显示 AI 的观察内容、建议路由（写图谱 or 只记日志）、可调 importance 滑块，操作按键 Y/N/S/Q 支持键盘。这个流程和布局对吗？</p>
+</div>

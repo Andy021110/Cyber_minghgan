@@ -1,0 +1,42 @@
+<h2>整体设计方向——三个方案</h2>
+<p class="subtitle">核心差异：游戏感 vs 工具感的比重，以及访客欢迎页的处理方式。</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>游戏优先</h3>
+      <p>游戏世界是第一公民。访客欢迎页做成像素风「信封/地图卷轴」——打开卷轴，里面是你家的手绘平面图，标注每个房间的用途，按钮是「敲门进入」。私有模式的 review/prune 面板也做成游戏风格（任务栏、公告板）。整体体验沉浸，但功能面板做起来复杂，review 流程可能不如工具型清晰。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>适合</h4><ul><li>想让访客有「进入另一个人的世界」的感觉</li><li>不介意为了美感牺牲一点操作效率</li></ul></div>
+        <div class="cons"><h4>代价</h4><ul><li>review/prune 这类数据操作用游戏 UI 包装会很繁琐</li><li>美术资源投入大</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>游戏做皮，工具做骨（推荐）</h3>
+      <p>游戏世界用星露谷美术风格，是主要的视觉舞台。功能面板（review/prune/KG）用羊皮纸质感但保持清晰的工具型布局——不牺牲可读性。访客欢迎页是一张带像素插图的「明翰简介卡」，介绍空间和房间，进入按钮带像素动效。私有的 taskboard 是任务板物件，点开是干净的操作列表。游戏感和实用性都有，不互相伤害。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>适合</h4><ul><li>每天自己用，需要 review/prune 流程顺畅</li><li>也想让访客有好的第一印象</li></ul></div>
+        <div class="cons"><h4>代价</h4><ul><li>两种风格需要设计上的细心协调，避免割裂感</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>工具优先，游戏是点缀</h3>
+      <p>功能面板是主角，游戏世界是装饰性背景。进入是简洁的 web 页面（不是游戏），导航是顶栏，游戏场景缩成一个侧边或背景动效。review/prune/chat 的体验最顺畅。访客欢迎页就是一个干净的个人介绍页，附带一个「和赛博明翰对话」的入口。维护成本最低，但「赛博明翰是个游戏世界」的感觉基本没了。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>适合</h4><ul><li>主要价值是认知工具，游戏只是噱头</li><li>想快速落地，之后再加游戏层</li></ul></div>
+        <div class="cons"><h4>代价</h4><ul><li>失去了核心差异化体验——「在空间里过日子」的感觉</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>

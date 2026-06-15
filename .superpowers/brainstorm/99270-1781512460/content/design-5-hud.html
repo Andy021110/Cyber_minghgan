@@ -1,0 +1,76 @@
+<h2>设计第五段：HUD 顶部栏</h2>
+<p class="subtitle">始终叠在游戏画面上方。私有模式（你）和公开模式（访客）看到的不同。</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">私有模式（你，owner）</div>
+    <div class="mockup-body" style="background:#1a0800;padding:0;font-family:'Courier New',monospace;">
+
+      <!-- HUD 顶部栏 -->
+      <div style="background:#2c1608ee;border-bottom:3px solid #6b3a10;padding:5px 12px;display:flex;align-items:center;gap:8px;">
+        <!-- 左：房间名 -->
+        <div style="color:#f0d090;font-size:9px;font-weight:bold;">🏠 中央活动区</div>
+
+        <!-- 中：spacer -->
+        <div style="flex:1;"></div>
+
+        <!-- 任务板通知角标 -->
+        <div style="position:relative;cursor:pointer;">
+          <div style="background:#b89050;border:2px solid #6b3a10;padding:3px 7px;font-size:8px;color:#2c1608;">📋 任务板</div>
+          <div style="position:absolute;top:-5px;right:-5px;background:#e05c5c;color:#fff;border-radius:0;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:bold;border:1px solid #8b1a1a;">4</div>
+        </div>
+
+        <!-- 设置 -->
+        <div style="background:#6b3a10;border:2px solid #2c1608;padding:3px 6px;font-size:8px;color:#c8a060;cursor:pointer;">⚙</div>
+      </div>
+
+      <!-- 游戏区域 -->
+      <div style="height:160px;background:repeating-linear-gradient(45deg,#1a0800 0,#1a0800 8px,#1c0a02 8px,#1c0a02 16px);display:flex;align-items:center;justify-content:center;">
+        <div style="color:#8b5a20;font-size:9px;opacity:0.5;">≋ 游戏世界 ≋</div>
+      </div>
+
+      <div style="padding:8px 12px;background:#1a0800;border-top:1px solid #3a1800;">
+        <div style="color:#8b5a20;font-size:8px;">· 任务板角标有待处理数量</div>
+        <div style="color:#8b5a20;font-size:8px;">· 设置入口始终可见</div>
+        <div style="color:#8b5a20;font-size:8px;">· 你可以看到所有功能</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">公开模式（访客）</div>
+    <div class="mockup-body" style="background:#1a0800;padding:0;font-family:'Courier New',monospace;">
+
+      <!-- HUD 顶部栏（访客版） -->
+      <div style="background:#2c1608ee;border-bottom:3px solid #6b3a10;padding:5px 12px;display:flex;align-items:center;gap:8px;">
+        <!-- 左：访客标识 -->
+        <div style="background:#6b3a10;border:1px solid #4a2808;padding:2px 7px;font-size:7px;color:#c8a060;">👤 明翰的空间</div>
+
+        <!-- 房间名 -->
+        <div style="color:#f0d090;font-size:9px;">🏠 中央活动区</div>
+
+        <div style="flex:1;"></div>
+
+        <!-- 访客只能看对话，其他入口隐藏 -->
+        <div style="background:#b89050;border:2px solid #6b3a10;padding:3px 7px;font-size:8px;color:#2c1608;">💬 和赛博明翰聊天</div>
+      </div>
+
+      <!-- 游戏区域 -->
+      <div style="height:160px;background:repeating-linear-gradient(45deg,#1a0800 0,#1a0800 8px,#1c0a02 8px,#1c0a02 16px);display:flex;align-items:center;justify-content:center;">
+        <div style="color:#8b5a20;font-size:9px;opacity:0.5;">≋ 游戏世界 ≋</div>
+      </div>
+
+      <div style="padding:8px 12px;background:#1a0800;border-top:1px solid #3a1800;">
+        <div style="color:#8b5a20;font-size:8px;">· 左上角标注「明翰的空间」，访客知道自己在哪</div>
+        <div style="color:#8b5a20;font-size:8px;">· 任务板、设置、KG 等入口全部隐藏</div>
+        <div style="color:#8b5a20;font-size:8px;">· 只保留对话入口，访客可以走到 NPC 按 E 触发</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px;padding:12px;background:#1a0800;border:1px solid #6b3a10;">
+  <p style="color:#c8a060;font-size:13px;margin:0;line-height:1.6;">差异很简单：访客 HUD 左上角有「明翰的空间」标识，任务板/设置等 owner 专属入口全部隐藏，只留对话入口。访客还是可以自由走路、进各个房间，但每个房间只有 NPC 可以交互（管家也能聊），物件和任务板按 E 不响应。这个逻辑对吗？</p>
+</div>

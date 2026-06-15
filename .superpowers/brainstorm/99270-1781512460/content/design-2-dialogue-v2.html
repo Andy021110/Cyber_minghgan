@@ -1,0 +1,76 @@
+<h2>对话框：默认态 + 展开态</h2>
+<p class="subtitle">确认这个设计方向对吗？</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">默认态（日常）</div>
+    <div class="mockup-body" style="background:#1a0800;padding:0;font-family:'Courier New',monospace;min-height:220px;position:relative;">
+      <div style="height:140px;background:repeating-linear-gradient(45deg,#1a0800 0,#1a0800 8px,#1c0a02 8px,#1c0a02 16px);display:flex;align-items:center;justify-content:center;">
+        <div style="color:#8b5a20;font-size:9px;opacity:0.6;">≋ 游戏世界可见 ≋</div>
+      </div>
+      <div style="background:#c8a060;border-top:4px solid #6b3a10;padding:10px 12px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+          <div style="flex-shrink:0;text-align:center;">
+            <div style="width:36px;height:52px;background:#8b6020;border:2px solid #6b3a10;display:flex;align-items:center;justify-content:center;font-size:20px;">🧑</div>
+            <div style="color:#2c1608;font-size:7px;margin-top:2px;">赛博明翰</div>
+          </div>
+          <div style="flex:1;">
+            <div style="background:#b89050;border:1px solid #8b6020;padding:8px;position:relative;">
+              <span style="color:#2c1608;font-size:9px;line-height:1.5;">开会前查了三遍手机——焦虑前置，用刷手机来缓冲压力。</span><span style="color:#6b3a10;font-weight:bold;">▌</span>
+              <!-- 历史按钮 -->
+              <div style="position:absolute;top:4px;right:4px;background:#8b6020;border:1px solid #6b3a10;padding:2px 5px;font-size:7px;color:#f0d090;cursor:pointer;">↑ 历史</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;background:#b89050;border:2px solid #6b3a10;padding:5px 8px;font-size:8px;color:#6b3a10;">说点什么...</div>
+          <div style="background:#6b3a10;border:2px solid #2c1608;padding:5px 8px;color:#f0d090;font-size:8px;box-shadow:2px 2px 0 #1a0800;">↵</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">展开态（点「↑ 历史」后）</div>
+    <div class="mockup-body" style="background:#1a0800;padding:0;font-family:'Courier New',monospace;min-height:220px;position:relative;">
+      <!-- 游戏背景（很少可见） -->
+      <div style="height:30px;background:repeating-linear-gradient(45deg,#1a0800 0,#1a0800 8px,#1c0a02 8px,#1c0a02 16px);display:flex;align-items:center;justify-content:center;">
+        <div style="color:#8b5a20;font-size:8px;opacity:0.4;">≋ ≋ ≋</div>
+      </div>
+
+      <!-- 展开的历史区（从底部向上展开） -->
+      <div style="background:#c8a060;border-top:4px solid #6b3a10;">
+        <!-- 历史滚动区 -->
+        <div style="padding:8px 12px;max-height:110px;overflow:hidden;border-bottom:2px dashed #8b6020;">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:2px;"><div style="background:#a07030;border:1px solid #8b6020;padding:3px 8px;max-width:70%;"><div style="color:#6b3a10;font-size:7px;margin-bottom:1px;">你 · 09:14</div><div style="color:#2c1608;font-size:8px;">确实，我自己也注意到了</div></div></div>
+          <div style="display:flex;margin-bottom:2px;"><div style="background:#b89050;border:1px solid #8b6020;padding:3px 8px;max-width:80%;"><div style="color:#6b3a10;font-size:7px;margin-bottom:1px;">赛博明翰 · 09:15</div><div style="color:#2c1608;font-size:8px;line-height:1.4;">这种前置焦虑是你的 Ego 层一直在协调的模式，它在用可控的小焦虑替代更大的未知焦虑。</div></div></div>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:2px;"><div style="background:#a07030;border:1px solid #8b6020;padding:3px 8px;max-width:70%;"><div style="color:#6b3a10;font-size:7px;margin-bottom:1px;">你 · 09:16</div><div style="color:#2c1608;font-size:8px;">那我该怎么打破这个模式？</div></div></div>
+          <div style="text-align:center;color:#8b6020;font-size:7px;padding:4px 0;">↑ 向上滚动查看更早的对话</div>
+        </div>
+
+        <!-- 当前消息（固定） -->
+        <div style="padding:8px 12px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+            <div style="flex-shrink:0;">
+              <div style="width:28px;height:40px;background:#8b6020;border:2px solid #6b3a10;display:flex;align-items:center;justify-content:center;font-size:14px;">🧑</div>
+            </div>
+            <div style="flex:1;background:#b89050;border:1px solid #8b6020;padding:6px;position:relative;">
+              <span style="color:#2c1608;font-size:9px;line-height:1.5;">开会前查了三遍手机——焦虑前置，用刷手机缓冲压力。</span>
+              <div style="position:absolute;top:3px;right:4px;background:#8b6020;border:1px solid #6b3a10;padding:2px 5px;font-size:7px;color:#f0d090;">↓ 收起</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <div style="flex:1;background:#b89050;border:2px solid #6b3a10;padding:5px 8px;font-size:8px;color:#6b3a10;">说点什么...</div>
+            <div style="background:#6b3a10;border:2px solid #2c1608;padding:5px 8px;color:#f0d090;font-size:8px;box-shadow:2px 2px 0 #1a0800;">↵</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px;padding:12px;background:#1a0800;border:1px solid #6b3a10;">
+  <p style="color:#c8a060;font-size:13px;margin:0;line-height:1.6;">右上角有个「↑ 历史」按钮，点了历史区从底部向上展开，可滚动翻看。当前消息始终固定在底部，输入框不消失。再点「↓ 收起」回到默认态。这个方向对吗？</p>
+</div>

@@ -1,0 +1,123 @@
+<h2>设计第四段：KG 浏览 + Prune 老化管理</h2>
+<p class="subtitle">两个低频但必要的面板，沿用羊皮纸风格，重点确认布局逻辑。</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">KG 浏览面板</div>
+    <div class="mockup-body" style="background:#2c1608cc;padding:12px;font-family:'Courier New',monospace;">
+      <div style="background:#c8a060;border:4px solid #6b3a10;box-shadow:4px 4px 0 #1a0800;">
+        <!-- 标题 + Tab -->
+        <div style="background:#8b6020;border-bottom:3px solid #6b3a10;padding:6px 10px;">
+          <div style="color:#f0d090;font-size:10px;margin-bottom:6px;">📖 认知图谱</div>
+          <div style="display:flex;gap:3px;font-size:7px;">
+            <div style="background:#c8a060;border:1px solid #6b3a10;padding:2px 6px;color:#2c1608;">全部</div>
+            <div style="background:#8b1a1a;border:1px solid #6b0000;padding:2px 6px;color:#fff;">Id</div>
+            <div style="background:#1a6b20;border:1px solid #0a4010;padding:2px 6px;color:#fff;">Ego</div>
+            <div style="background:#8b6000;border:1px solid #6b4000;padding:2px 6px;color:#fff;">SE</div>
+            <div style="background:#6b6b6b;border:1px solid #4b4b4b;padding:2px 6px;color:#fff;">归档</div>
+          </div>
+        </div>
+
+        <div style="padding:8px;">
+          <!-- 节点卡片 -->
+          <div style="background:#b89050;border:2px solid #e05c5c;border-left:4px solid #e05c5c;padding:6px 8px;margin-bottom:4px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="color:#8b1a1a;font-size:7px;margin-bottom:2px;">Id · 欲望</div>
+                <div style="color:#2c1608;font-size:9px;">冲动性消费模式</div>
+              </div>
+              <div style="color:#6b3a10;font-size:8px;font-weight:bold;">7</div>
+            </div>
+            <div style="color:#6b3a10;font-size:8px;margin-top:2px;">在压力期间倾向于用购买...</div>
+          </div>
+
+          <div style="background:#b89050;border:2px solid #3fb950;border-left:4px solid #3fb950;padding:6px 8px;margin-bottom:4px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="color:#1a6b20;font-size:7px;margin-bottom:2px;">Ego · 现实</div>
+                <div style="color:#2c1608;font-size:9px;">高压下的应对模式</div>
+              </div>
+              <div style="color:#6b3a10;font-size:8px;font-weight:bold;">8</div>
+            </div>
+            <div style="color:#6b3a10;font-size:8px;margin-top:2px;">截止日前牺牲睡眠...</div>
+          </div>
+
+          <div style="background:#a09050;border:2px solid #8b8b8b;border-left:4px solid #8b8b8b;padding:6px 8px;margin-bottom:4px;opacity:0.6;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="color:#6b6b4a;font-size:7px;margin-bottom:2px;">归档</div>
+                <div style="color:#4b4b2a;font-size:9px;">早起习惯（已废弃）</div>
+              </div>
+              <div style="color:#6b6b4a;font-size:7px;">📦</div>
+            </div>
+          </div>
+
+          <div style="text-align:center;color:#8b6020;font-size:7px;padding-top:4px;">点击节点展开完整内容</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Prune 老化管理面板</div>
+    <div class="mockup-body" style="background:#2c1608cc;padding:12px;font-family:'Courier New',monospace;">
+      <div style="background:#c8a060;border:4px solid #6b3a10;box-shadow:4px 4px 0 #1a0800;">
+        <!-- 标题 -->
+        <div style="background:#8b6020;border-bottom:3px solid #6b3a10;padding:6px 10px;">
+          <div style="color:#f0d090;font-size:10px;">⏳ 节点老化管理</div>
+        </div>
+
+        <div style="padding:8px;">
+          <!-- 概览统计 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;">
+            <div style="background:#8b1a1a;border:1px solid #6b0000;padding:5px;text-align:center;">
+              <div style="color:#ffaaaa;font-size:11px;font-weight:bold;">2</div>
+              <div style="color:#ffaaaa;font-size:7px;">紧急</div>
+            </div>
+            <div style="background:#8b6000;border:1px solid #6b4000;padding:5px;text-align:center;">
+              <div style="color:#ffe0aa;font-size:11px;font-weight:bold;">5</div>
+              <div style="color:#ffe0aa;font-size:7px;">接近</div>
+            </div>
+            <div style="background:#1a6b20;border:1px solid #0a4010;padding:5px;text-align:center;">
+              <div style="color:#aaffaa;font-size:11px;font-weight:bold;">35</div>
+              <div style="color:#aaffaa;font-size:7px;">健康</div>
+            </div>
+          </div>
+
+          <!-- 老化节点 -->
+          <div style="background:#b89050;border:2px solid #e05c5c;padding:7px 8px;margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <div style="color:#2c1608;font-size:9px;">早起习惯</div>
+              <div style="background:#8b1a1a;color:#fff;font-size:7px;padding:1px 5px;">老化 9.2</div>
+            </div>
+            <div style="color:#6b3a10;font-size:7px;margin-bottom:6px;">238 天未访问 · importance 3</div>
+            <div style="display:flex;gap:4px;">
+              <div style="background:#8b1a1a;border:1px solid #6b0000;padding:3px 6px;color:#fff;font-size:7px;">归档</div>
+              <div style="background:#1a6b20;border:1px solid #0a4010;padding:3px 6px;color:#fff;font-size:7px;">提升重要度</div>
+              <div style="background:#b89050;border:1px solid #8b6020;padding:3px 6px;color:#2c1608;font-size:7px;">跳过</div>
+            </div>
+          </div>
+
+          <div style="background:#b89050;border:2px solid #f0a500;padding:7px 8px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <div style="color:#2c1608;font-size:9px;">冥想练习记录</div>
+              <div style="background:#8b6000;color:#fff;font-size:7px;padding:1px 5px;">老化 6.1</div>
+            </div>
+            <div style="color:#6b3a10;font-size:7px;margin-bottom:6px;">180 天未访问 · importance 4</div>
+            <div style="display:flex;gap:4px;">
+              <div style="background:#8b1a1a;border:1px solid #6b0000;padding:3px 6px;color:#fff;font-size:7px;">归档</div>
+              <div style="background:#1a6b20;border:1px solid #0a4010;padding:3px 6px;color:#fff;font-size:7px;">提升重要度</div>
+              <div style="background:#b89050;border:1px solid #8b6020;padding:3px 6px;color:#2c1608;font-size:7px;">跳过</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px;padding:12px;background:#1a0800;border:1px solid #6b3a10;">
+  <p style="color:#c8a060;font-size:13px;margin:0;line-height:1.6;">KG 面板：层级 Tab 切换，左侧色条区分 Id/Ego/Superego，归档节点灰化。Prune 面板：顶部三色统计，下方逐条处理（归档 / 提升重要度 / 跳过）。整体布局和逻辑对吗？</p>
+</div>

@@ -1,0 +1,85 @@
+<h2>设计第二段：对话框</h2>
+<p class="subtitle">游戏世界下方弹出，背景游戏保持可见。两种布局方式，感觉差别挺大。</p>
+
+<div class="split">
+
+  <div class="mockup">
+    <div class="mockup-header">布局 D1 · 底部横栏（经典 RPG 对话框）</div>
+    <div class="mockup-body" style="background:#1a0800;padding:0;font-family:'Courier New',monospace;position:relative;min-height:200px;">
+
+      <!-- 游戏背景 -->
+      <div style="height:120px;background:repeating-linear-gradient(45deg,#1a0800 0,#1a0800 8px,#1c0a02 8px,#1c0a02 16px);display:flex;align-items:center;justify-content:center;">
+        <div style="color:#8b5a20;font-size:9px;opacity:0.6;">≋ 像素游戏世界 ≋</div>
+      </div>
+
+      <!-- 对话框：固定底部 -->
+      <div style="background:#c8a060;border-top:4px solid #6b3a10;border-left:0;border-right:0;padding:10px 12px;">
+        <!-- NPC头像 + 文字 -->
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+          <div style="flex-shrink:0;text-align:center;">
+            <div style="width:36px;height:52px;background:#8b6020;border:2px solid #6b3a10;display:flex;align-items:center;justify-content:center;font-size:20px;">🧑</div>
+            <div style="color:#2c1608;font-size:7px;margin-top:2px;">赛博明翰</div>
+          </div>
+          <div style="flex:1;">
+            <div style="background:#b89050;border:1px solid #8b6020;padding:8px;min-height:36px;">
+              <span style="color:#2c1608;font-size:9px;line-height:1.5;">今天在开会前你又查了三遍手机。我注意到这个模式——焦虑前置，用刷手机来缓冲。</span><span style="color:#6b3a10;font-weight:bold;">▌</span>
+            </div>
+          </div>
+        </div>
+        <!-- 输入框 -->
+        <div style="display:flex;gap:6px;align-items:center;">
+          <div style="flex:1;background:#b89050;border:2px solid #6b3a10;padding:5px 8px;font-size:8px;color:#6b3a10;">说点什么...</div>
+          <div style="background:#6b3a10;border:2px solid #2c1608;padding:5px 8px;color:#f0d090;font-size:8px;box-shadow:2px 2px 0 #1a0800;">发送</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">布局 D2 · 侧边抽屉（对话历史可见）</div>
+    <div class="mockup-body" style="background:#1a0800;padding:0;font-family:'Courier New',monospace;position:relative;min-height:200px;display:flex;">
+
+      <!-- 游戏背景（缩窄） -->
+      <div style="flex:1;background:repeating-linear-gradient(45deg,#1a0800 0,#1a0800 8px,#1c0a02 8px,#1c0a02 16px);display:flex;align-items:center;justify-content:center;">
+        <div style="color:#8b5a20;font-size:8px;opacity:0.6;">≋ 游戏 ≋</div>
+      </div>
+
+      <!-- 侧边对话面板 -->
+      <div style="width:160px;background:#c8a060;border-left:4px solid #6b3a10;display:flex;flex-direction:column;">
+        <!-- 头部 -->
+        <div style="background:#8b6020;border-bottom:2px solid #6b3a10;padding:6px 8px;display:flex;align-items:center;gap:6px;">
+          <div style="width:20px;height:28px;background:#6b4010;border:1px solid #2c1608;display:flex;align-items:center;justify-content:center;font-size:12px;">🧑</div>
+          <div style="color:#f0d090;font-size:8px;">赛博明翰</div>
+          <div style="margin-left:auto;color:#f0d090;font-size:10px;cursor:pointer;">×</div>
+        </div>
+
+        <!-- 聊天历史 -->
+        <div style="flex:1;padding:6px;overflow:hidden;">
+          <div style="background:#b89050;border:1px solid #8b6020;padding:4px 6px;margin-bottom:4px;border-radius:0;">
+            <div style="color:#6b3a10;font-size:7px;">赛博明翰</div>
+            <div style="color:#2c1608;font-size:8px;line-height:1.4;">今天开会前查了三遍手机...</div>
+          </div>
+          <div style="background:#a07030;border:1px solid #8b6020;padding:4px 6px;margin-bottom:4px;text-align:right;">
+            <div style="color:#6b3a10;font-size:7px;">你</div>
+            <div style="color:#2c1608;font-size:8px;line-height:1.4;">确实，我自己也注意到了</div>
+          </div>
+          <div style="background:#b89050;border:1px solid #8b6020;padding:4px 6px;">
+            <div style="color:#6b3a10;font-size:7px;">赛博明翰</div>
+            <div style="color:#2c1608;font-size:8px;line-height:1.4;">这种前置焦虑...<span style="font-weight:bold;">▌</span></div>
+          </div>
+        </div>
+
+        <!-- 输入框 -->
+        <div style="padding:6px;border-top:2px solid #8b6020;">
+          <div style="background:#b89050;border:1px solid #6b3a10;padding:4px 6px;font-size:7px;color:#6b3a10;margin-bottom:4px;">说点什么...</div>
+          <div style="background:#6b3a10;padding:3px;color:#f0d090;font-size:7px;text-align:center;box-shadow:2px 2px 0 #1a0800;">↵ 发送</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px;padding:12px;background:#1a0800;border:1px solid #6b3a10;border-radius:2px;">
+  <p style="color:#c8a060;font-size:13px;margin:0;line-height:1.6;"><b>D1</b> 是星露谷原版的感觉——对话框从底部弹出，游戏世界占上方大部分，沉浸感好但历史消息看不到（只能看到最新一条）。<b>D2</b> 是侧边抽屉，对话历史可见，游戏世界同时可见，更像聊天工具。你用赛博明翰的方式主要是连续深度对话，还是短问短答？</p>
+</div>

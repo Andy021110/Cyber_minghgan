@@ -1,0 +1,18 @@
+{"type":"server-started","port":58434,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:58434","screen_dir":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content","state_dir":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/state"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/q1-public-mode.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/waiting-1.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/q2-visual-style.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/q3-panel-contrast.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/q4-panel-material.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/q4-panel-material-v2.html"}
+{"source":"user-event","type":"click","text":"🧑\n          \n            赛博明翰\n            今天你在开会前又查了三遍手机，我注意到这个模式已经出现好几次了...\n          \n        \n        \n          说点什么...\n        \n      \n    \n    \n      A · 羊皮纸\n      米黄底色，深棕边框和文字。RPG 感最强，像游戏里的对话书卷。装饰感高，文字对比度偏低。","choice":"a","id":null,"timestamp":1781514344693}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/q5-overall-approach.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-1-welcome.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-2-dialogue.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-2-dialogue-v2.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-3-review.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-3-review-v2.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-4-kg-prune.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-4-tooltip.html"}
+{"type":"screen-added","file":"/Users/minghan/Desktop/知识蒸馏/元宝-明翰/.superpowers/brainstorm/99270-1781512460/content/design-5-hud.html"}
+{"type":"server-stopped","reason":"idle timeout"}

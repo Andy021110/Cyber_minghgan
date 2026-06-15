@@ -1,0 +1,60 @@
+<h2>帮助提示：? 角标设计</h2>
+<p class="subtitle">点击 ? 弹出小卡片解释术语。出现在所有面板的关键词旁边。</p>
+
+<div class="mockup" style="max-width:360px;margin:0 auto;">
+  <div class="mockup-header">示例：KG 面板里的 ? 角标</div>
+  <div class="mockup-body" style="background:#2c1608cc;padding:16px;font-family:'Courier New',monospace;">
+    <div style="background:#c8a060;border:4px solid #6b3a10;box-shadow:4px 4px 0 #1a0800;padding:12px;">
+
+      <!-- Tab 栏，带 ? -->
+      <div style="display:flex;gap:3px;font-size:7px;margin-bottom:10px;align-items:center;">
+        <div style="background:#c8a060;border:1px solid #6b3a10;padding:2px 6px;color:#2c1608;">全部</div>
+        <div style="background:#8b1a1a;border:1px solid #6b0000;padding:2px 6px;color:#fff;">Id</div>
+        <div style="background:#1a6b20;border:1px solid #0a4010;padding:2px 6px;color:#fff;">Ego</div>
+        <div style="background:#8b6000;border:1px solid #6b4000;padding:2px 6px;color:#fff;">SE</div>
+        <!-- ? 角标 -->
+        <div style="background:#6b3a10;border:1px solid #2c1608;width:14px;height:14px;display:flex;align-items:center;justify-content:center;color:#f0d090;font-size:8px;font-weight:bold;cursor:pointer;margin-left:4px;">?</div>
+      </div>
+
+      <!-- ? 弹出卡片（展开状态） -->
+      <div style="background:#2c1608;border:2px solid #c8a060;padding:10px;margin-bottom:10px;position:relative;">
+        <div style="position:absolute;top:-6px;left:20px;width:10px;height:10px;background:#2c1608;border-top:2px solid #c8a060;border-left:2px solid #c8a060;transform:rotate(45deg);"></div>
+        <div style="color:#f0d090;font-size:8px;font-weight:bold;margin-bottom:6px;">三层认知结构是什么？</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;gap:6px;align-items:flex-start;">
+            <div style="background:#8b1a1a;color:#fff;font-size:7px;padding:1px 4px;flex-shrink:0;margin-top:1px;">Id</div>
+            <div style="color:#c8a060;font-size:8px;line-height:1.4;">本能欲望层——驱动你行动的底层冲动，常常是无意识的。</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:flex-start;">
+            <div style="background:#1a6b20;color:#fff;font-size:7px;padding:1px 4px;flex-shrink:0;margin-top:1px;">Ego</div>
+            <div style="color:#c8a060;font-size:8px;line-height:1.4;">现实协商层——你在现实约束里实际怎么行动、怎么应对。</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:flex-start;">
+            <div style="background:#8b6000;color:#fff;font-size:7px;padding:1px 4px;flex-shrink:0;margin-top:1px;">SE</div>
+            <div style="color:#c8a060;font-size:8px;line-height:1.4;">道德规范层——你认为「应该」怎样，来自内化的价值观和社会压力。</div>
+          </div>
+        </div>
+        <div style="text-align:right;margin-top:6px;">
+          <div style="color:#8b6020;font-size:7px;cursor:pointer;">收起 ×</div>
+        </div>
+      </div>
+
+      <!-- 节点示例 -->
+      <div style="background:#b89050;border:2px solid #3fb950;border-left:4px solid #3fb950;padding:6px 8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="color:#1a6b20;font-size:7px;margin-bottom:2px;">Ego · 现实</div>
+            <div style="color:#2c1608;font-size:9px;">高压下的应对模式</div>
+          </div>
+          <!-- importance 带 ? -->
+          <div style="display:flex;align-items:center;gap:3px;">
+            <div style="color:#6b3a10;font-size:8px;font-weight:bold;">8</div>
+            <div style="background:#6b3a10;width:11px;height:11px;display:flex;align-items:center;justify-content:center;color:#f0d090;font-size:7px;cursor:pointer;">?</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;color:#8b6020;font-size:7px;text-align:center;">? 出现在所有需要解释的地方 · 不影响正常操作</div>
+    </div>
+  </div>
+</div>
