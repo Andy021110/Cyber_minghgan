@@ -27,6 +27,8 @@ export class WorldScene extends Phaser.Scene {
 
   create(): void {
     this.drawLayout();
+    // Floor — tiled texture, depth 0 (behind objects)
+    this.add.tileSprite(360, 225, 640, 380, 'floors').setDepth(0).setAlpha(0.5);
     this.taskboard = this.add.rectangle(310, 190, 24, 16, COLORS.SUPEREGO, 0.7);
     this.add.text(298, 195, '[任务板]', { fontSize: '6px', color: '#0d1117', fontFamily: 'monospace' });
 

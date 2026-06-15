@@ -28,6 +28,7 @@ export class GymScene extends Phaser.Scene {
     gfx.fillStyle(COLORS.BG);    gfx.fillRect(0, 0, 720, 450);
     gfx.fillStyle(0x1a2a1a);     gfx.fillRect(40, 40, 640, 380);
     gfx.lineStyle(2, COLORS.EGO, 0.6); gfx.strokeRect(40, 40, 640, 380);
+    this.add.tileSprite(360, 230, 640, 380, 'floors').setDepth(0).setAlpha(0.45);
 
     this.add.text(300, 50, '🏋️ 健身房', { fontSize: '10px', color: '#c9d1d9', fontFamily: 'monospace' });
 
