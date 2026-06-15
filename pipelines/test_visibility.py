@@ -1,5 +1,5 @@
 """test_visibility.py — visibility 字段功能测试"""
-import sys, json, tempfile, shutil
+import sys, json, tempfile, shutil, uuid as _uuid_mod
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -114,8 +114,6 @@ def test_public_prompt_filters_visibility():
 
 def test_process_review_decision_visibility():
     """验证 process_review_decision() 的 visibility 参数透传到创建的 KG 节点。"""
-    import tempfile, shutil, uuid as _uuid_mod
-    from pathlib import Path
     from cyber_planner import CyberBrainStore, process_review_decision
     from decision_log import (
         write_approval_item, read_awaiting,
@@ -125,50 +123,54 @@ def test_process_review_decision_visibility():
     with tempfile.TemporaryDirectory() as tmp:
         kg_path = _make_tmp_kg(Path(tmp))
 
-        # 直接写入一条 awaiting_approval 条目（模拟批处理已完成）
-        approval_entry = write_approval_item(
-            pending_id=_uuid_mod.uuid4().hex,
-            source_mode="health",
-            content="可见性透传测试节点",
-            raw_evidence="test raw evidence for visibility",
-            proposed_route="kg",
-            proposed_layer="Ego",
-            ai_rationale="测试用途",
-        )
-        item_id = approval_entry["id"]
+        item_id = None
+        try:
+            # 直接写入一条 awaiting_approval 条目（模拟批处理已完成）
+            approval_entry = write_approval_item(
+                pending_id=_uuid_mod.uuid4().hex,
+                source_mode="health",
+                content="可见性透传测试节点",
+                raw_evidence="test raw evidence for visibility",
+                proposed_route="kg",
+                proposed_layer="Ego",
+                ai_rationale="测试用途",
+            )
+            item_id = approval_entry["id"]
 
-        # 确认条目已写入待审批队列
-        items = read_awaiting()
-        assert any(i["id"] == item_id for i in items), "测试条目未写入待审批队列"
+            # 确认条目已写入待审批队列
+            items = read_awaiting()
+            assert any(i["id"] == item_id for i in items), "测试条目未写入待审批队列"
 
-        store = CyberBrainStore(kg_path=kg_path)
+            store = CyberBrainStore(kg_path=kg_path)
 
-        # 调用 process_review_decision，传入 visibility="public"
-        result = process_review_decision(
-            store=store,
-            item_id=item_id,
-            decision="approved_kg",
-            visibility="public",
-        )
-        assert result["success"], f"process_review_decision 返回失败: {result}"
+            # 调用 process_review_decision，传入 visibility="public"
+            result = process_review_decision(
+                store=store,
+                item_id=item_id,
+                decision="approved_kg",
+                visibility="public",
+            )
+            assert result["success"], f"process_review_decision 返回失败: {result}"
 
-        # 重新加载 KG，确认节点的 visibility 为 "public"
-        store2 = CyberBrainStore(kg_path=kg_path)
-        found_node = None
-        for lst in store2._node_lists():
-            for node in lst:
-                if node.get("event_label", "").startswith("可见性透传测试节点"):
-                    found_node = node
-                    break
+            # 重新加载 KG，确认节点的 visibility 为 "public"
+            store2 = CyberBrainStore(kg_path=kg_path)
+            found_node = None
+            for lst in store2._node_lists():
+                for node in lst:
+                    if node.get("event_label", "").startswith("可见性透传测试节点"):
+                        found_node = node
+                        break
 
-        assert found_node is not None, "在 KG 中未找到采纳后的节点"
-        assert found_node.get("visibility") == "public", \
-            f"期望 visibility='public'，得到 {found_node.get('visibility')!r}"
+            assert found_node is not None, "在 KG 中未找到采纳后的节点"
+            assert found_node.get("visibility") == "public", \
+                f"期望 visibility='public'，得到 {found_node.get('visibility')!r}"
 
-        # 清理测试写入的 awaiting_approval 条目
-        all_entries = _read_all(APPROVAL_PATH)
-        cleaned = [e for e in all_entries if e.get("id") != item_id]
-        _rewrite(APPROVAL_PATH, cleaned)
+        finally:
+            # 始终清理测试写入的 awaiting_approval 条目，即使断言失败也执行
+            if item_id is not None:
+                all_entries = _read_all(APPROVAL_PATH)
+                cleaned = [e for e in all_entries if e.get("id") != item_id]
+                _rewrite(APPROVAL_PATH, cleaned)
 
     print("✓ 场景5 通过：process_review_decision() 正确透传 visibility 到 KG 节点")
 
