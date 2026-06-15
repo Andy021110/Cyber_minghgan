@@ -16,8 +16,10 @@ import json
 import os
 import sys
 import uuid as _uuid
+import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import AsyncGenerator
 
 import anthropic
 from dotenv import load_dotenv
@@ -48,6 +50,16 @@ _MODE_MAP = {
 
 HEALTH_LOG_PATH = Path(__file__).parent / "decision_logs" / "health_log.jsonl"
 BATCH_THRESHOLD = 20
+
+# 单用户 MVP 的模块级聊天状态（FastAPI 和 run() 共用）
+_CHAT: dict = {
+    "client":        None,   # anthropic.Anthropic（同步，run() 使用）
+    "async_client":  None,   # anthropic.AsyncAnthropic（异步，process_message 使用）
+    "store":         None,   # CyberBrainStore
+    "messages":      [],
+    "turns":         0,
+    "system_prompt": "",
+}
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -141,6 +153,7 @@ class CyberBrainStore:
         batch_id: str = "Manual",
         importance: int = 5,
         source_mode: str = "cyber_planner",
+        visibility: str = "private",
     ) -> dict:
         """在指定层级追加新节点（严格校验 layer 合法性），返回含 UUID 的完整节点。"""
         layer_key = self._LAYER_NAME_MAP.get(layer)
@@ -164,6 +177,7 @@ class CyberBrainStore:
             "archived_at":      None,
             "archive_reason":   None,
             "source_mode":      source_mode,
+            "visibility":       visibility,
         }
         self._kg["nodes"]["Cyber_Minghan"][layer_key].append(node)
         self._save()
@@ -520,6 +534,89 @@ def _write_health_log_entry(entry: dict) -> None:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
+# ── 纯函数（无 I/O，供 FastAPI 路由调用）─────────────────────────
+
+def get_review_items() -> list[dict]:
+    """返回所有 status='awaiting' 的条目。"""
+    return read_awaiting()
+
+
+def process_review_decision(
+    store: "CyberBrainStore",
+    item_id: str,
+    decision: str,
+    user_note: str = "",
+    importance: "int | None" = None,
+    description: "str | None" = None,
+) -> dict:
+    """
+    执行单条审批决策，返回 {"success": bool, "item_id": str}。
+    decision: "approved_kg" / "approved_log" / "rejected"
+    无任何 input() / print() 调用。
+    """
+    items = read_awaiting()
+    item = next((i for i in items if i["id"] == item_id), None)
+    if item is None:
+        return {"success": False, "item_id": item_id}
+
+    ts         = datetime.now(timezone.utc).isoformat()
+    pending_id = item.get("pending_id", "")
+    content    = item.get("content", "")
+    evidence   = item.get("raw_evidence", "")
+    layer      = item.get("proposed_layer") or "Ego"
+
+    if decision == "rejected":
+        _write_health_log_entry({
+            "id":              _uuid.uuid4().hex,
+            "timestamp":       ts,
+            "source_mode":     item.get("source_mode", ""),
+            "content":         content,
+            "raw_evidence":    evidence,
+            "review_id":       item_id,
+            "status":          "rejected",
+            "rejected_reason": user_note,
+        })
+        resolve_approval(item_id, "rejected", user_note)
+        if pending_id:
+            update_pending_status(pending_id, "rejected")
+
+    elif decision == "approved_kg":
+        final_importance = importance if importance is not None else (item.get("importance") or 5)
+        final_desc       = description if description else content
+        store.create(
+            layer=layer,
+            event_label=content[:40],
+            description=final_desc,
+            evidence=evidence,
+            batch_id="Review",
+            importance=final_importance,
+            source_mode=item.get("source_mode", "health"),
+        )
+        resolve_approval(item_id, "approved_kg", user_note)
+        if pending_id:
+            update_pending_status(pending_id, "approved")
+
+    elif decision == "approved_log":
+        final_desc = description if description else content
+        _write_health_log_entry({
+            "id":           _uuid.uuid4().hex,
+            "timestamp":    ts,
+            "source_mode":  item.get("source_mode", ""),
+            "content":      final_desc,
+            "raw_evidence": evidence,
+            "review_id":    item_id,
+            "status":       "approved",
+        })
+        resolve_approval(item_id, "approved_log", user_note)
+        if pending_id:
+            update_pending_status(pending_id, "approved")
+
+    else:
+        return {"success": False, "item_id": item_id}
+
+    return {"success": True, "item_id": item_id}
+
+
 def _review_ask_decision() -> str:
     """读取审批决策，只接受 Y/N/s/q，非法输入重新提示。返回小写单字符。"""
     while True:
@@ -546,7 +643,7 @@ def handle_review(store: "CyberBrainStore", client: "anthropic.Anthropic | None"
       - 确认或修改 importance（回车接受 AI 建议）
       - 确认或修改描述（回车保留原描述）
     """
-    items = read_awaiting()
+    items = get_review_items()
     if not items:
         print(f"{_GRAY}  [/review] 无待审批条目{_RESET}")
         return
@@ -588,7 +685,6 @@ def handle_review(store: "CyberBrainStore", client: "anthropic.Anthropic | None"
 
         entry_id   = item["id"]
         pending_id = item.get("pending_id", "")
-        ts         = datetime.now(timezone.utc).isoformat()
 
         if decision == "n":
             try:
@@ -596,19 +692,7 @@ def handle_review(store: "CyberBrainStore", client: "anthropic.Anthropic | None"
             except (EOFError, KeyboardInterrupt):
                 reason = ""
             rejected += 1
-            _write_health_log_entry({
-                "id":              _uuid.uuid4().hex,
-                "timestamp":       ts,
-                "source_mode":     item.get("source_mode", ""),
-                "content":         content,
-                "raw_evidence":    evidence,
-                "review_id":       entry_id,
-                "status":          "rejected",
-                "rejected_reason": reason,
-            })
-            resolve_approval(entry_id, "rejected", reason)
-            if pending_id:
-                update_pending_status(pending_id, "rejected")
+            process_review_decision(store, entry_id, "rejected", reason)
             reason_str = f"（{reason}）" if reason else ""
             print(f"{_GRAY}  [拒绝] 已归档到 health_log{reason_str}{_RESET}")
             continue
@@ -672,32 +756,15 @@ def handle_review(store: "CyberBrainStore", client: "anthropic.Anthropic | None"
             except (EOFError, KeyboardInterrupt):
                 pass
 
-            new_node = store.create(
-                layer=layer or "Ego",
-                event_label=content[:40],
-                description=final_desc,
-                evidence=evidence,
-                batch_id="Review",
+            process_review_decision(
+                store, entry_id, "approved_kg",
                 importance=final_importance,
-                source_mode=item.get("source_mode", "health"),
+                description=final_desc,
             )
-            print(f"{_GREEN}  [OK] 写入 KG [{layer or 'Ego'}] uuid={new_node['uuid'][:8]}…{_RESET}")
-            resolve_approval(entry_id, "approved_kg", "")
+            print(f"{_GREEN}  [OK] 写入 KG [{layer or 'Ego'}]{_RESET}")
         else:
-            _write_health_log_entry({
-                "id":           _uuid.uuid4().hex,
-                "timestamp":    ts,
-                "source_mode":  item.get("source_mode", ""),
-                "content":      final_desc,
-                "raw_evidence": evidence,
-                "review_id":    entry_id,
-                "status":       "approved",
-            })
+            process_review_decision(store, entry_id, "approved_log")
             print(f"{_GREEN}  [OK] 写入 health_log{_RESET}")
-            resolve_approval(entry_id, "approved_log", "")
-
-        if pending_id:
-            update_pending_status(pending_id, "approved")
 
     print(f"\n{'─'*56}")
     print(f"  /review 完成：采纳 {approved}，拒绝 {rejected}，跳过 {skipped}")
@@ -717,6 +784,68 @@ _KG_FILTER_ALIASES = {
     "id": "Id", "ego": "Ego", "superego": "Superego",
 }
 
+
+def _node_to_api_dict(n: dict) -> dict:
+    """将 KG 原始节点转换为 API schema（KGNode）格式。"""
+    ev = n.get("evidence") or ""
+    evidence_list = [s for s in ev.split("\n---\n") if s.strip()] if ev else []
+    return {
+        "id":            n.get("uuid", ""),
+        "label":         n.get("event_label", ""),
+        "layer":         n.get("layer", ""),
+        "description":   n.get("description", ""),
+        "importance":    n.get("importance", 5),
+        "evidence":      evidence_list,
+        "createdAt":     n.get("created_at"),
+        "lastAccessed":  n.get("last_accessed_at"),
+        "archived":      bool(n.get("archived", False)),
+        "archiveReason": n.get("archive_reason"),
+    }
+
+
+# ── 纯函数（无 I/O，供 FastAPI 路由调用）─────────────────────────
+
+def get_kg_nodes(
+    store: "CyberBrainStore",
+    layer: "str | None" = None,
+    include_archived: bool = False,
+) -> list[dict]:
+    """返回节点列表，可按 layer 过滤；include_archived=False 时排除已归档节点。"""
+    results = []
+    for key, (layer_key, _) in _KG_LAYER_MAP.items():
+        if layer and layer != key:
+            continue
+        for n in store._kg["nodes"]["Cyber_Minghan"].get(layer_key, []):
+            if not include_archived and n.get("archived"):
+                continue
+            results.append(_node_to_api_dict(n))
+    return results
+
+
+def get_kg_node(store: "CyberBrainStore", node_id: str) -> "dict | None":
+    """返回单个节点完整详情，找不到返回 None。"""
+    for lst in store._node_lists():
+        for n in lst:
+            if n.get("uuid") == node_id:
+                return _node_to_api_dict(n)
+    return None
+
+
+def get_kg_graph(store: "CyberBrainStore") -> dict:
+    """返回力导向图数据；MVP 阶段 links 为空数组。"""
+    nodes = []
+    for key, (layer_key, _) in _KG_LAYER_MAP.items():
+        for n in store._kg["nodes"]["Cyber_Minghan"].get(layer_key, []):
+            if not n.get("archived"):
+                nodes.append({
+                    "id":         n.get("uuid", ""),
+                    "label":      n.get("event_label", ""),
+                    "layer":      n.get("layer", key),
+                    "importance": n.get("importance", 5),
+                })
+    return {"nodes": nodes, "links": []}
+
+
 def handle_kg(store: "CyberBrainStore", subcommand: str = "") -> None:
     """
     /kg            — 列出全部节点（三层 + 已归档）
@@ -730,7 +859,7 @@ def handle_kg(store: "CyberBrainStore", subcommand: str = "") -> None:
     only_archived = sub == "archived"
     layer_filter  = _KG_FILTER_ALIASES.get(sub)  # None = 全部
 
-    active_nodes: list[tuple[str, dict]] = []   # (layer_label, node)
+    active_nodes: list[tuple[str, dict]] = []
     archived_nodes: list[tuple[str, dict]] = []
 
     for key, (layer_key, layer_label) in _KG_LAYER_MAP.items():
@@ -855,6 +984,72 @@ def scan_duplicate_pairs(
 #  handle_prune — /prune 归档指令（Phase 8b）
 # ══════════════════════════════════════════════════════════════════
 
+# ── 纯函数（无 I/O，供 FastAPI 路由调用）─────────────────────────
+
+def get_prune_candidates(store: "CyberBrainStore") -> dict:
+    """
+    返回 {"stats": {"critical": N, "warning": N, "healthy": N}, "candidates": [...]}.
+    candidates 包含全部非归档节点，每条附 stalenessScore 和 severity。
+    """
+    from prune import compute_staleness
+
+    config    = store._kg.get("meta", {}).get("prune_config", {})
+    threshold = config.get("staleness_threshold", 30)
+    near_min  = threshold / 2
+
+    stats      = {"critical": 0, "warning": 0, "healthy": 0}
+    candidates = []
+
+    _LAYER_KEYS = ("Id_Dynamics", "Ego_Dynamics", "Superego_Dynamics")
+    for layer_key in _LAYER_KEYS:
+        for n in store._kg["nodes"]["Cyber_Minghan"].get(layer_key, []):
+            if n.get("archived"):
+                continue
+            score = compute_staleness(n, config)
+            if score >= threshold:
+                severity = "critical"
+            elif score >= near_min:
+                severity = "warning"
+            else:
+                severity = "healthy"
+            stats[severity] += 1
+            candidates.append({
+                "node":          _node_to_api_dict(n),
+                "stalenessScore": score,
+                "severity":      severity,
+            })
+
+    candidates.sort(key=lambda x: x["stalenessScore"], reverse=True)
+    return {"stats": stats, "candidates": candidates}
+
+
+def archive_node(store: "CyberBrainStore", node_id: str, reason: str = "") -> dict:
+    """归档节点（软删除），返回 {"success": bool}。"""
+    try:
+        store.update(
+            node_id,
+            archived=True,
+            archived_at=datetime.now(timezone.utc).isoformat(),
+            archive_reason=reason or "pruned_stale",
+        )
+        return {"success": True}
+    except KeyError:
+        return {"success": False}
+
+
+def boost_node_importance(store: "CyberBrainStore", node_id: str, new_importance: int) -> dict:
+    """更新节点 importance，返回 {"success": bool, "new_importance": int}。"""
+    try:
+        store.update(
+            node_id,
+            importance=new_importance,
+            last_accessed_at=datetime.now(timezone.utc).isoformat(),
+        )
+        return {"success": True, "new_importance": new_importance}
+    except KeyError:
+        return {"success": False, "new_importance": new_importance}
+
+
 def handle_prune(store: "CyberBrainStore", subcommand: str = "") -> None:
     """
     /prune          → 分布概览 → 逐条裁决（归档/提升重要度/跳过）
@@ -925,13 +1120,12 @@ def handle_prune(store: "CyberBrainStore", subcommand: str = "") -> None:
             break
 
         if choice == "1":
-            _archive_node(store, item["uuid"])
+            archive_node(store, item["uuid"])
             archived_count += 1
             print(f"{_GRAY}  [归档] 已软删除，retrieve_memory 不再返回此节点{_RESET}\n")
         elif choice == "2":
             new_imp = min(imp + 2, 10)
-            store.update(item["uuid"], importance=new_imp,
-                         last_accessed_at=datetime.now(timezone.utc).isoformat())
+            boost_node_importance(store, item["uuid"], new_imp)
             boosted_count += 1
             print(f"{_GREEN}  [保留] 重要度 {imp} → {new_imp}，老化计时重置{_RESET}\n")
         else:
@@ -1416,6 +1610,82 @@ def _startup_check(store: "CyberBrainStore") -> None:
 
 
 # ══════════════════════════════════════════════════════════════════
+#  process_message — 对话核心（无 I/O，供 FastAPI 调用）
+# ══════════════════════════════════════════════════════════════════
+
+async def process_message(user_input: str) -> AsyncGenerator[str, None]:
+    """
+    处理一条用户消息，流式 yield token 字符串。
+    对话历史维护在模块级 _CHAT（单用户 MVP，无需 session 管理）。
+    反刍条件满足时 yield "[REFLECTION_TRIGGERED]"，调用层自行决策是否写 KG。
+    """
+    state = _CHAT
+    if state["async_client"] is None:
+        state["async_client"] = anthropic.AsyncAnthropic(
+            api_key=os.environ.get("ANTHROPIC_API_KEY"),
+            base_url=os.environ.get("ANTHROPIC_BASE_URL"),
+        )
+
+    aclient       = state["async_client"]
+    store         = state["store"]
+    msgs          = state["messages"]
+    system_prompt = state["system_prompt"]
+
+    turn_start = len(msgs)
+    msgs.append({"role": "user", "content": user_input})
+
+    try:
+        while True:
+            async with aclient.messages.stream(
+                model=MODEL,
+                max_tokens=MAX_TOKENS,
+                system=system_prompt,
+                tools=CYBER_TOOLS,
+                messages=msgs,
+            ) as stream:
+                async for chunk in stream.text_stream:
+                    yield chunk
+                final_msg = await stream.get_final_message()
+
+            if final_msg.stop_reason == "end_turn":
+                msgs.append({"role": "assistant", "content": final_msg.content})
+                break
+
+            if final_msg.stop_reason != "tool_use":
+                msgs.append({"role": "assistant", "content": final_msg.content})
+                break
+
+            msgs.append({"role": "assistant", "content": final_msg.content})
+            tool_results = []
+            for block in final_msg.content:
+                if block.type != "tool_use":
+                    continue
+                try:
+                    result = _dispatch_tool(store, block.name, block.input)
+                    tool_results.append({
+                        "type":        "tool_result",
+                        "tool_use_id": block.id,
+                        "content":     json.dumps(result, ensure_ascii=False, default=str),
+                    })
+                except (KeyError, ValueError) as e:
+                    tool_results.append({
+                        "type":        "tool_result",
+                        "tool_use_id": block.id,
+                        "is_error":    True,
+                        "content":     str(e),
+                    })
+            msgs.append({"role": "user", "content": tool_results})
+
+    except anthropic.APIError:
+        del msgs[turn_start:]
+        raise
+
+    state["turns"] += 1
+    if state["turns"] % REFLECT_EVERY == 0:
+        yield "[REFLECTION_TRIGGERED]"
+
+
+# ══════════════════════════════════════════════════════════════════
 #  REPL 主循环
 # ══════════════════════════════════════════════════════════════════
 
@@ -1436,8 +1706,12 @@ def run():
 
     _startup_check(store)
 
-    messages: list = []
-    turns = 0
+    # 初始化模块级聊天状态
+    _CHAT["client"]        = client
+    _CHAT["store"]         = store
+    _CHAT["messages"]      = []
+    _CHAT["turns"]         = 0
+    _CHAT["system_prompt"] = system_prompt
 
     while True:
         # ── 接收输入 ─────────────────────────────────────────────
@@ -1456,9 +1730,9 @@ def run():
         # ── /switch 专项模式切换（优先于管理员指令）────────────────
         if user_input.lower().startswith("/switch "):
             mode = user_input[8:].strip().lower()
-            switched = handle_switch(mode, messages)
+            switched = handle_switch(mode, _CHAT["messages"])
             if switched:
-                break      # 切换完成后结束当前 session
+                break
             continue
 
         # ── /review 审批队列 ─────────────────────────────────────
@@ -1483,69 +1757,30 @@ def run():
             handle_admin_command(user_input[1:].strip(), client, store)
             continue
 
-        # ── 主聊天 Agentic Loop（继承历史 messages）─────────────
-        turn_start = len(messages)
-        messages.append({"role": "user", "content": user_input})
-
+        # ── 主聊天（调用 process_message，逐 token 打印）────────────
         print("\n赛博明翰: ", end="", flush=True)
+        reflection_triggered = False
+
+        async def _stream_turn():
+            nonlocal reflection_triggered
+            async for token in process_message(user_input):
+                if token == "[REFLECTION_TRIGGERED]":
+                    reflection_triggered = True
+                else:
+                    print(token, end="", flush=True)
+
         try:
-            while True:
-                with client.messages.stream(
-                    model=MODEL,
-                    max_tokens=MAX_TOKENS,
-                    system=system_prompt,
-                    tools=CYBER_TOOLS,
-                    messages=messages,
-                ) as stream:
-                    for text_chunk in stream.text_stream:
-                        print(text_chunk, end="", flush=True)
-                    final_msg = stream.get_final_message()
-
-                if final_msg.stop_reason == "end_turn":
-                    print("\n")
-                    messages.append({"role": "assistant", "content": final_msg.content})
-                    break
-
-                if final_msg.stop_reason != "tool_use":
-                    print(f"\n[意外 stop_reason: {final_msg.stop_reason}]")
-                    messages.append({"role": "assistant", "content": final_msg.content})
-                    break
-
-                # Tool use：执行工具，将结果回传，继续循环
-                messages.append({"role": "assistant", "content": final_msg.content})
-                tool_results = []
-                for block in final_msg.content:
-                    if block.type != "tool_use":
-                        continue
-                    hint = block.input.get("keyword", block.name)
-                    print(f"\n\033[90m  [查询记忆: {hint}]\033[0m", flush=True)
-                    try:
-                        result = _dispatch_tool(store, block.name, block.input)
-                        tool_results.append({
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "content": json.dumps(result, ensure_ascii=False, default=str),
-                        })
-                    except (KeyError, ValueError) as e:
-                        tool_results.append({
-                            "type": "tool_result",
-                            "tool_use_id": block.id,
-                            "is_error": True,
-                            "content": str(e),
-                        })
-                messages.append({"role": "user", "content": tool_results})
-
+            asyncio.run(_stream_turn())
         except anthropic.APIError as e:
             print(f"\n[API ERROR] {e}", file=sys.stderr)
-            del messages[turn_start:]   # 回滚本轮所有追加，保持上下文干净
             continue
 
-        turns += 1
-        print(f"  [上下文：第 {turns} 轮，消息条数 {len(messages)}]\n")
+        print("\n")
+        print(f"  [上下文：第 {_CHAT['turns']} 轮，消息条数 {len(_CHAT['messages'])}]\n")
 
-        # ── 每 REFLECT_EVERY 轮触发一次反刍与截断 ────────────────
-        if turns % REFLECT_EVERY == 0:
-            messages = _reflection_cycle(client, store, messages)
+        # ── 反刍（CLI 模式：调用原 _reflection_cycle，保留用户确认）────
+        if reflection_triggered:
+            _CHAT["messages"] = _reflection_cycle(client, store, _CHAT["messages"])
 
 
 # ══════════════════════════════════════════════════════════════════
