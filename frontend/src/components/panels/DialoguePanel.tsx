@@ -25,7 +25,7 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
   const [input,     setInput]     = useState('');
   const [expanded,  setExpanded]  = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [lastReflection, setLastReflection] = useState(false);
+  const lastReflectionRef = useRef(false);
   const cancelRef  = useRef<(() => void) | null>(null);
   const historyRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +49,7 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
     setInput('');
     setIsSending(true);
     setStreaming('');
-    setLastReflection(false);
+    lastReflectionRef.current = false;
 
     const userMsg: Message = {
       id:           Date.now().toString(),
@@ -71,10 +71,10 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
           role:         'npc',
           text:         fullText,
           timestamp:    new Date().toLocaleTimeString('zh', { hour: '2-digit', minute: '2-digit' }),
-          isReflection: lastReflection,
+          isReflection: lastReflectionRef.current,
         }]);
       },
-      (triggered) => setLastReflection(triggered),
+      (triggered) => { lastReflectionRef.current = triggered; },
     );
   };
 

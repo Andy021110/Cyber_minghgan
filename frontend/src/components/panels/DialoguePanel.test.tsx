@@ -61,6 +61,7 @@ describe('DialoguePanel', () => {
     fireEvent.click(screen.getByTestId('dialogue-send'));
     await act(async () => { capturedOnToken?.('你好'); });
     expect(screen.getByTestId('dialogue-streaming')).toBeInTheDocument();
+    expect(screen.getByTestId('dialogue-streaming')).toHaveTextContent('你好');
   });
 
   it('clears streaming element after onDone fires', async () => {

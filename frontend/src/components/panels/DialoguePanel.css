@@ -103,7 +103,7 @@
   50%, 100% { opacity: 0; }
 }
 .dialogue-cursor {
-  animation: blink 0.125s step-end infinite;
+  animation: blink 0.25s step-end infinite;
   color: var(--panel-gold);
 }
 
