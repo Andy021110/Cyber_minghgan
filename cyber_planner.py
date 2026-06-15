@@ -1313,6 +1313,18 @@ def _tag(msg: str, color: str = _CYAN) -> str:
     return f"{color}[系统后门] {msg}{_RESET}"
 
 
+def _tool_display_label(name: str, inp: dict) -> str:
+    if name == "retrieve_memory":
+        kw = str(inp.get("keyword", ""))[:16]
+        return f"🔍 检索记忆 · {kw}" if kw else "🔍 检索记忆…"
+    if name == "create_memory":
+        lbl = str(inp.get("event_label", ""))[:16]
+        return f"✨ 写入节点 · {lbl}" if lbl else "✨ 写入节点…"
+    if name == "update_memory":
+        return "📝 更新节点…"
+    return "⚙️ 调用工具…"
+
+
 def _dispatch_tool(store: CyberBrainStore, tool_name: str, tool_args: dict):
     if tool_name == "retrieve_memory":
         return store.retrieve(**tool_args)
@@ -1648,6 +1660,7 @@ def _startup_check(store: "CyberBrainStore") -> None:
 async def process_message(
     user_input: str,
     system_prompt_override: "str | None" = None,
+    tools_override: "list | None" = None,
 ) -> AsyncGenerator[str, None]:
     """
     处理一条用户消息，流式 yield token 字符串。
@@ -1678,7 +1691,7 @@ async def process_message(
                 model=MODEL,
                 max_tokens=MAX_TOKENS,
                 system=system_prompt,
-                tools=CYBER_TOOLS,
+                tools=tools_override if tools_override is not None else CYBER_TOOLS,
                 messages=msgs,
             ) as stream:
                 async for chunk in stream.text_stream:
@@ -1698,6 +1711,9 @@ async def process_message(
             for block in final_msg.content:
                 if block.type != "tool_use":
                     continue
+                # emit a display label so the frontend can show "正在…"
+                _label = _tool_display_label(block.name, block.input)
+                yield f"[TOOL_LABEL:{_label}]"
                 try:
                     result = _dispatch_tool(store, block.name, block.input)
                     tool_results.append({
