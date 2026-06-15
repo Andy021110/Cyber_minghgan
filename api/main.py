@@ -15,6 +15,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from cyber_planner import CyberBrainStore, build_system_prompt, build_public_system_prompt, _CHAT
+from health_coach import (
+    build_system_prompt  as _hc_build_system_prompt,
+    build_kg_summary     as _hc_build_kg_summary,
+    check_protocol_freshness,
+    HEALTH_TOOLS,
+    PROTOCOL_PATH        as _HEALTH_PROTOCOL_PATH,
+)
 from api.routes import chat, review, kg, prune, notifications
 
 # ── 全局单例（所有路由复用，不在每次请求时重新初始化）─────────────
@@ -39,15 +46,30 @@ _CHAT["async_client"]  = _anthropic.AsyncAnthropic(
     base_url=_os.environ.get("ANTHROPIC_BASE_URL"),
 )
 
+# ── 健康管家专项状态 ────────────────────────────────────────────
+if _HEALTH_PROTOCOL_PATH.exists():
+    _hc_protocol_raw = _HEALTH_PROTOCOL_PATH.read_text(encoding="utf-8")
+    # check_protocol_freshness uses input() interactively; in API mode skip that
+    # and default to stale=False (protocol assumed fresh at server start).
+    _hc_stale        = False
+    _hc_protocol     = _hc_protocol_raw
+    _hc_kg_summary   = _hc_build_kg_summary()
+    _CHAT["health_system_prompt"] = _hc_build_system_prompt(_hc_kg_summary, _hc_protocol, _hc_stale)
+else:
+    _CHAT["health_system_prompt"] = _CHAT["system_prompt"]  # fallback
+_CHAT["health_tools"] = HEALTH_TOOLS
+
 # ── FastAPI 应用 ──────────────────────────────────────────────────
 
 app = FastAPI(title="赛博明翰 API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000",
+                   "http://localhost:3002", "http://127.0.0.1:3002"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+    allow_credentials=False,
 )
 
 # ── 路由挂载 ─────────────────────────────────────────────────────
