@@ -1,0 +1,56 @@
+.hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 28px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  background: rgba(44, 22, 8, 0.93);
+  border-bottom: var(--border-width) solid var(--panel-border);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--panel-gold);
+  box-shadow: 0 3px 0 var(--panel-shadow);
+}
+.hud-room { color: var(--panel-gold); }
+.hud-indicator {
+  background: var(--panel-border);
+  padding: 2px 7px;
+  font-size: 7px;
+  color: var(--panel-bg);
+}
+.hud-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.hud-btn {
+  background: var(--panel-bg-card);
+  border: 2px solid var(--panel-border);
+  color: var(--panel-text);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  padding: 3px 7px;
+  cursor: pointer;
+  position: relative;
+}
+.hud-settings {
+  background: var(--panel-border);
+  color: var(--panel-bg);
+  padding: 3px 6px;
+}
+.hud-badge {
+  position: absolute;
+  top: -5px; right: -5px;
+  background: var(--color-id);
+  color: #fff;
+  font-size: 7px;
+  font-weight: bold;
+  width: 14px; height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #8b1a1a;
+}
+.hud--visitor .hud-chat {
+  background: var(--panel-bg-card);
+  margin-left: auto;
+}
