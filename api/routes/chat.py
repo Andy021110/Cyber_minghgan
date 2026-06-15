@@ -61,22 +61,35 @@ async def chat(req: ChatRequest):
     """向 NPC 发送消息，以 SSE 流式返回 AI 回复。"""
     _PRIVATE_KEY = os.environ.get("PRIVATE_KEY", "")
     is_private = bool(_PRIVATE_KEY) and hmac.compare_digest(req.privateKey, _PRIVATE_KEY)
-    resolved_prompt = (
-        _state.get("system_prompt_private", _state["system_prompt"])
-        if is_private
-        else _state.get("system_prompt_public", _state["system_prompt"])
-    )
+
+    if req.npcId == "health_coach":
+        resolved_prompt = _state.get("health_system_prompt", _state["system_prompt"])
+        resolved_tools  = _state.get("health_tools", None)
+    else:
+        resolved_prompt = (
+            _state.get("system_prompt_private", _state["system_prompt"])
+            if is_private
+            else _state.get("system_prompt_public", _state["system_prompt"])
+        )
+        resolved_tools = None  # use default CYBER_TOOLS
 
     async def event_stream():
         full_text:           list[str] = []
         reflection_triggered: bool     = False
 
         try:
-            async for token in process_message(req.message, system_prompt_override=resolved_prompt):
+            async for token in process_message(
+                    req.message,
+                    system_prompt_override=resolved_prompt,
+                    tools_override=resolved_tools,
+                ):
                 if token == "[REFLECTION_TRIGGERED]":
                     reflection_triggered = True
                     if is_private:
                         await _auto_reflect()
+                elif token.startswith("[TOOL_LABEL:"):
+                    label = token[12:-1]
+                    yield f"data: {json.dumps({'type': 'tool', 'label': label})}\n\n"
                 else:
                     full_text.append(token)
                     yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
