@@ -9,6 +9,10 @@
 
 export const USE_MOCK = true;
 
+// Private mode: set PRIVATE_KEY to your server key for local dev; leave empty for public access
+export const PRIVATE_KEY = '';
+export const IS_PRIVATE_MODE = PRIVATE_KEY !== '';
+
 const API_BASE = 'http://localhost:8000';
 
 
@@ -215,6 +219,7 @@ export async function chatStream(npcId, message, onToken, onDone, onReflection, 
   const body = {
     npcId,
     message: contextHint ? `[${contextHint}]\n${message}` : message,
+    privateKey: PRIVATE_KEY,
   };
 
   const response = await fetch(`${API_BASE}/api/chat`, {
