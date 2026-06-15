@@ -1,10 +1,15 @@
 #panel-layer {
   position: relative;
   z-index: 10;
-  pointer-events: none; /* let clicks fall through to Phaser by default */
+  pointer-events: none;
 }
-/* Individual panels re-enable pointer events where needed */
+
 #panel-layer .hud,
-#panel-layer .room-entry-overlay {
+#panel-layer .room-entry-overlay,
+#panel-layer .dialogue-panel,
+#panel-layer .taskboard-overlay,
+#panel-layer .review-panel,
+#panel-layer .kg-panel,
+#panel-layer .prune-panel {
   pointer-events: all;
 }
