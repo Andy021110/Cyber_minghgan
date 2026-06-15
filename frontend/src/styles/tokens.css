@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Panel layer — warm parchment */
+  --panel-bg:        #c8a060;
+  --panel-bg-card:   #b89050;
+  --panel-border:    #6b3a10;
+  --panel-shadow:    #1a0800;
+  --panel-title-bg:  #8b6020;
+  --panel-text:      #2c1608;
+  --panel-text-dim:  #6b3a10;
+  --panel-gold:      #f0d090;
+  --panel-mid-bg:    #a07840;
+
+  /* KG semantic colors */
+  --color-id:        #e05c5c;
+  --color-ego:       #3fb950;
+  --color-superego:  #f0a500;
+
+  /* Game world layer — dark (Phaser uses hex constants directly) */
+  --game-bg:         #0d1117;
+  --game-card:       #161b22;
+  --game-border:     #30363d;
+  --game-text:       #c9d1d9;
+
+  /* Typography */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-mono:  'Noto Sans Mono', 'Courier New', monospace;
+
+  /* Pixel UI constraints */
+  --border-width:  3px;
+  --pixel-shadow:  4px 4px 0 #1a0800;
+  --border-radius: 0px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-radius: 0 !important;
+  image-rendering: pixelated;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--game-bg);
+  font-family: var(--font-mono);
+}
+
+/* Pixel button base */
+.btn-pixel {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  border: var(--border-width) solid var(--panel-border);
+  background: var(--panel-bg-card);
+  color: var(--panel-text);
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: var(--pixel-shadow);
+}
+.btn-pixel:hover { filter: brightness(1.1); }
+.btn-pixel:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--panel-shadow); }
