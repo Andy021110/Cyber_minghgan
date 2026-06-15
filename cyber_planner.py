@@ -1144,14 +1144,6 @@ def handle_prune(store: "CyberBrainStore", subcommand: str = "") -> None:
             consume_notification(n["id"])
 
 
-def _archive_node(store: "CyberBrainStore", node_uuid: str) -> None:
-    """软删除：标记 archived=true，不从 JSON 移除节点。"""
-    store.update(node_uuid,
-                 archived=True,
-                 archived_at=datetime.now(timezone.utc).isoformat(),
-                 archive_reason="pruned_stale")
-
-
 def _prune_merge(store: "CyberBrainStore") -> None:
     """
     /prune merge — 扫描存量重复节点，逐对让用户选择合并。
