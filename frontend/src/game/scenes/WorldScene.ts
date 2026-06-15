@@ -37,7 +37,7 @@ export class WorldScene extends Phaser.Scene {
 
     new NPC(this, {
       npcId: 'cyber_minghan', npcName: '赛博明翰',
-      spriteKey: 'npc_cyber_v1', x: 400, y: 235,
+      spriteKey: 'sebastian', x: 400, y: 235,
       triggerSystem: this.triggers,
     });
 

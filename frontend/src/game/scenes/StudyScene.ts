@@ -10,6 +10,13 @@ export class StudyScene extends Phaser.Scene {
 
   constructor() { super({ key: 'StudyScene' }); }
 
+  preload(): void {
+    this.load.spritesheet('sebastian', '/assets/stardew/Sebastian.png', {
+      frameWidth: 16, frameHeight: 32,
+    });
+    this.load.image('floors', '/assets/stardew/Floors.png');
+  }
+
   create(): void {
     const gfx = this.add.graphics();
     gfx.fillStyle(COLORS.BG); gfx.fillRect(0, 0, 720, 450);

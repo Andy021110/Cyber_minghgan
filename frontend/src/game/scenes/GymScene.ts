@@ -50,7 +50,7 @@ export class GymScene extends Phaser.Scene {
 
     new NPC(this, {
       npcId: 'health_coach', npcName: '健康管家',
-      spriteKey: 'npc_health', x: 500, y: 200,
+      spriteKey: 'sebastian', x: 500, y: 200,
       triggerSystem: this.triggers,
     });
 
