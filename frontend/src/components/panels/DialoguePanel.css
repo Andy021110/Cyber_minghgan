@@ -1,0 +1,130 @@
+.dialogue-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: rgba(44, 22, 8, 0.97);
+  border-top: var(--border-width) solid var(--panel-border);
+  box-shadow: 0 -4px 0 var(--panel-shadow);
+  font-family: var(--font-mono);
+}
+
+.dialogue-history {
+  max-height: 35vh;
+  overflow-y: auto;
+  padding: 12px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 2px solid var(--panel-border);
+}
+
+.dialogue-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 80%;
+}
+.dialogue-msg--user { align-self: flex-end; }
+.dialogue-msg--npc  { align-self: flex-start; }
+
+.dialogue-msg-text {
+  font-size: 10px;
+  color: var(--panel-gold);
+  background: var(--panel-title-bg);
+  border: 1px solid var(--panel-border);
+  padding: 4px 8px;
+  line-height: 1.6;
+}
+.dialogue-msg--user .dialogue-msg-text {
+  background: var(--panel-mid-bg);
+  color: var(--panel-text);
+}
+.dialogue-msg--reflection .dialogue-msg-text {
+  border-color: var(--panel-gold);
+  box-shadow: 0 0 0 1px var(--panel-gold);
+}
+
+.dialogue-msg-time {
+  font-size: 7px;
+  color: var(--panel-text-dim);
+  align-self: flex-end;
+}
+
+.dialogue-reflection-badge { color: var(--panel-gold); }
+
+.dialogue-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  min-height: 80px;
+}
+
+.dialogue-bar-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+}
+.dialogue-npc-sprite {
+  font-size: 40px;
+  line-height: 1;
+}
+.dialogue-npc-name {
+  font-size: 8px;
+  color: var(--panel-gold);
+  text-align: center;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dialogue-bar-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialogue-current {
+  font-size: 10px;
+  color: var(--panel-gold);
+  min-height: 20px;
+  line-height: 1.6;
+}
+.dialogue-placeholder { color: var(--panel-text-dim); }
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.dialogue-cursor {
+  animation: blink 0.125s step-end infinite;
+  color: var(--panel-gold);
+}
+
+.dialogue-input-row {
+  display: flex;
+  gap: 8px;
+}
+.dialogue-input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--panel-bg-card);
+  color: var(--panel-text);
+  border: var(--border-width) solid var(--panel-border);
+  padding: 4px 8px;
+}
+.dialogue-input:disabled { opacity: 0.5; }
+
+.dialogue-bar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
