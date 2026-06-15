@@ -1,29 +1,36 @@
 import Phaser from 'phaser';
-import { COLORS } from '../colors';
 
 const SPEED = 80;
 
-const DIR_COLOR: Record<string, number> = {
-  idle:       COLORS.EGO,
-  walk_down:  0x5fd96a,
-  walk_up:    0x2da83b,
-  walk_left:  0x1e8f2e,
-  walk_right: 0x7fff8a,
-};
-
 export class Player {
   private inputEnabled = true;
-  private direction    = 'idle';
-  private sprite:      Phaser.GameObjects.Rectangle;
+  private direction    = 'idle_down';
+  private sprite:      Phaser.Physics.Arcade.Sprite;
   private body:        Phaser.Physics.Arcade.Body;
   private cursors:     Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd:        Record<string, Phaser.Input.Keyboard.Key>;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    this.sprite = scene.add.rectangle(x, y, 14, 22, COLORS.EGO);
-    scene.physics.add.existing(this.sprite);
+    this.sprite = scene.physics.add.sprite(x, y, 'sebastian');
+    this.sprite.setTint(0x7ecfff);   // blue tint = player
+    this.sprite.setScale(2);         // 16px → 32px on screen
+    this.sprite.setDepth(10);
+
     this.body = this.sprite.body as Phaser.Physics.Arcade.Body;
     this.body.setCollideWorldBounds(true);
+    this.body.setSize(12, 16);       // tight collision box (unscaled)
+    this.body.setOffset(2, 16);      // align feet to bottom
+
+    // Create animations (idempotent — Phaser skips if already exists)
+    const anims = scene.anims;
+    if (!anims.exists('player_walk_down')) {
+      anims.create({ key: 'player_walk_down',  frames: anims.generateFrameNumbers('sebastian', { start: 0,  end: 3  }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_walk_right', frames: anims.generateFrameNumbers('sebastian', { start: 4,  end: 7  }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_walk_up',    frames: anims.generateFrameNumbers('sebastian', { start: 8,  end: 11 }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_walk_left',  frames: anims.generateFrameNumbers('sebastian', { start: 12, end: 15 }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_idle_down',  frames: anims.generateFrameNumbers('sebastian', { start: 0,  end: 0  }), frameRate: 1, repeat: -1 });
+    }
+    this.sprite.play('player_idle_down');
 
     this.cursors = scene.input.keyboard!.createCursorKeys();
     this.wasd = scene.input.keyboard!.addKeys({
@@ -35,7 +42,10 @@ export class Player {
   }
 
   update(): void {
-    if (!this.inputEnabled) { this.body.setVelocity(0, 0); return; }
+    if (!this.inputEnabled) {
+      this.body.setVelocity(0, 0);
+      return;
+    }
 
     let vx = 0, vy = 0;
     if (this.cursors.left.isDown  || this.wasd['left'].isDown)  vx = -SPEED;
@@ -46,15 +56,17 @@ export class Player {
 
     this.body.setVelocity(vx, vy);
 
-    let dir = 'idle';
-    if      (vx < 0) dir = 'walk_left';
-    else if (vx > 0) dir = 'walk_right';
-    else if (vy < 0) dir = 'walk_up';
-    else if (vy > 0) dir = 'walk_down';
+    if      (vx < 0) this._play('player_walk_left');
+    else if (vx > 0) this._play('player_walk_right');
+    else if (vy < 0) this._play('player_walk_up');
+    else if (vy > 0) this._play('player_walk_down');
+    else             this._play('player_idle_down');
+  }
 
-    if (dir !== this.direction) {
-      this.direction = dir;
-      this.sprite.setFillStyle(DIR_COLOR[dir]);
+  private _play(key: string): void {
+    if (this.direction !== key) {
+      this.direction = key;
+      this.sprite.play(key);
     }
   }
 
