@@ -1,0 +1,44 @@
+.room-entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 8, 0, 0.55);
+}
+.room-entry-box {
+  background: var(--panel-bg);
+  border: var(--border-width) solid var(--panel-border);
+  box-shadow: var(--pixel-shadow);
+  padding: 20px 28px;
+  min-width: 260px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+.room-entry-title {
+  font-size: 11px;
+  color: var(--panel-text);
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+.room-entry-desc {
+  font-size: 8px;
+  color: var(--panel-text-dim);
+  margin-bottom: 14px;
+}
+.room-entry-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.btn-confirm {
+  background: var(--color-ego);
+  border-color: #1a6b20;
+  color: #fff;
+}
+.btn-cancel {
+  background: var(--panel-bg-card);
+  border-color: var(--panel-border);
+  color: var(--panel-text);
+}
