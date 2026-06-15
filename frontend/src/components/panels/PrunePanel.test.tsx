@@ -58,11 +58,12 @@ describe('PrunePanel', () => {
     expect(screen.queryByText('早起习惯')).toBeNull();
   });
 
-  it('boost shows input, then calls boostNode with entered value', async () => {
+  it('boost shows input pre-filled with current importance, then calls boostNode', async () => {
     render(<PrunePanel onBack={vi.fn()} />);
     await waitFor(() => screen.getByTestId('prune-boost-n1'));
     fireEvent.click(screen.getByTestId('prune-boost-n1'));
     expect(screen.getByTestId('prune-boost-input-n1')).toBeInTheDocument();
+    expect(screen.getByTestId('prune-boost-input-n1')).toHaveValue(3);  // pre-filled with importance
     fireEvent.change(screen.getByTestId('prune-boost-input-n1'), { target: { value: '8' } });
     await act(async () => { fireEvent.click(screen.getByTestId('prune-boost-confirm-n1')); });
     expect(boostNode).toHaveBeenCalledWith('n1', 8);

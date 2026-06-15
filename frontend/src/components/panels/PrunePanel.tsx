@@ -8,7 +8,7 @@ export function PrunePanel({ onBack }: { onBack: () => void }) {
   const [candidates, setCandidates] = useState<PruneCandidate[]>([]);
   const [loading,    setLoading]    = useState(true);
   const [boostingId, setBoostingId] = useState<string | null>(null);
-  const [boostValue, setBoostValue] = useState('7');
+  const [boostValue, setBoostValue] = useState('');
 
   useEffect(() => {
     dispatch('cyber:panel:opened', { panelId: 'prune' });
