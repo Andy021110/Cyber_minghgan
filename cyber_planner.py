@@ -58,6 +58,7 @@ _CHAT: dict = {
     "store":         None,   # CyberBrainStore
     "messages":      [],
     "turns":         0,
+    "health_turns":  0,
     "system_prompt": "",
 }
 

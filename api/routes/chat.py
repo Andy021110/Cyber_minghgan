@@ -14,6 +14,8 @@ from pydantic import BaseModel
 from cyber_planner import process_message
 from cyber_planner import _CHAT as _state
 
+HEALTH_EXTRACT_EVERY = 5  # every 5 health coach turns
+
 router = APIRouter()
 
 
@@ -21,6 +23,72 @@ class ChatRequest(BaseModel):
     npcId:      str
     message:    str
     privateKey: str = ""
+
+
+async def _health_to_kg() -> Optional[dict]:
+    """Extract health observations from recent health coach dialogue, write to KG."""
+    from cyber_planner import _CHAT, MODEL
+
+    state   = _CHAT
+    aclient = state.get("async_client")
+    store   = state.get("store")
+    msgs    = state["messages"]
+
+    if not aclient or not store:
+        return None
+
+    recent = msgs[-(HEALTH_EXTRACT_EVERY * 2):]
+    dialogue_lines = []
+    for m in recent:
+        if m["role"] == "user" and isinstance(m["content"], str):
+            dialogue_lines.append(f"用户: {m['content']}")
+        elif m["role"] == "assistant":
+            text = (
+                " ".join(getattr(b, "text", "") for b in m["content"]).strip()
+                if isinstance(m["content"], list)
+                else str(m["content"]).strip()
+            )
+            if text:
+                dialogue_lines.append(f"健康管家: {text}")
+
+    if not dialogue_lines:
+        return None
+
+    dialogue = "\n".join(dialogue_lines)
+
+    try:
+        resp = await aclient.messages.create(
+            model=MODEL,
+            max_tokens=200,
+            system=(
+                "你是健康数据提取助手。从对话中提取用户的具体健康行为记录。\n"
+                "如果有明确的运动记录、睡眠情况、身体状态或健康目标，"
+                "用一句话（不超过60字）描述这个行为事实。\n"
+                "如果没有值得记录的具体健康信息，仅输出：NONE\n"
+                "只输出描述或 NONE，不要任何解释。"
+            ),
+            messages=[{"role": "user", "content": f"对话记录：\n{dialogue}"}],
+        )
+        feature = resp.content[0].text.strip() if resp.content else "NONE"
+    except Exception:
+        return None
+
+    if not feature or feature.upper() == "NONE":
+        return None
+
+    try:
+        node = store.create(
+            layer="Ego",
+            event_label=feature[:40],
+            description=feature,
+            evidence="[健康管家对话自动提取]",
+            batch_id="HealthAuto",
+            importance=4,
+            source_mode="health_auto",
+        )
+        return {"id": node.get("uuid", ""), "label": node.get("event_label", "")}
+    except Exception:
+        return None
 
 
 async def _auto_reflect() -> Optional[str]:
@@ -108,6 +176,7 @@ async def chat(req: ChatRequest):
         full_text:           list[str] = []
         reflection_triggered: bool     = False
         reflection_feature:   Optional[str] = None
+        health_node:         Optional[dict] = None
 
         try:
             async for token in process_message(
@@ -137,8 +206,18 @@ async def chat(req: ChatRequest):
         except anthropic.APIError:
             pass
 
+        # Health coach: extract KG nodes every HEALTH_EXTRACT_EVERY turns
+        if req.npcId == "health_coach":
+            from cyber_planner import _CHAT as _state_local
+            _state_local["health_turns"] = _state_local.get("health_turns", 0) + 1
+            if _state_local["health_turns"] % HEALTH_EXTRACT_EVERY == 0:
+                health_node = await _health_to_kg()
+
         yield f"data: {json.dumps({'type': 'done', 'fullText': ''.join(full_text)})}\n\n"
         yield f"data: {json.dumps({'type': 'reflection', 'triggered': reflection_triggered, 'feature': reflection_feature})}\n\n"
+        
+        if health_node:
+            yield f"data: {json.dumps({'type': 'kg_update', 'nodeId': health_node['id'], 'label': health_node['label']})}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 
