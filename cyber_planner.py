@@ -1716,6 +1716,13 @@ async def process_message(
                 yield f"[TOOL_LABEL:{_label}]"
                 try:
                     result = _dispatch_tool(store, block.name, block.input)
+                    # KG 节点写入后通知前端
+                    if block.name in ("create_memory", "update_memory") and isinstance(result, dict):
+                        _kg_payload = json.dumps(
+                            {"id": result.get("uuid", ""), "label": result.get("event_label", "")},
+                            ensure_ascii=False,
+                        )
+                        yield f"[KG_UPDATED:{_kg_payload}]"
                     tool_results.append({
                         "type":        "tool_result",
                         "tool_use_id": block.id,
