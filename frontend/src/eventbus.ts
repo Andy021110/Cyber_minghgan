@@ -1,14 +1,17 @@
 export type CyberEventDetail = {
-  'cyber:npc:interact':       { npcId: string; npcName: string };
-  'cyber:object:interact':    { objectId: string; contextHint?: string };
-  'cyber:door:approach':      { targetScene: string; roomName: string; modeDescription: string };
-  'cyber:scene:changed':      { sceneKey: string; roomName: string };
-  'cyber:notification:badge': { count: number };
-  'cyber:panel:opened':       { panelId: string };
-  'cyber:panel:closed':       { panelId: string };
-  'cyber:door:confirmed':     { targetScene: string };
-  'cyber:door:cancelled':     Record<string, never>;
-  'cyber:review:done':        { processedCount: number };
+  'cyber:npc:interact':          { npcId: string; npcName: string };
+  'cyber:object:interact':       { objectId: string; contextHint?: string };
+  'cyber:object:examine':        { objectId: string; label: string; query: string };
+  'cyber:door:approach':         { targetScene: string; roomName: string; modeDescription: string };
+  'cyber:scene:changed':         { sceneKey: string; roomName: string };
+  'cyber:notification:badge':    { count: number };
+  'cyber:panel:opened':          { panelId: string };
+  'cyber:panel:closed':          { panelId: string };
+  'cyber:door:confirmed':        { targetScene: string };
+  'cyber:door:cancelled':        Record<string, never>;
+  'cyber:review:done':           { processedCount: number };
+  'cyber:kg:updated':            { nodeId: string; label: string };
+  'cyber:reflection:triggered':  Record<string, never>;
 };
 
 export function dispatch<K extends keyof CyberEventDetail>(

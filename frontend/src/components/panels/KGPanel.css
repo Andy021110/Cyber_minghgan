@@ -168,3 +168,15 @@
   color: var(--panel-text-dim);
   border-top: 1px solid var(--panel-border);
 }
+
+.kg-node-card--new {
+  animation: nodeAppear 2s ease-out;
+  border-color: #f0a500 !important;
+  box-shadow: 0 0 8px rgba(240, 165, 0, 0.4);
+}
+
+@keyframes nodeAppear {
+  0%   { opacity: 0; transform: scale(0.92); border-color: #f0a500; }
+  20%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}

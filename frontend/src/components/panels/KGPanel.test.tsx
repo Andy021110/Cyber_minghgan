@@ -1,10 +1,13 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { KGPanel } from './KGPanel';
 import { getKgNodes } from '../../api/client';
 
-const { mockDispatch } = vi.hoisted(() => ({ mockDispatch: vi.fn() }));
-vi.mock('../../eventbus', () => ({ dispatch: mockDispatch }));
+const { mockDispatch, mockListen } = vi.hoisted(() => ({
+  mockDispatch: vi.fn(),
+  mockListen: vi.fn(() => vi.fn()),
+}));
+vi.mock('../../eventbus', () => ({ dispatch: mockDispatch, listen: mockListen }));
 vi.mock('../../api/client', () => ({ getKgNodes: vi.fn() }));
 
 const NODES = [
@@ -58,5 +61,23 @@ describe('KGPanel', () => {
     await waitFor(() => screen.getByTestId('kg-back'));
     fireEvent.click(screen.getByTestId('kg-back'));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it('refetches nodes when cyber:kg:updated event fires', async () => {
+    let capturedHandler: ((detail: { nodeId: string; label: string }) => void) | undefined;
+    mockListen.mockImplementation((name: string, handler: (d: unknown) => void) => {
+      if (name === 'cyber:kg:updated') capturedHandler = handler as typeof capturedHandler;
+      return vi.fn();
+    });
+
+    render(<KGPanel onBack={vi.fn()} />);
+    await waitFor(() => screen.getByText('早起习惯'));
+    expect(vi.mocked(getKgNodes)).toHaveBeenCalledTimes(1);
+
+    // 触发 kg:updated 事件
+    vi.mocked(getKgNodes).mockResolvedValue([...NODES]);
+    await act(async () => { capturedHandler?.({ nodeId: 'n1', label: '早起习惯' }); });
+
+    expect(vi.mocked(getKgNodes)).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { dispatch } from '../../eventbus';
+import { useState, useEffect, useCallback } from 'react';
+import { dispatch, listen } from '../../eventbus';
 import { getKgNodes, type KGNode } from '../../api/client';
 import './KGPanel.css';
 
@@ -19,14 +19,32 @@ export function KGPanel({ onBack }: { onBack: () => void }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showHelp,   setShowHelp]   = useState(false);
   const [loading,    setLoading]    = useState(true);
+  const [newNodeIds, setNewNodeIds] = useState<Set<string>>(new Set());
+
+  const fetchNodes = useCallback(() => {
+    void getKgNodes(undefined, true).then(data => {
+      setNodes(data);
+      setLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
     dispatch('cyber:panel:opened', { panelId: 'kg' });
-    void getKgNodes(undefined, true)
-      .then(data => setNodes(data))
-      .finally(() => setLoading(false));
-    return () => dispatch('cyber:panel:closed', { panelId: 'kg' });
-  }, []);
+    fetchNodes();
+
+    const offUpdate = listen('cyber:kg:updated', ({ nodeId, label: _label }) => {
+      fetchNodes();
+      setNewNodeIds(prev => new Set([...prev, nodeId]));
+      setTimeout(() => {
+        setNewNodeIds(prev => { const s = new Set(prev); s.delete(nodeId); return s; });
+      }, 2000);
+    });
+
+    return () => {
+      dispatch('cyber:panel:closed', { panelId: 'kg' });
+      offUpdate();
+    };
+  }, [fetchNodes]);
 
   const filtered = nodes.filter(n => {
     if (activeTab === 'archived') return n.archived;
@@ -81,7 +99,7 @@ export function KGPanel({ onBack }: { onBack: () => void }) {
           {filtered.map(node => (
             <button
               key={node.id}
-              className={`kg-node-card${node.archived ? ' kg-node-card--archived' : ''}`}
+              className={`kg-node-card${node.archived ? ' kg-node-card--archived' : ''}${newNodeIds.has(node.id) ? ' kg-node-card--new' : ''}`}
               onClick={() => setExpandedId(id => id === node.id ? null : node.id)}
               data-testid={`kg-node-${node.id}`}
             >
