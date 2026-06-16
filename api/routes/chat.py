@@ -124,6 +124,13 @@ async def chat(req: ChatRequest):
                 elif token.startswith("[TOOL_LABEL:"):
                     label = token[12:-1]
                     yield f"data: {json.dumps({'type': 'tool', 'label': label})}\n\n"
+                elif token.startswith("[KG_UPDATED:"):
+                    payload_str = token[12:-1]
+                    try:
+                        kg_payload = json.loads(payload_str)
+                        yield f"data: {json.dumps({'type': 'kg_update', 'nodeId': kg_payload.get('id',''), 'label': kg_payload.get('label','')})}\n\n"
+                    except (json.JSONDecodeError, KeyError):
+                        pass
                 else:
                     full_text.append(token)
                     yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"

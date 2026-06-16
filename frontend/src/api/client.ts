@@ -120,6 +120,7 @@ export function chatStream(
   onDone: (fullText: string) => void,
   onReflection: (triggered: boolean, feature: string | null) => void,
   onTool?: (label: string) => void,
+  onKGUpdate?: (nodeId: string, label: string) => void,
 ): () => void {
   let cancelled = false;
 
@@ -147,11 +148,12 @@ export function chatStream(
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
         try {
-          const evt = JSON.parse(line.slice(6)) as { type: string; content?: string; fullText?: string; triggered?: boolean; label?: string; feature?: string | null };
+          const evt = JSON.parse(line.slice(6)) as { type: string; content?: string; fullText?: string; triggered?: boolean; label?: string; feature?: string | null; nodeId?: string };
           if (evt.type === 'token' && evt.content)     onToken(evt.content);
           if (evt.type === 'done'  && evt.fullText)    onDone(evt.fullText);
           if (evt.type === 'reflection')               onReflection(evt.triggered ?? false, evt.feature ?? null);
           if (evt.type === 'tool'  && evt.label)       onTool?.(evt.label);
+          if (evt.type === 'kg_update' && evt.nodeId)  onKGUpdate?.(evt.nodeId, evt.label ?? '');
         } catch { /* malformed chunk */ }
       }
     }
