@@ -118,7 +118,8 @@ export function chatStream(
   privateKey: string,
   onToken: (token: string) => void,
   onDone: (fullText: string) => void,
-  onReflection: (triggered: boolean) => void,
+  onReflection: (triggered: boolean, feature: string | null) => void,
+  onTool?: (label: string) => void,
 ): () => void {
   let cancelled = false;
 
@@ -146,10 +147,11 @@ export function chatStream(
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
         try {
-          const evt = JSON.parse(line.slice(6)) as { type: string; content?: string; fullText?: string; triggered?: boolean };
+          const evt = JSON.parse(line.slice(6)) as { type: string; content?: string; fullText?: string; triggered?: boolean; label?: string; feature?: string | null };
           if (evt.type === 'token' && evt.content)     onToken(evt.content);
           if (evt.type === 'done'  && evt.fullText)    onDone(evt.fullText);
-          if (evt.type === 'reflection')                onReflection(evt.triggered ?? false);
+          if (evt.type === 'reflection')               onReflection(evt.triggered ?? false, evt.feature ?? null);
+          if (evt.type === 'tool'  && evt.label)       onTool?.(evt.label);
         } catch { /* malformed chunk */ }
       }
     }
