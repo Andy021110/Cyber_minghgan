@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { dispatch } from '../../eventbus';
 import { useAuth } from '../../contexts/AuthContext';
 import { chatStream } from '../../api/client';
@@ -13,12 +13,13 @@ interface Message {
 }
 
 export interface DialoguePanelProps {
-  npcId:   string;
-  npcName: string;
-  onClose: () => void;
+  npcId:         string;
+  npcName:       string;
+  onClose:       () => void;
+  initialQuery?: string;
 }
 
-export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
+export function DialoguePanel({ npcId, npcName, onClose, initialQuery }: DialoguePanelProps) {
   const { privateKey } = useAuth();
   const [messages,  setMessages]  = useState<Message[]>([]);
   const [streaming, setStreaming]  = useState('');
@@ -44,9 +45,8 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
     }
   }, [messages, streaming]);
 
-  const sendMessage = () => {
-    const text = input.trim();
-    if (!text || isSending) return;
+  const sendText = useCallback((text: string) => {
+    if (!text.trim() || isSending) return;
     setInput('');
     setIsSending(true);
     setStreaming('');
@@ -56,14 +56,14 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
     const userMsg: Message = {
       id:           Date.now().toString(),
       role:         'user',
-      text,
+      text:         text.trim(),
       timestamp:    new Date().toLocaleTimeString('zh', { hour: '2-digit', minute: '2-digit' }),
       isReflection: false,
     };
     setMessages(prev => [...prev, userMsg]);
 
     cancelRef.current = chatStream(
-      npcId, text, privateKey,
+      npcId, text.trim(), privateKey,
       (token)     => { setStreaming(prev => prev + token); },
       (fullText)  => {
         setStreaming('');
@@ -93,8 +93,23 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
         }
       },
       (label)     => { setToolStatus(label); },
+      (nodeId, label) => { dispatch('cyber:kg:updated', { nodeId, label }); },
     );
+  }, [npcId, privateKey, isSending]);
+
+  const sendMessage = () => {
+    const text = input.trim();
+    if (!text) return;
+    setInput('');
+    sendText(text);
   };
+
+  useEffect(() => {
+    if (initialQuery) {
+      sendText(initialQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }

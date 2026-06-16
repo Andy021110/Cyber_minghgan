@@ -121,4 +121,31 @@ describe('DialoguePanel', () => {
     await act(async () => { capturedOnReflection?.(false, null); });
     expect(mockDispatch).not.toHaveBeenCalledWith('cyber:reflection:triggered', {});
   });
+
+  it('auto-sends initialQuery when provided', async () => {
+    mockChatStream.mockReturnValue(vi.fn());
+
+    render(
+      <AuthContext.Provider value={{ isOwner: false, privateKey: '' } satisfies AuthContextValue}>
+        <DialoguePanel
+          npcId="cyber_minghan"
+          npcName="赛博明翰"
+          onClose={vi.fn()}
+          initialQuery="我最近学了什么？"
+        />
+      </AuthContext.Provider>,
+    );
+
+    await act(async () => {});
+    expect(mockChatStream).toHaveBeenCalledWith(
+      'cyber_minghan',
+      '我最近学了什么？',
+      expect.any(String),
+      expect.any(Function),
+      expect.any(Function),
+      expect.any(Function),
+      expect.any(Function),
+      expect.any(Function),
+    );
+  });
 });

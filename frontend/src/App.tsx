@@ -26,6 +26,7 @@ export default function App() {
   const [entered,     setEntered]     = useState(isOwner);
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [reflectionFlash, setReflectionFlash] = useState(false);
+  const [examineQuery, setExamineQuery] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const offNpc = listen('cyber:npc:interact', ({ npcId, npcName }) => {
@@ -35,7 +36,11 @@ export default function App() {
       if (objectId === 'taskboard' && isOwner) setActivePanel({ id: 'taskboard' });
       if (objectId === 'kg'        && isOwner) setActivePanel({ id: 'kg' });
     });
-    return () => { offNpc(); offObj(); };
+    const offExamine = listen('cyber:object:examine', ({ query }) => {
+      setExamineQuery(query);
+      setActivePanel({ id: 'dialogue', npcId: 'cyber_minghan', npcName: '赛博明翰' });
+    });
+    return () => { offNpc(); offObj(); offExamine(); };
   }, [isOwner]);
 
   useEffect(() => {
@@ -63,7 +68,8 @@ export default function App() {
           <DialoguePanel
             npcId={activePanel.npcId}
             npcName={activePanel.npcName}
-            onClose={() => setActivePanel(null)}
+            onClose={() => { setActivePanel(null); setExamineQuery(undefined); }}
+            initialQuery={examineQuery}
           />
         )}
 

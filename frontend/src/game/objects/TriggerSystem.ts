@@ -14,6 +14,7 @@ export interface TriggerZone {
   contextHint?:     string;
   npcId?:           string;
   npcName?:         string;
+  examineQuery?:    string;
   onTrigger?:       () => void;
 }
 
@@ -65,6 +66,12 @@ export class TriggerSystem {
       dispatch('cyber:npc:interact', { npcId: zone.npcId!, npcName: zone.npcName! });
     } else if (zone.type === 'object') {
       dispatch('cyber:object:interact', { objectId: zone.objectId!, contextHint: zone.contextHint });
+    } else if (zone.type === 'examine') {
+      dispatch('cyber:object:examine', {
+        objectId: zone.objectId ?? zone.id,
+        label:    zone.roomName ?? zone.id,
+        query:    zone.examineQuery ?? '这里有什么？',
+      });
     }
   }
 

@@ -96,7 +96,11 @@ export class WorldScene extends Phaser.Scene {
       .add({ id: 'door_office',  kind: 'proximity', phase: 2, type: 'door_to_office',
              rect: new R(63,  333, 64, 28), targetScene: 'OfficeScene', roomName: '办公室' })
       .add({ id: 'obj_taskboard', kind: 'interact', type: 'object',
-             rect: new R(294, 180, 40, 24), objectId: 'taskboard' });
+             rect: new R(294, 180, 40, 24), objectId: 'taskboard' })
+      .add({ id: 'obj_bookshelf', kind: 'interact', type: 'examine',
+             rect: new R(60, 170, 40, 40),
+             roomName: '书架',
+             examineQuery: '（检查书架）我最近有哪些新发现或学到的东西？' });
   }
 
   private setupEventBus(): void {
