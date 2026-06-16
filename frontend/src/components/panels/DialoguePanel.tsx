@@ -25,6 +25,7 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
   const [input,     setInput]     = useState('');
   const [expanded,  setExpanded]  = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [toolStatus, setToolStatus] = useState('');
   const lastReflectionRef = useRef(false);
   const cancelRef  = useRef<(() => void) | null>(null);
   const historyRef = useRef<HTMLDivElement>(null);
@@ -49,6 +50,7 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
     setInput('');
     setIsSending(true);
     setStreaming('');
+    setToolStatus('思考中…');
     lastReflectionRef.current = false;
 
     const userMsg: Message = {
@@ -62,9 +64,10 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
 
     cancelRef.current = chatStream(
       npcId, text, privateKey,
-      (token)    => setStreaming(prev => prev + token),
-      (fullText) => {
+      (token)     => { setStreaming(prev => prev + token); },
+      (fullText)  => {
         setStreaming('');
+        setToolStatus('');
         setIsSending(false);
         setMessages(prev => [...prev, {
           id:           Date.now().toString(),
@@ -74,7 +77,22 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
           isReflection: lastReflectionRef.current,
         }]);
       },
-      (triggered) => { lastReflectionRef.current = triggered; },
+      (triggered, feature) => {
+        lastReflectionRef.current = triggered;
+        if (triggered) {
+          dispatch('cyber:reflection:triggered', {});
+        }
+        if (feature) {
+          setMessages(prev => [...prev, {
+            id:           Date.now().toString() + '_reflect',
+            role:         'npc',
+            text:         feature,
+            timestamp:    new Date().toLocaleTimeString('zh', { hour: '2-digit', minute: '2-digit' }),
+            isReflection: true,
+          }]);
+        }
+      },
+      (label)     => { setToolStatus(label); },
     );
   };
 
@@ -113,6 +131,11 @@ export function DialoguePanel({ npcId, npcName, onClose }: DialoguePanelProps) {
           <div className="dialogue-current">
             {isSending ? (
               <>
+                {toolStatus && (
+                  <div className="dialogue-tool-status" data-testid="dialogue-tool-status">
+                    {toolStatus}
+                  </div>
+                )}
                 <span data-testid="dialogue-streaming">{streaming}</span>
                 <span className="dialogue-cursor">▌</span>
               </>

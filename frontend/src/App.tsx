@@ -25,6 +25,7 @@ export default function App() {
   const { isOwner } = useAuth();
   const [entered,     setEntered]     = useState(isOwner);
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+  const [reflectionFlash, setReflectionFlash] = useState(false);
 
   useEffect(() => {
     const offNpc = listen('cyber:npc:interact', ({ npcId, npcName }) => {
@@ -37,13 +38,23 @@ export default function App() {
     return () => { offNpc(); offObj(); };
   }, [isOwner]);
 
+  useEffect(() => {
+    const offFlash = listen('cyber:reflection:triggered', () => {
+      setReflectionFlash(true);
+      setTimeout(() => setReflectionFlash(false), 2000);
+    });
+    return offFlash;
+  }, []);
+
   if (!entered) {
     return <WelcomePage onEnter={() => setEntered(true)} />;
   }
 
   return (
     <>
-      <PhaserGame />
+      <div className={`game-wrapper${reflectionFlash ? ' game-wrapper--flash' : ''}`}>
+        <PhaserGame />
+      </div>
       <div id="panel-layer">
         <HUD />
         <RoomEntryPrompt />

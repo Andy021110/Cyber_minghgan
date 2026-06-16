@@ -13,3 +13,23 @@
 #panel-layer .prune-panel {
   pointer-events: all;
 }
+
+.game-wrapper {
+  position: relative;
+}
+
+.game-wrapper--flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px 30px rgba(240, 165, 0, 0.35);
+  animation: reflectionFlash 2s ease-out forwards;
+  z-index: 50;
+}
+
+@keyframes reflectionFlash {
+  0%   { opacity: 1; }
+  60%  { opacity: 0.8; }
+  100% { opacity: 0; }
+}

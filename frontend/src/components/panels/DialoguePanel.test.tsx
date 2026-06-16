@@ -8,7 +8,7 @@ const { mockDispatch, mockChatStream } = vi.hoisted(() => ({
   mockChatStream: vi.fn(),
 }));
 
-vi.mock('../../eventbus', () => ({ dispatch: mockDispatch }));
+vi.mock('../../eventbus', () => ({ dispatch: mockDispatch, listen: vi.fn(() => vi.fn()) }));
 vi.mock('../../api/client',  () => ({ chatStream: mockChatStream }));
 
 const wrap = (isOwner = false) =>
@@ -86,5 +86,39 @@ describe('DialoguePanel', () => {
     expect(screen.getByTestId('dialogue-history')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('dialogue-expand-btn'));
     expect(screen.queryByTestId('dialogue-history')).toBeNull();
+  });
+
+  it('dispatches cyber:reflection:triggered when reflection fires with triggered=true', async () => {
+    let capturedOnReflection: ((triggered: boolean, feature: string | null) => void) | undefined;
+    mockChatStream.mockImplementation(
+      (_npcId: string, _msg: string, _pk: string,
+       _onToken: (t: string) => void, _onDone: (t: string) => void,
+       onReflection: (triggered: boolean, feature: string | null) => void) => {
+        capturedOnReflection = onReflection;
+        return vi.fn();
+      },
+    );
+    wrap();
+    fireEvent.change(screen.getByTestId('dialogue-input'), { target: { value: '测试' } });
+    fireEvent.click(screen.getByTestId('dialogue-send'));
+    await act(async () => { capturedOnReflection?.(true, null); });
+    expect(mockDispatch).toHaveBeenCalledWith('cyber:reflection:triggered', {});
+  });
+
+  it('does NOT dispatch cyber:reflection:triggered when triggered=false', async () => {
+    let capturedOnReflection: ((triggered: boolean, feature: string | null) => void) | undefined;
+    mockChatStream.mockImplementation(
+      (_npcId: string, _msg: string, _pk: string,
+       _onToken: (t: string) => void, _onDone: (t: string) => void,
+       onReflection: (triggered: boolean, feature: string | null) => void) => {
+        capturedOnReflection = onReflection;
+        return vi.fn();
+      },
+    );
+    wrap();
+    fireEvent.change(screen.getByTestId('dialogue-input'), { target: { value: '测试' } });
+    fireEvent.click(screen.getByTestId('dialogue-send'));
+    await act(async () => { capturedOnReflection?.(false, null); });
+    expect(mockDispatch).not.toHaveBeenCalledWith('cyber:reflection:triggered', {});
   });
 });
