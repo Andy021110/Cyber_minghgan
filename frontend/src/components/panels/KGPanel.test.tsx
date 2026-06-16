@@ -65,7 +65,8 @@ describe('KGPanel', () => {
 
   it('refetches nodes when cyber:kg:updated event fires', async () => {
     let capturedHandler: ((detail: { nodeId: string; label: string }) => void) | undefined;
-    mockListen.mockImplementation((name: string, handler: (d: unknown) => void) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (mockListen as any).mockImplementation((name: string, handler: any) => {
       if (name === 'cyber:kg:updated') capturedHandler = handler as typeof capturedHandler;
       return vi.fn();
     });
