@@ -11,6 +11,7 @@ const SPAWN_Y = 225;
 
 export class WorldScene extends Phaser.Scene {
   private player!:       Player;
+  private npcMinghan!:   NPC;
   private triggers!:     TriggerSystem;
   private taskboard!:    Phaser.GameObjects.Rectangle;
   private transitioning  = false;
@@ -34,9 +35,10 @@ export class WorldScene extends Phaser.Scene {
     this.player = new Player(this, SPAWN_X, SPAWN_Y);
     this.setupTriggers();
 
-    new NPC(this, {
+    this.npcMinghan = new NPC(this, {
       npcId: 'cyber_minghan', npcName: '赛博明翰',
       spriteKey: 'harvey', x: 400, y: 235,
+      patrol: { x1: 385, x2: 415, speed: 25 },
       triggerSystem: this.triggers,
     });
 
@@ -50,8 +52,9 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  update(): void {
+  update(_time: number, delta: number): void {
     this.player.update();
+    this.npcMinghan.update(delta);
     this.triggers.update(this.player.x, this.player.y);
   }
 

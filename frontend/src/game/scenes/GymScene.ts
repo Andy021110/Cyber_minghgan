@@ -10,6 +10,7 @@ const SPAWN_Y = 380;
 
 export class GymScene extends Phaser.Scene {
   private player!:       Player;
+  private npcAlex!:      NPC;
   private triggers!:     TriggerSystem;
   private transitioning  = false;
   private offListeners:  Array<() => void> = [];
@@ -47,9 +48,10 @@ export class GymScene extends Phaser.Scene {
     this.triggers = new TriggerSystem(this);
     const R = Phaser.Geom.Rectangle;
 
-    new NPC(this, {
+    this.npcAlex = new NPC(this, {
       npcId: 'health_coach', npcName: '健康管家',
       spriteKey: 'alex', x: 500, y: 200,
+      patrol: { x1: 450, x2: 570, speed: 45 },
       triggerSystem: this.triggers,
     });
 
@@ -78,8 +80,9 @@ export class GymScene extends Phaser.Scene {
     });
   }
 
-  update(): void {
+  update(_time: number, delta: number): void {
     this.player.update();
+    this.npcAlex.update(delta);
     this.triggers.update(this.player.x, this.player.y);
   }
 
