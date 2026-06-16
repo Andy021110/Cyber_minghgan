@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { dispatch, listen } from '../../eventbus';
 import { getKgNodes, type KGNode } from '../../api/client';
 import './KGPanel.css';
@@ -21,6 +21,8 @@ export function KGPanel({ onBack }: { onBack: () => void }) {
   const [loading,    setLoading]    = useState(true);
   const [newNodeIds, setNewNodeIds] = useState<Set<string>>(new Set());
 
+  const timerIdsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
   const fetchNodes = useCallback(() => {
     void getKgNodes(undefined, true).then(data => {
       setNodes(data);
@@ -35,14 +37,17 @@ export function KGPanel({ onBack }: { onBack: () => void }) {
     const offUpdate = listen('cyber:kg:updated', ({ nodeId, label: _label }) => {
       fetchNodes();
       setNewNodeIds(prev => new Set([...prev, nodeId]));
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         setNewNodeIds(prev => { const s = new Set(prev); s.delete(nodeId); return s; });
       }, 2000);
+      timerIdsRef.current.push(tid);
     });
 
     return () => {
       dispatch('cyber:panel:closed', { panelId: 'kg' });
       offUpdate();
+      timerIdsRef.current.forEach(id => clearTimeout(id));
+      timerIdsRef.current = [];
     };
   }, [fetchNodes]);
 
