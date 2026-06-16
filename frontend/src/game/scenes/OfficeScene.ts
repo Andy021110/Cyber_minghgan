@@ -11,9 +11,8 @@ export class OfficeScene extends Phaser.Scene {
   constructor() { super({ key: 'OfficeScene' }); }
 
   preload(): void {
-    this.load.spritesheet('sebastian', '/assets/stardew/Sebastian.png', {
-      frameWidth: 16, frameHeight: 32,
-    });
+    this.load.spritesheet('harvey', '/assets/harvey.png', { frameWidth: 16, frameHeight: 32 });
+    this.load.spritesheet('kent',   '/assets/kent.png',   { frameWidth: 16, frameHeight: 32 });
     this.load.image('floors', '/assets/stardew/Floors.png');
   }
 

@@ -17,9 +17,8 @@ export class GymScene extends Phaser.Scene {
   constructor() { super({ key: 'GymScene' }); }
 
   preload(): void {
-    this.load.spritesheet('sebastian', '/assets/stardew/Sebastian.png', {
-      frameWidth: 16, frameHeight: 32,
-    });
+    this.load.spritesheet('alex', '/assets/alex.png', { frameWidth: 16, frameHeight: 32 });
+    this.load.spritesheet('kent', '/assets/kent.png', { frameWidth: 16, frameHeight: 32 });
     this.load.image('floors', '/assets/stardew/Floors.png');
   }
 
@@ -50,7 +49,7 @@ export class GymScene extends Phaser.Scene {
 
     new NPC(this, {
       npcId: 'health_coach', npcName: '健康管家',
-      spriteKey: 'sebastian', x: 500, y: 200,
+      spriteKey: 'alex', x: 500, y: 200,
       triggerSystem: this.triggers,
     });
 

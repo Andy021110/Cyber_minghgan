@@ -11,7 +11,7 @@ export class Player {
   private wasd:        Record<string, Phaser.Input.Keyboard.Key>;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    this.sprite = scene.physics.add.sprite(x, y, 'sebastian');
+    this.sprite = scene.physics.add.sprite(x, y, 'kent');
     this.sprite.setTint(0x7ecfff);   // blue tint = player
     this.sprite.setScale(2);         // 16px → 32px on screen
     this.sprite.setDepth(10);
@@ -24,11 +24,11 @@ export class Player {
     // Create animations (idempotent — Phaser skips if already exists)
     const anims = scene.anims;
     if (!anims.exists('player_walk_down')) {
-      anims.create({ key: 'player_walk_down',  frames: anims.generateFrameNumbers('sebastian', { start: 0,  end: 3  }), frameRate: 8, repeat: -1 });
-      anims.create({ key: 'player_walk_right', frames: anims.generateFrameNumbers('sebastian', { start: 4,  end: 7  }), frameRate: 8, repeat: -1 });
-      anims.create({ key: 'player_walk_up',    frames: anims.generateFrameNumbers('sebastian', { start: 8,  end: 11 }), frameRate: 8, repeat: -1 });
-      anims.create({ key: 'player_walk_left',  frames: anims.generateFrameNumbers('sebastian', { start: 12, end: 15 }), frameRate: 8, repeat: -1 });
-      anims.create({ key: 'player_idle_down',  frames: anims.generateFrameNumbers('sebastian', { start: 0,  end: 0  }), frameRate: 1, repeat: -1 });
+      anims.create({ key: 'player_walk_down',  frames: anims.generateFrameNumbers('kent', { start: 0,  end: 3  }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_walk_right', frames: anims.generateFrameNumbers('kent', { start: 4,  end: 7  }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_walk_up',    frames: anims.generateFrameNumbers('kent', { start: 8,  end: 11 }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_walk_left',  frames: anims.generateFrameNumbers('kent', { start: 12, end: 15 }), frameRate: 8, repeat: -1 });
+      anims.create({ key: 'player_idle_down',  frames: anims.generateFrameNumbers('kent', { start: 0,  end: 0  }), frameRate: 1, repeat: -1 });
     }
     this.sprite.play('player_idle_down');
 
