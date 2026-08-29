@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import anthropic
+import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -51,6 +52,13 @@ MODEL         = os.environ.get("MODEL", "deepseek-v4-pro")
 MAX_TOKENS    = 2048
 REFLECT_EVERY = 5   # 每隔多少轮触发一次反刍
 
+from memory.embeddings import (
+    EmbeddingProvider,
+    ZeroEmbeddingProvider,
+    cosine_similarity,
+    get_provider,
+    hybrid_score,
+)
 from memory.episodic_store import EpisodicStore
 from memory.episodic_tools import EPISODIC_TOOLS, dispatch_episodic_tool
 from memory.eval_policy import product_l0_protocol_snippet
@@ -61,7 +69,7 @@ _EPI_STORE = None
 def get_episodic_store():
     global _EPI_STORE
     if _EPI_STORE is None:
-        _EPI_STORE = EpisodicStore(EPI_PATH)
+        _EPI_STORE = EpisodicStore(EPI_PATH, provider=get_provider())
     return _EPI_STORE
 
 
@@ -114,9 +122,16 @@ class CyberBrainStore:
     }
     _PROTECTED = frozenset({"uuid", "layer"})
 
-    def __init__(self, kg_path: Path = KG_PATH):
+    def __init__(
+        self,
+        kg_path: Path = KG_PATH,
+        provider: EmbeddingProvider | None = None,
+        vector_alpha: float = 0.4,
+    ):
         self._path = kg_path
         self._kg   = json.loads(kg_path.read_text(encoding="utf-8"))
+        self.provider = provider or ZeroEmbeddingProvider()
+        self.vector_alpha = 0.0 if isinstance(self.provider, ZeroEmbeddingProvider) else vector_alpha
 
     # ── 内部工具 ──────────────────────────────────────────────────
 
@@ -141,36 +156,58 @@ class CyberBrainStore:
 
     # ── 公开接口 ──────────────────────────────────────────────────
 
+    def _node_text(self, item: dict) -> str:
+        """用于向量编码的节点文本。"""
+        return " ".join([
+            item.get("event_label", ""),
+            item.get("description", ""),
+            item.get("evidence", ""),
+        ]).strip()
+
     def retrieve(self, keyword: str, limit: int = 10) -> list[dict]:
-        """跨三层关键词检索（不区分大小写）。
+        """跨三层混合检索（关键词 + 本地向量）。
         匹配字段：event_label / description / evidence。
         返回含 uuid 的精简摘要列表，供 LLM 阅读。
         命中节点自动更新 access_count 和 last_accessed_at。
         """
         kw = keyword.lower()
+        all_nodes = [
+            item for lst in self._node_lists() for item in lst if not item.get("archived")
+        ]
+        if not all_nodes:
+            return []
+
+        keyword_scores = np.zeros(len(all_nodes), dtype=np.float32)
+        doc_texts: list[str] = []
+        for i, item in enumerate(all_nodes):
+            haystack = self._node_text(item).lower()
+            keyword_scores[i] = 1.0 if kw in haystack else 0.0
+            doc_texts.append(self._node_text(item))
+
+        # 向量召回（Zero provider 时 alpha=0，直接跳过）
+        vector_scores = np.zeros(len(all_nodes), dtype=np.float32)
+        if self.vector_alpha > 0:
+            query_emb = self.provider.encode([keyword])
+            doc_emb = self.provider.encode(doc_texts)
+            vector_scores = cosine_similarity(query_emb, doc_emb)
+
+        final_scores = hybrid_score(keyword_scores, vector_scores, alpha=self.vector_alpha)
+        indexed = list(zip(final_scores, keyword_scores, vector_scores, all_nodes))
+        indexed.sort(key=lambda x: (-x[0], x[3].get("created_at", "")))
+
         results = []
         hit_items = []
-        for lst in self._node_lists():
-            for item in lst:
-                if item.get("archived"):
-                    continue
-                haystack = " ".join([
-                    item.get("event_label", ""),
-                    item.get("description", ""),
-                    item.get("evidence", ""),
-                ]).lower()
-                if kw in haystack:
-                    results.append({
-                        "uuid":        item["uuid"],
-                        "layer":       item.get("layer"),
-                        "event_label": item.get("event_label"),
-                        "description": item.get("description", "")[:80] + "…",
-                        "created_at":  item.get("created_at", "时间未知"),
-                    })
-                    hit_items.append(item)
-
-        results = results[:limit]
-        hit_items = hit_items[:limit]
+        for final, _kw, _vec, item in indexed[:limit]:
+            if final <= 0 and self.vector_alpha == 0:
+                continue
+            results.append({
+                "uuid":        item["uuid"],
+                "layer":       item.get("layer"),
+                "event_label": item.get("event_label"),
+                "description": item.get("description", "")[:80] + "…",
+                "created_at":  item.get("created_at", "时间未知"),
+            })
+            hit_items.append(item)
 
         if hit_items:
             now = datetime.now(timezone.utc).isoformat()
@@ -1822,7 +1859,7 @@ def run():
     print("═" * 56)
 
     system_prompt = build_system_prompt()
-    store         = CyberBrainStore()
+    store         = CyberBrainStore(provider=get_provider())
     print(f"[OK] 动态记忆引擎就绪，System Prompt {len(system_prompt)} 字（精简模式）")
     print("─" * 56 + "\n")
 

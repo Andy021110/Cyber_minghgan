@@ -104,11 +104,14 @@ def tmp_env():
     persona_path.write_text("# 测试人格\n深度工作偏好。", encoding="utf-8")
     logs_dir = root / "decision_logs"
     logs_dir.mkdir()
+    epi_dir = root / "memory" / "episodic"
+    epi_dir.mkdir(parents=True)
     env = {
         "root": root,
         "kg_path": kg_path,
         "persona_path": persona_path,
         "logs_dir": logs_dir,
+        "epi_path": epi_dir / "test.jsonl",
     }
     yield env
     shutil.rmtree(root, ignore_errors=True)

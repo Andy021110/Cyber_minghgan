@@ -2,6 +2,10 @@
 L0 Episodic Store — 原文轮次记忆（事实检索层）
 
 与 L1 动力学 KG 分离：本模块只做 append + search，不写 yuanbao_cyber_minghan_kg.json。
+
+Phase 2 升级：引入 keyword + vector 混合检索。
+- 默认使用 ZeroEmbeddingProvider（零向量，退化为纯关键词检索，零依赖）。
+- 生产环境传入 BgeEmbeddingProvider 即可启用本地 bge-small-zh-v1.5 语义检索。
 """
 
 from __future__ import annotations
@@ -12,6 +16,15 @@ from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
+
+import numpy as np
+
+from memory.embeddings import (
+    EmbeddingProvider,
+    ZeroEmbeddingProvider,
+    cosine_similarity,
+    hybrid_score,
+)
 
 _DATE_PATTERNS = [
     # 2023-05-04 / 2023/05/04
@@ -55,6 +68,27 @@ def expand_query_terms(query: str) -> list[str]:
     return [t for t in terms if t]
 
 
+def _keyword_score(query: str, episode: Episode) -> float:
+    """保留 Phase 1 的关键词打分逻辑。"""
+    terms = expand_query_terms(query)
+    blob = (episode.text + " " + " ".join(episode.entities)).lower()
+    score = 0.0
+    for t in terms:
+        tl = t.lower()
+        if not tl:
+            continue
+        if tl in blob:
+            score += 2.0 if len(tl) >= 2 else 0.5
+        # 日期别名互相加分
+        for a in normalize_date_aliases(t):
+            if a.lower() in blob or a in episode.ts or episode.ts in a:
+                score += 3.0
+    for a in normalize_date_aliases(episode.ts):
+        if any(a in t or t in a for t in terms):
+            score += 2.5
+    return score
+
+
 @dataclass
 class Episode:
     eid: str
@@ -70,11 +104,23 @@ class Episode:
 
 
 class EpisodicStore:
-    def __init__(self, path: Path):
+    def __init__(
+        self,
+        path: Path,
+        provider: EmbeddingProvider | None = None,
+        vector_alpha: float = 0.4,
+    ):
+        """
+        provider: EmbeddingProvider，默认 ZeroEmbeddingProvider（纯关键词）。
+        vector_alpha: 向量部分权重，0 为纯关键词，1 为纯向量。默认 0.4。
+        """
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if not self.path.exists():
             self.path.write_text("", encoding="utf-8")
+        self.provider = provider or ZeroEmbeddingProvider()
+        # Zero provider 时不启用向量，避免拉低 keyword score
+        self.vector_alpha = 0.0 if isinstance(self.provider, ZeroEmbeddingProvider) else vector_alpha
 
     def clear(self) -> None:
         self.path.write_text("", encoding="utf-8")
@@ -164,31 +210,42 @@ class EpisodicStore:
             "items": items,
         }
 
+    def _episode_vector_text(self, episode: Episode) -> str:
+        """用于向量编码的文本：原文 + 实体。"""
+        return f"{episode.text} {' '.join(episode.entities)}".strip()
+
     def search(self, query: str, limit: int = 10) -> list[dict]:
-        terms = expand_query_terms(query)
-        scored: list[tuple[float, Episode]] = []
-        for ep in self.iter_all():
-            blob = (ep.text + " " + " ".join(ep.entities)).lower()
-            score = 0.0
-            for t in terms:
-                tl = t.lower()
-                if not tl:
-                    continue
-                if tl in blob:
-                    score += 2.0 if len(tl) >= 2 else 0.5
-                # 日期别名互相加分
-                for a in normalize_date_aliases(t):
-                    if a.lower() in blob or a in ep.ts or ep.ts in a:
-                        score += 3.0
-            for a in normalize_date_aliases(ep.ts):
-                if any(a in t or t in a for t in terms):
-                    score += 2.5
-            if score > 0:
-                scored.append((score, ep))
-        scored.sort(key=lambda x: (-x[0], x[1].ts))
+        rows = self.iter_all()
+        if not rows:
+            return []
+
+        # 1) keyword score
+        keyword_scores = np.zeros(len(rows), dtype=np.float32)
+        doc_texts: list[str] = []
+        for i, ep in enumerate(rows):
+            keyword_scores[i] = _keyword_score(query, ep)
+            doc_texts.append(self._episode_vector_text(ep))
+
+        # 2) vector score（Zero provider 时 alpha=0，直接跳过计算）
+        vector_scores = np.zeros(len(rows), dtype=np.float32)
+        if self.vector_alpha > 0:
+            query_emb = self.provider.encode([query])
+            doc_emb = self.provider.encode(doc_texts)
+            vector_scores = cosine_similarity(query_emb, doc_emb)
+
+        # 3) 融合并排序
+        final_scores = hybrid_score(keyword_scores, vector_scores, alpha=self.vector_alpha)
+        indexed = list(zip(final_scores, keyword_scores, vector_scores, rows))
+        indexed.sort(key=lambda x: (-x[0], x[3].ts))
+
         out = []
-        for score, ep in scored[:limit]:
+        for final, kw, vec, ep in indexed[:limit]:
+            if final <= 0 and self.vector_alpha == 0:
+                # 纯关键词模式下，无命中不返回
+                continue
             d = ep.to_dict()
-            d["score"] = round(score, 3)
+            d["score"] = round(float(final), 3)
+            d["kw_score"] = round(float(kw), 3)
+            d["vec_score"] = round(float(vec), 3)
             out.append(d)
         return out

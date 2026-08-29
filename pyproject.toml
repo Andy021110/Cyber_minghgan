@@ -18,6 +18,11 @@ target-version = "py39"
 select = ["E", "F", "W", "I", "UP"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+"cyber_planner.py" = ["E402"]
+"api/main.py" = ["E402"]
+"health_coach.py" = ["E402"]
+
 [tool.mypy]
 python_version = "3.9"
 ignore_missing_imports = true

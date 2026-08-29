@@ -15,7 +15,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import chat, kg, notifications, prune, review
-from cyber_planner import _CHAT, CyberBrainStore, build_public_system_prompt, build_system_prompt
+from cyber_planner import (
+    _CHAT,
+    CyberBrainStore,
+    build_public_system_prompt,
+    build_system_prompt,
+    get_provider,
+)
 from health_coach import (
     HEALTH_TOOLS,
 )
@@ -34,7 +40,7 @@ from health_coach import (
 KG_PATH    = _ROOT / "yuanbao_cyber_minghan_kg.json"
 LOGS_DIR   = _ROOT / "decision_logs"
 
-_store = CyberBrainStore(kg_path=KG_PATH)
+_store = CyberBrainStore(kg_path=KG_PATH, provider=get_provider())
 
 # 初始化模块级聊天状态（process_message 所需）
 import os as _os

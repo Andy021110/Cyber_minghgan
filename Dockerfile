@@ -6,6 +6,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 若启用本地 BGE embedding，取消下面两行的注释（会显著增加镜像体积）
+# COPY requirements-embed.txt .
+# RUN pip install --no-cache-dir -r requirements-embed.txt
+
 # 代码
 COPY api/ api/
 COPY pipelines/ pipelines/
