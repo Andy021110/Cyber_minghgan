@@ -16,6 +16,7 @@ distill_health_protocol.py
     python3 pipelines/distill_health_protocol.py --batch 0  # 只跑单个批次（调试用）
 """
 
+import os
 import json
 import re
 import time
@@ -141,7 +142,7 @@ def distill_batch(
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=os.environ.get("MODEL", "deepseek-v4-pro"),
                 max_tokens=2048,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_msg}],

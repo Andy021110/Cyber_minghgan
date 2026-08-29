@@ -1,0 +1,303 @@
+{
+  "meta": {
+    "bench": "MemoryBank-CN",
+    "user": "张曼婷",
+    "run_name": "v3_dual_memory_L0_L1",
+    "model": "deepseek-v4-pro",
+    "started_at": "2026-08-12T01:59:51+08:00",
+    "finished_at": "2026-08-12T02:01:31+08:00",
+    "duration_seconds": 99.92,
+    "l0_path": "/Users/minghan/Desktop/秋招2026_精简版/秋招2026_精简版/补洞产物/公认评测集/沙箱_MemoryBank_张曼婷/kg/episodic_张曼婷_v3.jsonl",
+    "l1_path": "/Users/minghan/Desktop/秋招2026_精简版/秋招2026_精简版/补洞产物/公认评测集/沙箱_MemoryBank_张曼婷/kg/eval_kg_张曼婷_v3_l1.json",
+    "l0_episodes": 49,
+    "l1_layer_counts": {
+      "Id_Dynamics": 1,
+      "Ego_Dynamics": 21,
+      "Superego_Dynamics": 3
+    },
+    "isolation_ok": true,
+    "real_kg_sha256": "36c5bd6f24d1ace5e11d7c8162f4dca03d8004aa8b456659d909a63d22ccf4c3"
+  },
+  "score": {
+    "correct": 7,
+    "total": 7,
+    "accuracy": 1.0,
+    "display": "7/7"
+  },
+  "gates": {
+    "G1_zhangmanting_ge_6_of_7": {
+      "pass": true,
+      "value": "7/7"
+    },
+    "G2_better_than_v2_4of7": {
+      "pass": true,
+      "value": "7/7",
+      "baseline_v2": "4/7"
+    },
+    "G3_hard_three_all_pass": {
+      "pass": true,
+      "value": {
+        "MB-ZM-03": 1,
+        "MB-ZM-05": 1,
+        "MB-ZM-07": 1
+      }
+    },
+    "G4_real_kg_untouched": {
+      "pass": true,
+      "value": true
+    },
+    "p0_all_pass": true
+  },
+  "comparisons": {
+    "v1_rough_l1_human": "~6/7",
+    "v2_distill_l1_only": "4/7",
+    "v3_dual": "7/7"
+  },
+  "analysis": {
+    "worth_analyzing": [
+      "P0 all pass = True",
+      "若 G3 仍挂：查 tool_trace 是否调用了 retrieve_episode 以及 L0 是否含原文。"
+    ]
+  },
+  "cases": [
+    {
+      "id": "MB-ZM-01",
+      "question": "我曾经和你推荐过一部科幻电影，它的名字是？",
+      "answer": "你曾经在 2023 年 4 月 30 日向我推荐过一部科幻电影——**《流浪地球》**。你当时说这是一部非常棒的电影，画面非常震撼。",
+      "score": 1,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "n_episode": 3,
+      "n_memory": 1,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "科幻电影 推荐",
+          "n": 5
+        },
+        {
+          "tool": "retrieve_memory",
+          "keyword": "科幻电影 推荐",
+          "n": 0
+        },
+        {
+          "tool": "retrieve_episode",
+          "keyword": "电影",
+          "n": 6
+        },
+        {
+          "tool": "retrieve_episode",
+          "keyword": "推荐 科幻",
+          "n": 10
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "助手准确复现了用户曾在2023年4月30日推荐《流浪地球》并描述其画面震撼。"
+      },
+      "answered_at": "2026-08-12T01:59:51+08:00",
+      "seconds": 12.87,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-02",
+      "question": "我曾经在图书馆学习时看过一本小说，它的名字是？",
+      "answer": "根据你的记忆，你在 **2023年5月1日** 在图书馆学习时发现并阅读的那本小说是 **《百年孤独》**，加西亚·马尔克斯的经典之作，拉美魔幻现实主义文学的代表作品。你当时说完全着迷了，觉得人物和故事情节都非常有意思，写作风格也很别致。",
+      "score": 1,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "n_episode": 1,
+      "n_memory": 1,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "图书馆 小说",
+          "n": 5
+        },
+        {
+          "tool": "retrieve_memory",
+          "keyword": "图书馆 小说 阅读",
+          "n": 0
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "助手准确回忆了用户在2023年5月1日于图书馆发现并阅读《百年孤独》的对话记录，与记忆语料完全一致。"
+      },
+      "answered_at": "2026-08-12T02:00:04+08:00",
+      "seconds": 11.93,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-03",
+      "question": "你曾经给我推荐过哪些画家？",
+      "answer": "根据我们之前的对话记录，在2023年5月3日你询问绘画方面的启发时，我给你推荐了**文艺复兴时期**的三位画家：\n\n- **达·芬奇**（Leonardo da Vinci）\n- **米开朗基罗**（Michelangelo）\n- **拉斐尔**（Raphael）\n\n我当时建议你可以从他们的作品入手，学习技法和对形象与自然的准确表现。这些和你想学习的重点——如何表现形象和自然——正好契合。你后来也表示文艺复兴的艺术风格你非常喜欢。\n\n需要我帮你进一步了解其中某位画家的具体作品或技法特点吗？",
+      "score": 1,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "n_episode": 2,
+      "n_memory": 0,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "画家",
+          "n": 5
+        },
+        {
+          "tool": "retrieve_episode",
+          "keyword": "推荐",
+          "n": 10
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确复述了记忆语料中2023年5月3日的对话内容，与记忆完全一致。"
+      },
+      "answered_at": "2026-08-12T02:00:16+08:00",
+      "seconds": 15.76,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-04",
+      "question": "我曾经和你提到我去过绿禾公园，我在绿禾公园看到了什么景色？",
+      "answer": "根据你之前（2023年4月28日）的分享，你在绿禾公园看到了两样美好的景色：\n\n1. **一朵开得特别美的樱花** 🌸\n2. **一只超级可爱的松鼠** 🐿️\n\n你还说那里景色真的很美，让我有机会也去走一走。听起来是个很惬意的公园呢！",
+      "score": 1,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "n_episode": 1,
+      "n_memory": 1,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "绿禾公园",
+          "n": 2
+        },
+        {
+          "tool": "retrieve_memory",
+          "keyword": "绿禾公园",
+          "n": 1
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确提取了用户于2023年4月28日所述内容，符合记忆语料。"
+      },
+      "answered_at": "2026-08-12T02:00:31+08:00",
+      "seconds": 12.01,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-05",
+      "question": "我曾经和你分享过一部文艺片《出租车司机》，它的内容是？",
+      "answer": "根据你在 2023 年 4 月 30 日和我分享的内容，《出租车司机》是一部文艺片，讲述了一位年轻的出租车司机，在接送一个个迥异的乘客的过程中，逐渐对生命和自我产生了新的认识。你当时评价说画面很美，主题深刻，核心探讨的是人生的意义以及如何面对人生的变数。",
+      "score": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "n_episode": 1,
+      "n_memory": 0,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "出租车司机",
+          "n": 2
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确复述了2023年4月30日用户分享的电影内容及个人评价，完全匹配记忆语料。"
+      },
+      "answered_at": "2026-08-12T02:00:44+08:00",
+      "seconds": 13.1,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-06",
+      "question": "我曾经在5月2日提到过我去了博物馆，你还记得我当时看了什么展览吗？",
+      "answer": "根据记忆，你在**2023年5月2日**和朋友一起去了一家博物馆，当时看了以下几个展览：\n\n- **古代艺术品展览**（著名的）\n- **近代文化和科技展览**\n\n你当时提到，最喜欢的展品是一件**非常古老的丝绸手工艺品**。你还说这次博物馆之旅拓宽了视野，让你更了解不同的文化和历史，也更珍视传统文化遗产。\n\n对了，你那天还提到听说过一家叫**\"玩意儿\"博物馆**的私人小博物馆，收藏了很多奇妙物品。后来有去那家看看吗？",
+      "score": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "n_episode": 1,
+      "n_memory": 0,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "博物馆 5月2日",
+          "n": 5
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确复现了5月2日对话中的展览内容、展品和用户感受，无任何虚构。"
+      },
+      "answered_at": "2026-08-12T02:00:57+08:00",
+      "seconds": 20.6,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-07",
+      "question": "我曾经在5月4日这天分享了一些我遇到的麻烦，是关于什么的？",
+      "answer": "在2023年5月4日，你分享的麻烦是关于**准备一场重要演讲时的紧张和焦虑**。你提到非常担心自己在台上说错话或忘词，害怕因为失误而搞砸整场演讲。后来我们一起讨论了应对方法，比如准备备用稿、练习语音和肢体语言、向前辈同行请教经验等，你也慢慢找回了信心。",
+      "score": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "n_episode": 1,
+      "n_memory": 0,
+      "tool_trace": [
+        {
+          "tool": "retrieve_episode",
+          "keyword": "5月4日 麻烦",
+          "n": 6
+        }
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "记忆语料中2023年5月4日用户确实分享了关于准备重要演讲时紧张焦虑的麻烦，回答如实反映了该对话内容。"
+      },
+      "answered_at": "2026-08-12T02:01:17+08:00",
+      "seconds": 13.62,
+      "error": ""
+    }
+  ]
+}

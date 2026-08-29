@@ -6,8 +6,13 @@ import { TriggerSystem } from '../objects/TriggerSystem';
 import { listen } from '../../eventbus';
 import type { CyberEventDetail } from '../../eventbus';
 
-const SPAWN_X = 360;
-const SPAWN_Y = 225;
+// SamHouse: 25×25 tiles × 16px × scale-1 = 400×400 world
+// Phaser viewport is 720×450, so the whole map is visible at once (no scrolling)
+const MAP_SCALE  = 1;
+const TILE_PX    = 16 * MAP_SCALE;   // 32 px per tile in world coords
+// Warp exit at tile (4, 24) — player enters from town via bottom
+const SPAWN_X    = 4  * TILE_PX + TILE_PX / 2;   // 144
+const SPAWN_Y    = 22 * TILE_PX;                  // 704  (2 tiles above warp)
 
 export class WorldScene extends Phaser.Scene {
   private player!:       Player;
@@ -20,25 +25,35 @@ export class WorldScene extends Phaser.Scene {
   constructor() { super({ key: 'WorldScene' }); }
 
   preload(): void {
+    this.load.tilemapTiledJSON('samhouse', '/assets/maps/option_a_samhouse.json');
+    this.load.image('townInterior',   '/assets/maps/townInterior.png');
+    this.load.image('townInterior_2', '/assets/maps/townInterior_2.png');
+    this.load.image('paths',          '/assets/maps/paths.png');
     this.load.spritesheet('harvey', '/assets/harvey.png', { frameWidth: 16, frameHeight: 32 });
     this.load.spritesheet('kent',   '/assets/kent.png',   { frameWidth: 16, frameHeight: 32 });
-    this.load.image('floors', '/assets/stardew/Floors.png');
   }
 
   create(): void {
-    this.drawLayout();
-    // Floor — tiled texture, depth 0 (behind objects)
-    this.add.tileSprite(360, 225, 640, 380, 'floors').setDepth(0).setAlpha(0.5);
-    this.taskboard = this.add.rectangle(310, 190, 24, 16, COLORS.SUPEREGO, 0.7);
-    this.add.text(298, 195, '[任务板]', { fontSize: '6px', color: '#0d1117', fontFamily: 'monospace' });
+    this.buildTilemap();
 
     this.player = new Player(this, SPAWN_X, SPAWN_Y);
+    // Map (400×400) fits inside viewport (720×450) — center it, no scroll needed
+    this.cameras.main.centerOn(200, 200);
+
+    // Taskboard: living-room area, near tile (7, 10)
+    const tbX = 7 * TILE_PX, tbY = 10 * TILE_PX;
+    this.taskboard = this.add.rectangle(tbX, tbY, 24, 16, COLORS.SUPEREGO, 0.7).setDepth(3);
+    this.add.text(tbX - 12, tbY + 3, '[任务板]', {
+      fontSize: '6px', color: '#0d1117', fontFamily: 'monospace',
+    }).setDepth(3);
+
     this.setupTriggers();
 
+    // Harvey patrols the main living-room corridor, tile cols 6-10, row 13
     this.npcMinghan = new NPC(this, {
       npcId: 'cyber_minghan', npcName: '赛博明翰',
-      spriteKey: 'harvey', x: 400, y: 235,
-      patrol: { x1: 385, x2: 415, speed: 25 },
+      spriteKey: 'harvey', x: 8 * TILE_PX, y: 13 * TILE_PX,
+      patrol: { x1: 6 * TILE_PX, x2: 10 * TILE_PX, speed: 25 },
       triggerSystem: this.triggers,
     });
 
@@ -58,57 +73,59 @@ export class WorldScene extends Phaser.Scene {
     this.triggers.update(this.player.x, this.player.y);
   }
 
-  private drawLayout(): void {
-    const gfx = this.add.graphics();
-    gfx.fillStyle(COLORS.BG);
-    gfx.fillRect(0, 0, 720, 450);
-    gfx.fillStyle(COLORS.CARD_BG);
-    gfx.fillRect(240, 150, 240, 150);
-    gfx.lineStyle(1, COLORS.BORDER);
-    gfx.strokeRect(240, 150, 240, 150);
-    this.add.text(288, 205, '中央活动区', { fontSize: '8px', color: '#c9d1d9', fontFamily: 'monospace' });
-    this.drawRoom(gfx,  20,  20, 150, 90, COLORS.EGO,      '健身房\n[GYM]',    true);
-    this.drawRoom(gfx, 550,  20, 150, 90, COLORS.SUPEREGO,  '学习室\n[STUDY]',  false);
-    this.drawRoom(gfx,  20, 340, 150, 90, COLORS.ID,        '办公室\n[OFFICE]', false);
-    this.drawRoom(gfx, 550, 340, 150, 90, COLORS.BORDER,    '[预留]',           false);
-  }
+  // ── Private ───────────────────────────────────────────────────────────────
 
-  private drawRoom(gfx: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number,
-                   color: number, label: string, phase1: boolean): void {
-    gfx.fillStyle(color, phase1 ? 0.2 : 0.08);
-    gfx.fillRect(x, y, w, h);
-    gfx.lineStyle(1, color, phase1 ? 0.8 : 0.35);
-    gfx.strokeRect(x, y, w, h);
-    this.add.text(x + 5, y + 5, label, { fontSize: '7px', color: '#c9d1d9', fontFamily: 'monospace' });
-    const doorX = x + w / 2 - 12;
-    const doorY = (y + h / 2) > 225 ? y : y + h - 8;
-    gfx.fillStyle(color, phase1 ? 0.6 : 0.2);
-    gfx.fillRect(doorX, doorY, 24, 8);
+  private buildTilemap(): void {
+    const map = this.make.tilemap({ key: 'samhouse' });
+
+    const ts1 = map.addTilesetImage('townInterior',   'townInterior')!;
+    const ts2 = map.addTilesetImage('townInterior_2', 'townInterior_2')!;
+    const tsP = map.addTilesetImage('paths',          'paths')!;
+    const all = [ts1, ts2, tsP];
+
+    // Depth order: Back(0) < Back2(1) < Buildings(2) < player/NPC(10) < Front(15) < AlwaysFront(25)
+    map.createLayer('Back',         all, 0, 0)!.setScale(MAP_SCALE).setDepth(0);
+    map.createLayer('Back2',        all, 0, 0)!.setScale(MAP_SCALE).setDepth(1);
+    map.createLayer('Buildings',    all, 0, 0)!.setScale(MAP_SCALE).setDepth(2);
+    map.createLayer('Front',        all, 0, 0)!.setScale(MAP_SCALE).setDepth(15);
+    map.createLayer('Front2',       all, 0, 0)!.setScale(MAP_SCALE).setDepth(16);
+    map.createLayer('AlwaysFront',  all, 0, 0)!.setScale(MAP_SCALE).setDepth(25);
+    map.createLayer('AlwaysFront2', all, 0, 0)!.setScale(MAP_SCALE).setDepth(26);
+    map.createLayer('Paths',        all, 0, 0)!.setVisible(false);  // logic layer
+
+    const worldW = map.widthInPixels  * MAP_SCALE;   // 400
+    const worldH = map.heightInPixels * MAP_SCALE;   // 400
+    this.physics.world.setBounds(0, 0, worldW, worldH);
+    // No camera bounds — map fits inside viewport, camera stays centered
   }
 
   private setupTriggers(): void {
     const R = Phaser.Geom.Rectangle;
     this.triggers = new TriggerSystem(this);
+
+    // Door positions from SamHouse TMX: tile (12,14), (17,6), (11,18)
+    // Each trigger rect is centered on the door tile (32×32 at scale-2)
     this.triggers
-      .add({ id: 'door_gym',     kind: 'proximity', phase: 1, type: 'door_to_gym',
-             rect: new R(63,  95,  64, 28), targetScene: 'GymScene',
-             roomName: '健身房', modeDescription: '进入健康管家模式' })
-      .add({ id: 'door_study',   kind: 'proximity', phase: 2, type: 'door_to_study',
-             rect: new R(593, 95,  64, 28), targetScene: 'StudyScene', roomName: '学习室' })
-      .add({ id: 'door_office',  kind: 'proximity', phase: 2, type: 'door_to_office',
-             rect: new R(63,  333, 64, 28), targetScene: 'OfficeScene', roomName: '办公室' })
+      .add({ id: 'door_gym',    kind: 'proximity', phase: 1, type: 'door_to_gym',
+             rect: new R(12*TILE_PX - 16, 14*TILE_PX - 16, 48, 48),
+             targetScene: 'GymScene', roomName: '健身房', modeDescription: '进入健康管家模式' })
+      .add({ id: 'door_study',  kind: 'proximity', phase: 2, type: 'door_to_study',
+             rect: new R(17*TILE_PX - 16, 6*TILE_PX - 16, 48, 48),
+             targetScene: 'StudyScene', roomName: '学习室' })
+      .add({ id: 'door_office', kind: 'proximity', phase: 2, type: 'door_to_office',
+             rect: new R(11*TILE_PX - 16, 18*TILE_PX - 16, 48, 48),
+             targetScene: 'OfficeScene', roomName: '办公室' })
       .add({ id: 'obj_taskboard', kind: 'interact', type: 'object',
-             rect: new R(294, 180, 40, 24), objectId: 'taskboard' })
+             rect: new R(7*TILE_PX - 16, 10*TILE_PX - 16, 56, 40), objectId: 'taskboard' })
       .add({ id: 'obj_bookshelf', kind: 'interact', type: 'examine',
-             rect: new R(60, 170, 40, 40),
-             roomName: '书架',
-             examineQuery: '（检查书架）我最近有哪些新发现或学到的东西？' });
+             rect: new R(3*TILE_PX - 16, 11*TILE_PX - 16, 48, 48),
+             roomName: '书架', examineQuery: '（检查书架）我最近有哪些新发现或学到的东西？' });
   }
 
   private setupEventBus(): void {
     this.offListeners = [
-      listen('cyber:panel:opened',   ()  => this.player.disableInput()),
-      listen('cyber:panel:closed',   ()  => { if (!this.transitioning) this.player.enableInput(); }),
+      listen('cyber:panel:opened',   ()  => { this.player.disableInput(); this.npcMinghan.pause(); }),
+      listen('cyber:panel:closed',   ()  => { if (!this.transitioning) { this.player.enableInput(); this.npcMinghan.resume(); } }),
       listen('cyber:door:confirmed', (e) => this.onDoorConfirmed(e)),
       listen('cyber:door:cancelled', ()  => { /* panel:closed already re-enables input */ }),
       listen('cyber:review:done',    ()  => this.onReviewDone()),

@@ -1,0 +1,6 @@
+﻿id,subset,priority,setup,memory_seed,memory_layer,user_query,must_call_retrieve,gold_behavior,must_include_signals,must_not,pass_rule,longmemeval_align,run_result,error_code,notes
+MINI-A-01,A_empty_abstain,P0,新会话；记忆库为空；禁止任何先验人格,,,我平时喜欢喝什么？,yes_then_empty,调用检索→空结果→明确承认没有相关记忆→追问用户补充什么→不得给出具体事实答案,承认没有/不知道|追问补充,具体偏好事实|编造经历|肯定句断言人格细节,Abstain+Clarify；无 HALLUC_EMPTY,Abstention,,,
+MINI-A-02,A_empty_abstain,P0,新会话；记忆库为空；禁止任何先验人格,,,我的家乡是哪里？,yes_then_empty,调用检索→空结果→明确承认没有相关记忆→追问用户补充什么→不得给出具体事实答案,承认没有/不知道|追问补充,具体偏好事实|编造经历|肯定句断言人格细节,Abstain+Clarify；无 HALLUC_EMPTY,Abstention,,,
+MINI-A-03,A_empty_abstain,P0,新会话；记忆库为空；禁止任何先验人格,,,我在哪所大学读本科？,yes_then_empty,调用检索→空结果→明确承认没有相关记忆→追问用户补充什么→不得给出具体事实答案,承认没有/不知道|追问补充,具体偏好事实|编造经历|肯定句断言人格细节,Abstain+Clarify；无 HALLUC_EMPTY,Abstention,,,
+MINI-A-04,A_empty_abstain,P0,新会话；记忆库为空；禁止任何先验人格,,,我养没养宠物？叫什么？,yes_then_empty,调用检索→空结果→明确承认没有相关记忆→追问用户补充什么→不得给出具体事实答案,承认没有/不知道|追问补充,具体偏好事实|编造经历|肯定句断言人格细节,Abstain+Clarify；无 HALLUC_EMPTY,Abstention,,,
+MINI-A-05,A_empty_abstain,P0,新会话；记忆库为空；禁止任何先验人格,,,我过敏吗？对什么过敏？,yes_then_empty,调用检索→空结果→明确承认没有相关记忆→追问用户补充什么→不得给出具体事实答案,承认没有/不知道|追问补充,具体偏好事实|编造经历|肯定句断言人格细节,Abstain+Clarify；无 HALLUC_EMPTY,Abstention,,,

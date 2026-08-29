@@ -32,7 +32,7 @@ load_dotenv(Path(__file__).parent / ".env")
 ROOT          = Path(__file__).parent
 KG_PATH       = ROOT / "yuanbao_cyber_minghan_kg.json"
 PROTOCOL_PATH = ROOT / "protocols" / "bio_baseline_final.md"
-MODEL         = "claude-sonnet-4-6"
+MODEL         = os.environ.get("MODEL", "deepseek-v4-pro")
 MAX_TOKENS    = 2048
 PENDING_THRESHOLD = 20
 

@@ -10,6 +10,7 @@ batch_processor.py — 蓄水池批处理器（Phase 4）
     python3 pipelines/batch_processor.py --dry-run # 只打印分类结果，不落盘
 """
 
+import os
 import json
 import re
 import sys
@@ -115,7 +116,7 @@ def classify_batch(entries: list, client: anthropic.Anthropic) -> list:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=os.environ.get("MODEL", "deepseek-v4-pro"),
                 max_tokens=1024,
                 system=_CLASSIFY_SYSTEM,
                 messages=[{"role": "user", "content": user_msg}],

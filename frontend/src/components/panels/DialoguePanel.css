@@ -107,6 +107,20 @@
   color: var(--panel-gold);
 }
 
+.dialogue-tool-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--panel-gold);
+  opacity: 0.8;
+  margin-bottom: 4px;
+  animation: tool-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tool-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
+}
+
 .dialogue-input-row {
   display: flex;
   gap: 8px;

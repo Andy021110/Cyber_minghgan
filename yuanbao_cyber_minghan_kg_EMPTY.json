@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-08-09T10:03:06.396612Z",
+  "processed_batches": [],
+  "nodes": {
+    "Cyber_Minghan": {
+      "Id_Dynamics": [],
+      "Ego_Dynamics": [],
+      "Superego_Dynamics": []
+    }
+  },
+  "interactions": [],
+  "metadata": {
+    "purpose": "EMPTY store for Abstain eval",
+    "note": "No personal fact nodes; schema only",
+    "source_template": "yuanbao_cyber_minghan_kg.json"
+  },
+  "updated_at": "2026-08-09T10:03:06.397055Z",
+  "meta": {
+    "prune_config": {
+      "staleness_threshold": 30,
+      "prune_interval_days": 90,
+      "health_log_retention_days": 90,
+      "max_prune_per_session": 5
+    },
+    "last_prune_check": "2026-06-15"
+  }
+}

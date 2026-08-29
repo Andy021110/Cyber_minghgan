@@ -1,9 +1,12 @@
 # 敏感配置
 .env
 *.env
+!.env.example
+.env.bak*
 
 # 运行时数据（个人健康/行为日志，不入库）
 decision_logs/
+memory/episodic/*.jsonl
 
 # Python 编译缓存
 __pycache__/
@@ -18,11 +21,31 @@ __pycache__/
 # 临时测试文件
 _test_isolated_kg.json
 
+# 评测运行时产物（可本地保留，默认不入库）
+evals/**/kg_*/
+evals/**/kg/
+evals/**/results/*.log
+evals/**/__pycache__/
+
+# LongMemEval 超大清洗集（~265MB）；请从 HuggingFace 下载
+evals/公认评测集/LongMemEval/longmemeval_s_cleaned.json
+evals/公认评测集/LongMemEval/longmemeval_m_cleaned.json
+
 # 对话导出记录
 对话导出_*.md
 
 # Claude Code 会话
 .claude/
+.superpowers/
+
+# 原始素材库（体积大 / 版权风险，不入库）
+raw-assets/
+星露谷美术资源/
+
+# 前端依赖与构建
+frontend/node_modules/
+frontend/dist/
+frontend/.env
 
 # IDE
 .vscode/

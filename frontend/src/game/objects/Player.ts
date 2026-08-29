@@ -13,7 +13,7 @@ export class Player {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.sprite = scene.physics.add.sprite(x, y, 'kent');
     this.sprite.setTint(0x7ecfff);   // blue tint = player
-    this.sprite.setScale(2);         // 16px → 32px on screen
+    this.sprite.setScale(1);         // 16px → 1 tile wide, 2 tiles tall (SDV proportion)
     this.sprite.setDepth(10);
 
     this.body = this.sprite.body as Phaser.Physics.Arcade.Body;
@@ -75,4 +75,5 @@ export class Player {
 
   get x(): number { return this.sprite.x; }
   get y(): number { return this.sprite.y; }
+  get gameObject(): Phaser.GameObjects.GameObject { return this.sprite; }
 }

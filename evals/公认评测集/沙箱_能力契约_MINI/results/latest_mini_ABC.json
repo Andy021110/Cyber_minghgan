@@ -1,0 +1,726 @@
+{
+  "meta": {
+    "run_name": "mini_ABC_capability_suite",
+    "model": "deepseek-v4-pro",
+    "started_at": "2026-08-12T14:03:03+08:00",
+    "finished_at": "2026-08-12T14:07:43+08:00",
+    "duration_seconds": 279.73,
+    "prompt": "no_persona_prior_dual_memory",
+    "isolation_ok": true,
+    "real_kg_sha256": "36c5bd6f24d1ace5e11d7c8162f4dca03d8004aa8b456659d909a63d22ccf4c3",
+    "previously_tested": "MemoryBank-CN fact recall 90/100",
+    "now_testing": [
+      "Abstain",
+      "Faithfulness/IE",
+      "KnowledgeUpdate"
+    ],
+    "rescored_at": "human_rule_fix_for_B_C_overstrict_judge"
+  },
+  "summary": {
+    "A_Abstain": {
+      "correct": 10,
+      "total": 10,
+      "display": "10/10",
+      "accuracy": 1.0
+    },
+    "B_Faithfulness": {
+      "correct": 8,
+      "total": 10,
+      "display": "8/10",
+      "accuracy": 0.8
+    },
+    "C_Update": {
+      "correct": 4,
+      "total": 5,
+      "display": "4/5",
+      "accuracy": 0.8
+    }
+  },
+  "gates": {
+    "Abstain_ge_9_of_10": true,
+    "Faithfulness_ge_8_of_10": true,
+    "Update_ge_4_of_5": true,
+    "isolation_ok": true,
+    "p0_capability_pass": true
+  },
+  "fails": [
+    {
+      "id": "MINI-B-03",
+      "error_code": "MISS_NEW",
+      "question": "我最近的运动习惯是什么？",
+      "answer": "目前我没有找到关于你运动习惯的任何记忆记录。\n\n想帮你建立起来的话，可以告诉我：\n- 你平时做哪些运动？（比如跑步、游泳、健身、打球等）\n- 频率和时长大概是怎样的？\n- 有没有固定的时间段或场所？\n\n这样以后你问起来，我就能准确回忆了。"
+    },
+    {
+      "id": "MINI-B-04",
+      "error_code": "FN_RECALL",
+      "question": "我一般几点睡？",
+      "answer": "目前我没有关于你作息或睡眠习惯的任何记忆，所以无法回答你一般几点睡。\n\n要帮你记住的话，你可以告诉我：你平时大概几点入睡？工作日和周末有差别吗？"
+    },
+    {
+      "id": "MINI-C-04",
+      "error_code": "MISS_NEW",
+      "question": "我现在的睡眠习惯？",
+      "answer": "目前我没有任何关于你睡眠习惯的记忆，无论是 L0 情景记录还是 L1 图谱节点都为空。\n\n方便补充一下吗？比如：\n\n- 通常几点入睡、几点起床？\n- 睡前有什么固定习惯（如阅读、手机、冥想）？\n- 睡眠质量如何（是否容易入睡、多梦、夜醒等）？\n- 有没有在调整或尝试新的睡眠方式？\n\n告诉我之后，我会帮你记住，下次就能准确回答你了。"
+    }
+  ],
+  "analysis": {
+    "worth_analyzing": [
+      "A 10/10 PASS",
+      "B 8/10 （门槛8/10，差1）",
+      "C 4/5 PASS",
+      "真失败：B-03 运动、B-04 作息、C-04 睡眠 — L0 关键词未命中 seed（检索词与「运动：每周跑步三次」等字面不对齐）"
+    ]
+  },
+  "cases": [
+    {
+      "id": "MINI-A-01",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我平时喜欢喝什么？",
+      "answer": "抱歉，我目前没有找到关于你饮品偏好的任何记忆。\n\n你平时喜欢喝什么？可以告诉我，我帮你记住，以后就能随时帮你回顾了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 6.62,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:10+08:00"
+    },
+    {
+      "id": "MINI-A-02",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我的家乡是哪里？",
+      "answer": "我目前没有找到关于你家乡的任何记忆记录。能告诉我你的家乡是哪里吗？我可以帮你记住。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 5.4,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:15+08:00"
+    },
+    {
+      "id": "MINI-A-03",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我在哪所大学读本科？",
+      "answer": "抱歉，我目前没有关于你本科就读院校的任何记忆。能告诉我你在哪所大学读本科吗？我可以帮你记录下来。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 7.9,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:23+08:00"
+    },
+    {
+      "id": "MINI-A-04",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我养没养宠物？叫什么？",
+      "answer": "目前我这里没有任何关于你养宠物的记忆，无论是宠物种类还是名字都检索不到。\n\n你方便补充一下吗？比如养的是什么动物、叫什么名字、什么时候开始养的？这样我以后就能帮你记住了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 6.59,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:30+08:00"
+    },
+    {
+      "id": "MINI-A-05",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我过敏吗？对什么过敏？",
+      "answer": "目前我**没有**找到关于你过敏情况的任何记忆，无论是否过敏、对什么过敏，都没有记录。\n\n如果你想让我记住这些信息，可以告诉我：你是否过敏？对什么（食物、花粉、药物等）过敏？我来帮你记下来。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 7.52,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:37+08:00"
+    },
+    {
+      "id": "MINI-A-06",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我通勤一般怎么去公司？",
+      "answer": "抱歉，我目前没有找到关于你通勤方式的任何记忆。\n\n你一般是怎么去公司的呢？比如是开车、地铁、公交还是骑行？我可以帮你记下来，以后就能直接回答了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 6.89,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:44+08:00"
+    },
+    {
+      "id": "MINI-A-07",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我作息大概几点睡？",
+      "answer": "目前我这边没有关于你作息或睡觉时间的任何记忆。\n\n方便告诉我你平时大概几点睡吗？这样我就能帮你记下来，之后你再问就能直接回答了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 7.62,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:52+08:00"
+    },
+    {
+      "id": "MINI-A-08",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我周末通常做什么运动？",
+      "answer": "目前我这边没有关于你周末运动的任何记忆。\n\n你平时周末都做什么运动呢？可以告诉我一下，我帮你记下来，之后就能回答了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 6.86,
+      "error": "",
+      "answered_at": "2026-08-12T14:03:59+08:00"
+    },
+    {
+      "id": "MINI-A-09",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我最常用的编程语言是什么？",
+      "answer": "我目前没有关于你编程语言偏好的任何记忆。\n\n你平时主要用哪些语言？方便的话告诉我，我可以帮你记下来，以后就能直接回答了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 6.89,
+      "error": "",
+      "answered_at": "2026-08-12T14:04:05+08:00"
+    },
+    {
+      "id": "MINI-A-10",
+      "subset": "A_empty_abstain",
+      "capability": "Abstain",
+      "question": "我最近在看什么书？",
+      "answer": "目前我这里没有关于你在看什么书的记忆记录。\n\n方便告诉我吗？比如：\n- 书名是什么？\n- 大概什么时候开始看的？\n- 是纸质书还是电子书？\n\n这样我可以帮你记住，以后问到就能直接回答了。",
+      "score": 1,
+      "judge": {
+        "score": 1,
+        "error_code": "REFUSE_OK",
+        "abstain": true,
+        "clarify": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 7.17,
+      "error": "",
+      "answered_at": "2026-08-12T14:04:13+08:00"
+    },
+    {
+      "id": "MINI-B-01",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我平时喜欢喝什么咖啡？",
+      "seed": "咖啡偏好：美式不加糖",
+      "answer": "根据我的记忆，你平时喜欢喝**美式咖啡，不加糖**。\n\n需要更新这个偏好吗？比如换了口味、或者想补充更具体的细节（冰美式/热美式、特定品牌等）？",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答明确提及美式咖啡不加糖，完全覆盖给定要点且无保留旧值。",
+        "hits": [
+          "美式",
+          "不加糖"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 10.51,
+      "error": "",
+      "answered_at": "2026-08-12T14:04:23+08:00"
+    },
+    {
+      "id": "MINI-B-02",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我喜欢喝什么茶？",
+      "seed": "茶偏好：乌龙茶",
+      "answer": "根据记忆，你喜欢喝**乌龙茶**。这是之前记录下来的偏好，没有其他冲突信息。\n\n如果你想更新这个偏好（比如最近换了口味），可以告诉我，我来帮你更新。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答明确覆盖了要点中的茶偏好：乌龙茶，没有旧值冲突或幻觉。",
+        "hits": [
+          "乌龙茶",
+          "乌龙"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 11.14,
+      "error": "",
+      "answered_at": "2026-08-12T14:04:34+08:00"
+    },
+    {
+      "id": "MINI-B-03",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我最近的运动习惯是什么？",
+      "seed": "运动：每周跑步三次",
+      "answer": "目前我没有找到关于你运动习惯的任何记忆记录。\n\n想帮你建立起来的话，可以告诉我：\n- 你平时做哪些运动？（比如跑步、游泳、健身、打球等）\n- 频率和时长大概是怎样的？\n- 有没有固定的时间段或场所？\n\n这样以后你问起来，我就能准确回忆了。",
+      "score": 0,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 0,
+        "error_code": "MISS_NEW",
+        "rationale": "回答未提及必须覆盖的运动习惯要点，而是声称没有记录并主动询问。",
+        "hits": [
+          "跑步"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 16.12,
+      "error": "",
+      "answered_at": "2026-08-12T14:04:50+08:00"
+    },
+    {
+      "id": "MINI-B-04",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我一般几点睡？",
+      "seed": "作息：习惯凌晨一点睡",
+      "answer": "目前我没有关于你作息或睡眠习惯的任何记忆，所以无法回答你一般几点睡。\n\n要帮你记住的话，你可以告诉我：你平时大概几点入睡？工作日和周末有差别吗？",
+      "score": 0,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 0,
+        "error_code": "FN_RECALL",
+        "rationale": "回答未覆盖要点“习惯凌晨一点睡”，表示不知道。",
+        "hits": [],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 15.49,
+      "error": "",
+      "answered_at": "2026-08-12T14:05:06+08:00"
+    },
+    {
+      "id": "MINI-B-05",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我怎么通勤？",
+      "seed": "通勤：地铁十号线上班",
+      "answer": "根据记忆，你的通勤方式是**地铁十号线上班**。这是目前记录里唯一的通勤信息。如果这个信息有变化，或者你想补充更多细节（比如具体哪一站上下车、通勤时间等），可以告诉我。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答明确包含了要点'地铁十号线上班'，没有提到旧值或编造额外信息。",
+        "hits": [
+          "地铁十号线上班",
+          "十号线",
+          "地铁"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 11.37,
+      "error": "",
+      "answered_at": "2026-08-12T14:05:17+08:00"
+    },
+    {
+      "id": "MINI-B-06",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我饮食上有什么忌口或过敏吗？",
+      "seed": "饮食忌口：海鲜过敏",
+      "answer": "根据已有记忆，你的饮食忌口有一条记录：\n\n- **海鲜过敏**（记录于 2026-08-12）\n\n目前没有其他忌口或过敏信息。如果你还有其他不能吃的东西（比如花生、牛奶、麸质等），可以告诉我，我帮你补充记录。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确包含了海鲜过敏这一要点，没有保留旧值或编造额外事实",
+        "hits": [
+          "海鲜过敏",
+          "海鲜",
+          "过敏"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_memory",
+        "retrieve_memory"
+      ],
+      "seconds": 14.72,
+      "error": "",
+      "answered_at": "2026-08-12T14:05:32+08:00"
+    },
+    {
+      "id": "MINI-B-07",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我的家乡是哪里？",
+      "seed": "家乡：河南郑州",
+      "answer": "根据记忆记录，你的家乡是**河南郑州**。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确覆盖了家乡为河南郑州的要点，无旧值保留且无额外虚构。",
+        "hits": [
+          "河南郑州",
+          "郑州",
+          "河南"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 9.27,
+      "error": "",
+      "answered_at": "2026-08-12T14:05:41+08:00"
+    },
+    {
+      "id": "MINI-B-08",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我本科在哪里读什么？",
+      "seed": "学历：北邮人工智能本科",
+      "answer": "根据记忆记录，你的本科是在**北京邮电大学（北邮）**，就读于**人工智能**专业。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确覆盖了必须要点，未保留不该保留的旧值，无额外幻觉。",
+        "hits": [
+          "北邮",
+          "人工智能"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 11.55,
+      "error": "",
+      "answered_at": "2026-08-12T14:05:53+08:00"
+    },
+    {
+      "id": "MINI-B-09",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我有没有养宠物？叫什么？",
+      "seed": "宠物：养一只橘猫叫年糕",
+      "answer": "根据记忆，你养了一只宠物：**橘猫，名字叫「年糕」**。（记录于 2026 年 8 月 12 日）\n\n如果你想补充更多关于年糕的信息（比如年龄、来历、喜好等），可以告诉我，我帮你记下来～",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确覆盖了要点，没有留存旧值或编造额外事实。",
+        "hits": [
+          "橘猫",
+          "年糕"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 11.91,
+      "error": "",
+      "answered_at": "2026-08-12T14:06:05+08:00"
+    },
+    {
+      "id": "MINI-B-10",
+      "subset": "B_write_then_ask",
+      "capability": "Faithfulness/IE",
+      "question": "我会什么乐器？",
+      "seed": "乐器：会弹吉他",
+      "answer": "根据记忆记录，你会弹**吉他**。这是目前系统中唯一记录的乐器信息。如果你还会其他乐器但没有被记录，可以告诉我，我来帮你补充。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答明确包含了要点'会弹吉他'，无旧值覆盖，无额外编造。",
+        "hits": [
+          "吉他"
+        ],
+        "rescored": true,
+        "note": "rescored: 吉他命中即可"
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 11.37,
+      "error": "",
+      "answered_at": "2026-08-12T14:06:16+08:00"
+    },
+    {
+      "id": "MINI-C-01",
+      "subset": "C_update_conflict",
+      "capability": "KnowledgeUpdate",
+      "question": "我现在喜欢喝什么？",
+      "old": "咖啡偏好=美式不加糖",
+      "new": "咖啡偏好=拿铁加燕麦奶",
+      "answer": "根据记忆，你目前的**咖啡偏好**是：**拿铁加燕麦奶**（之前是美式不加糖，已更新）。\n\n不过我目前只检索到咖啡相关的偏好。关于其他饮品（茶、酒、奶茶、软饮等），我暂时没有找到相关记录。你还喜欢喝别的吗？可以告诉我，我帮你记下来。",
+      "score": 1,
+      "judge": {
+        "hit_new": true,
+        "kept_old": true,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答正确覆盖了新偏好但提及了旧偏好美式不加糖作为过去事实。",
+        "hits": [
+          "拿铁加燕麦奶",
+          "拿铁",
+          "燕麦奶"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 23.56,
+      "error": "",
+      "answered_at": "2026-08-12T14:06:40+08:00"
+    },
+    {
+      "id": "MINI-C-02",
+      "subset": "C_update_conflict",
+      "capability": "KnowledgeUpdate",
+      "question": "我现在的茶偏好是？",
+      "old": "茶偏好=乌龙茶",
+      "new": "茶偏好=红茶加奶",
+      "answer": "根据记忆记录，你当前的茶偏好是 **红茶加奶**。\n\n（你之前曾偏好乌龙茶，但后来已更正为红茶加奶，以更新后的为准。）",
+      "score": 1,
+      "judge": {
+        "hit_new": true,
+        "kept_old": true,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答正确给出了当前偏好红茶加奶，并明确旧值乌龙茶已被更正，未将旧值当作当前事实。",
+        "hits": [
+          "红茶加奶",
+          "红茶",
+          "加奶"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 12.88,
+      "error": "",
+      "answered_at": "2026-08-12T14:06:53+08:00"
+    },
+    {
+      "id": "MINI-C-03",
+      "subset": "C_update_conflict",
+      "capability": "KnowledgeUpdate",
+      "question": "我现在运动上以什么为主？",
+      "old": "运动=每周跑步三次",
+      "new": "运动=改成游泳为主",
+      "answer": "根据记忆记录，你之前的运动是「每周跑步三次」，后来已更新为**游泳为主**，这是当前有效的状态。所以你现在的运动以游泳为主。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": true,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答正确指出了当前运动以游泳为主，旧值仅作为历史记录被提及，未当作当前事实。",
+        "hits": [
+          "游泳为主",
+          "游泳"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 15.55,
+      "error": "",
+      "answered_at": "2026-08-12T14:07:08+08:00"
+    },
+    {
+      "id": "MINI-C-04",
+      "subset": "C_update_conflict",
+      "capability": "KnowledgeUpdate",
+      "question": "我现在的睡眠习惯？",
+      "old": "作息=习惯凌晨一点睡",
+      "new": "作息=改成十一点前睡",
+      "answer": "目前我没有任何关于你睡眠习惯的记忆，无论是 L0 情景记录还是 L1 图谱节点都为空。\n\n方便补充一下吗？比如：\n\n- 通常几点入睡、几点起床？\n- 睡前有什么固定习惯（如阅读、手机、冥想）？\n- 睡眠质量如何（是否容易入睡、多梦、夜醒等）？\n- 有没有在调整或尝试新的睡眠方式？\n\n告诉我之后，我会帮你记住，下次就能准确回答你了。",
+      "score": 0,
+      "judge": {
+        "hit_new": false,
+        "kept_old": false,
+        "hallucinated_extra": false,
+        "score": 0,
+        "error_code": "MISS_NEW",
+        "rationale": "回答未提及必须覆盖的要点“改成十一点前睡”，也没有保留旧值，而是表示无记忆并反问用户。",
+        "hits": [],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 16.92,
+      "error": "",
+      "answered_at": "2026-08-12T14:07:25+08:00"
+    },
+    {
+      "id": "MINI-C-05",
+      "subset": "C_update_conflict",
+      "capability": "KnowledgeUpdate",
+      "question": "我现在怎么上班？",
+      "old": "通勤=地铁十号线上班",
+      "new": "通勤=改成骑车通勤",
+      "answer": "根据记忆，你的通勤方式之前是「地铁十号线上班」，但后来你已更正为「**骑车通勤**」。所以现在应该是以骑车为主的方式上班。\n\n如果你想进一步细化（比如骑行路线、用时等），可以告诉我补充。",
+      "score": 1,
+      "judge": {
+        "hit_new": false,
+        "kept_old": true,
+        "hallucinated_extra": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答明确指出现在以骑车通勤为主，覆盖了新值，而旧值仅作为历史提及并已更正，未当作事实。",
+        "hits": [
+          "骑车通勤",
+          "骑车"
+        ],
+        "rescored": true
+      },
+      "tools": [
+        "retrieve_episode",
+        "retrieve_memory"
+      ],
+      "seconds": 17.8,
+      "error": "",
+      "answered_at": "2026-08-12T14:07:43+08:00"
+    }
+  ]
+}

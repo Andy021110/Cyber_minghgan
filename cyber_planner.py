@@ -38,10 +38,46 @@ from decision_log import (
 )
 
 # ── 配置 ──────────────────────────────────────────────────────────
-KG_PATH       = Path(__file__).parent / "yuanbao_cyber_minghan_kg.json"
-MODEL         = "claude-sonnet-4-6"
+# 默认 DeepSeek（Anthropic 兼容口）；可用 .env 的 MODEL / KG_PATH 覆盖
+KG_PATH       = Path(os.environ.get(
+    "KG_PATH",
+    str(Path(__file__).parent / "yuanbao_cyber_minghan_kg.json"),
+))
+EPI_PATH      = Path(os.environ.get(
+    "EPI_PATH",
+    str(Path(__file__).parent / "memory" / "episodic" / "cyber_minghan_live.jsonl"),
+))
+MODEL         = os.environ.get("MODEL", "deepseek-v4-pro")
 MAX_TOKENS    = 2048
 REFLECT_EVERY = 5   # 每隔多少轮触发一次反刍
+
+from memory.episodic_store import EpisodicStore
+from memory.episodic_tools import EPISODIC_TOOLS, dispatch_episodic_tool
+from memory.eval_policy import product_l0_protocol_snippet
+
+_EPI_STORE = None
+
+
+def get_episodic_store():
+    global _EPI_STORE
+    if _EPI_STORE is None:
+        _EPI_STORE = EpisodicStore(EPI_PATH)
+    return _EPI_STORE
+
+
+def _first_text(content) -> str:
+    """从消息 content blocks 取首段文本（兼容 DeepSeek thinking 块在前）。"""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content.strip()
+    for block in content:
+        text = getattr(block, "text", None)
+        if text:
+            return str(text).strip()
+        if isinstance(block, dict) and block.get("type") == "text" and block.get("text"):
+            return str(block["text"]).strip()
+    return ""
 
 # 专项模式路由表：新增领域只需在这里加一行
 _MODE_MAP = {
@@ -229,7 +265,7 @@ def build_system_prompt() -> str:
 
 **例外豁免**：简单的打招呼、确认、或完全无关自我描述的问题，
 可直接回复，无需调用工具。
-
+""" + product_l0_protocol_snippet() + """
 ---
 ## 行为准则
 
@@ -432,6 +468,9 @@ CYBER_TOOLS: list[dict] = [
     },
 ]
 
+# L0 episodic tools（与 L1 KG 并存；事实原文检索）
+CYBER_TOOLS = list(CYBER_TOOLS) + list(EPISODIC_TOOLS)
+
 
 # ══════════════════════════════════════════════════════════════════
 #  handle_switch — /switch 专项模式切换器
@@ -546,7 +585,7 @@ def find_similar_nodes(
             messages=[{"role": "user", "content": user_msg}],
         )
         import re as _re
-        raw = _re.sub(r"^```(?:json)?\s*", "", resp.content[0].text.strip())
+        raw = _re.sub(r"^```(?:json)?\s*", "", _first_text(resp.content))
         raw = _re.sub(r"\s*```$", "", raw).strip()
         matches = json.loads(raw)
         if not isinstance(matches, list):
@@ -1003,7 +1042,7 @@ def scan_duplicate_pairs(
             messages=[{"role": "user", "content": user_msg}],
         )
         import re as _re
-        raw = _re.sub(r"^```(?:json)?\s*", "", resp.content[0].text.strip())
+        raw = _re.sub(r"^```(?:json)?\s*", "", _first_text(resp.content))
         raw = _re.sub(r"\s*```$", "", raw).strip()
         pairs = json.loads(raw)
         if not isinstance(pairs, list):
@@ -1318,6 +1357,11 @@ def _tool_display_label(name: str, inp: dict) -> str:
     if name == "retrieve_memory":
         kw = str(inp.get("keyword", ""))[:16]
         return f"🔍 检索记忆 · {kw}" if kw else "🔍 检索记忆…"
+    if name == "retrieve_episode":
+        kw = str(inp.get("keyword", ""))[:16]
+        return f"📖 检索原文 · {kw}" if kw else "📖 检索原文…"
+    if name == "list_episodes":
+        return "📚 列举原文记忆…"
     if name == "create_memory":
         lbl = str(inp.get("event_label", ""))[:16]
         return f"✨ 写入节点 · {lbl}" if lbl else "✨ 写入节点…"
@@ -1327,6 +1371,8 @@ def _tool_display_label(name: str, inp: dict) -> str:
 
 
 def _dispatch_tool(store: CyberBrainStore, tool_name: str, tool_args: dict):
+    if tool_name in ("retrieve_episode", "list_episodes"):
+        return dispatch_episodic_tool(get_episodic_store(), tool_name, tool_args)
     if tool_name == "retrieve_memory":
         return store.retrieve(**tool_args)
     if tool_name == "create_memory":
@@ -1477,7 +1523,7 @@ def _reflect(client: anthropic.Anthropic, recent_messages: list) -> str:
             system=_REFLECT_SYSTEM,
             messages=[{"role": "user", "content": f"对话记录：\n{dialogue}"}],
         )
-        result = resp.content[0].text.strip() if resp.content else "NONE"
+        result = _first_text(resp.content) or "NONE"
         return result or "NONE"
     except anthropic.APIError:
         return "NONE"
@@ -1701,6 +1747,20 @@ async def process_message(
 
             if final_msg.stop_reason == "end_turn":
                 msgs.append({"role": "assistant", "content": final_msg.content})
+                # L0：成功回合自动 append 原文（不写 L1 KG）
+                try:
+                    asst_text = ""
+                    for blk in final_msg.content:
+                        if getattr(blk, "type", None) == "text":
+                            asst_text += getattr(blk, "text", "") or ""
+                    get_episodic_store().append(
+                        ts=datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M"),
+                        user_text=user_input,
+                        assistant_text=asst_text,
+                        source="live",
+                    )
+                except Exception:
+                    pass
                 break
 
             if final_msg.stop_reason != "tool_use":

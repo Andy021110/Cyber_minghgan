@@ -1,0 +1,1374 @@
+{
+  "meta": {
+    "bench": "LongMemEval",
+    "setting": "oracle_stratified_sample",
+    "data_file": "/Users/minghan/Desktop/秋招2026_精简版/秋招2026_精简版/补洞产物/公认评测集/LongMemEval/longmemeval_oracle.json",
+    "model": "deepseek-v4-pro",
+    "memory": "L0_episodic_only",
+    "sample_seed": 42,
+    "quota": {
+      "single-session-user": 8,
+      "single-session-assistant": 5,
+      "single-session-preference": 5,
+      "knowledge-update": 10,
+      "multi-session": 8,
+      "temporal-reasoning": 8
+    },
+    "abs_n": 8,
+    "started_at": "2026-08-12T14:24:01+08:00",
+    "finished_at": "2026-08-12T14:35:04+08:00",
+    "duration_seconds": 662.8,
+    "isolation_ok": true,
+    "real_kg_sha256": "36c5bd6f24d1ace5e11d7c8162f4dca03d8004aa8b456659d909a63d22ccf4c3",
+    "note": "Public LongMemEval oracle; not full 500. Compare dimensions not claim full-bench SOTA."
+  },
+  "score": {
+    "n": 52,
+    "avg": 0.7981,
+    "exact1": 41,
+    "display_avg": "41.5/52 (avg 0.798)"
+  },
+  "by_type": {
+    "abstention": {
+      "n": 8,
+      "avg": 0.625,
+      "exact1": 5,
+      "display_avg": "5.0/8 (avg 0.625)"
+    },
+    "knowledge-update": {
+      "n": 10,
+      "avg": 0.9,
+      "exact1": 9,
+      "display_avg": "9.0/10 (avg 0.900)"
+    },
+    "multi-session": {
+      "n": 8,
+      "avg": 1.0,
+      "exact1": 8,
+      "display_avg": "8.0/8 (avg 1.000)"
+    },
+    "single-session-assistant": {
+      "n": 5,
+      "avg": 0.8,
+      "exact1": 4,
+      "display_avg": "4.0/5 (avg 0.800)"
+    },
+    "single-session-preference": {
+      "n": 5,
+      "avg": 0.3,
+      "exact1": 1,
+      "display_avg": "1.5/5 (avg 0.300)"
+    },
+    "single-session-user": {
+      "n": 8,
+      "avg": 1.0,
+      "exact1": 8,
+      "display_avg": "8.0/8 (avg 1.000)"
+    },
+    "temporal-reasoning": {
+      "n": 8,
+      "avg": 0.75,
+      "exact1": 6,
+      "display_avg": "6.0/8 (avg 0.750)"
+    }
+  },
+  "fails": [
+    {
+      "question_id": "afdc33df",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "score": 0.5,
+      "error_code": "PARTIAL",
+      "question": "My kitchen's becoming a bit of a mess again. Any tips for keeping it clean?",
+      "hypothesis": "I remember we talked about kitchen organization before — especially around your utensil holder and keeping countertops clutter-free. Here are some broader habits that can help stop the mess from pilin",
+      "gold": "The user would prefer responses that acknowledge and build upon their existing efforts to organize their kitchen, such a"
+    },
+    {
+      "question_id": "54026fce",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": null,
+      "question": "I've been thinking about ways to stay connected with my colleagues. Any suggestions?",
+      "hypothesis": "Based on our previous discussions, here's a recap of the key strategies we've covered for staying connected with your colleagues while working remotely:\n\n**Six Core Approaches:**\n\n1. **Virtual Coffee ",
+      "gold": "The user would prefer responses that acknowledge their desire for social interaction and collaboration while working rem"
+    },
+    {
+      "question_id": "b6025781",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": null,
+      "question": "I'm planning my meal prep next week, any suggestions for new recipes?",
+      "hypothesis": "Based on our past conversations, you've been working with a quinoa + roasted vegetables base, you've tried grilled chicken and turkey breast, and we've explored lentil bolognese and roasted sweet pota",
+      "gold": "The user would prefer responses that suggest healthy meal prep recipes, especially those that incorporate quinoa and roa"
+    },
+    {
+      "question_id": "ac031881",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": null,
+      "question": "I'm trying to recall what the designation on my jumpsuit was that helped me find the file number in the records room?",
+      "hypothesis": "The designation on your jumpsuit was **\"LIV\"** — the Roman numeral for 54. That's what allowed you to connect the designation to a numbered file. Once you realized LIV = 54, you searched for file 54 i",
+      "gold": "The designation on your jumpsuit was 'LIV'."
+    },
+    {
+      "question_id": "b46e15ed",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": "WRONG",
+      "question": "How many months have passed since I participated in two charity events in a row, on consecutive days?",
+      "hypothesis": "Based on the retrieved memories, I can identify the two consecutive charity events:\n\n- **February 14, 2023 (Tuesday)** — \"24-Hour Bike Ride\" charity event, cycling for 4 hours to raise money for a loc",
+      "gold": "2"
+    },
+    {
+      "question_id": "gpt4_93159ced_abs",
+      "question_type": "temporal-reasoning",
+      "is_abstention": true,
+      "score": 0.0,
+      "error_code": null,
+      "question": "How long have I been working before I started my current job at Google?",
+      "hypothesis": "Based on the retrieved episodes, I don't have enough information to answer this question. Here's what I can piece together:\n\n- You graduated from UC Berkeley with a Computer Science degree.\n- As of Ma",
+      "gold": "The information provided is not enough. From the information provided, You haven't started working at Google yet."
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": null,
+      "question": "I've been feeling a bit stuck with my paintings lately. Do you have any ideas on how I can find new inspiration?",
+      "hypothesis": "Feeling stuck is something every artist goes through — you're definitely not alone! Based on what I know about your work, here are some tailored ideas to shake things up:\n\n**Build on What You Already ",
+      "gold": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art "
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": null,
+      "question": "I mentioned that I participated in an art-related event two weeks ago. Where was that event held at?",
+      "hypothesis": "I've searched through the memory records available to me, but I wasn't able to find any mention of you participating in an art-related event two weeks ago. The art-related conversations I could find i",
+      "gold": "The Metropolitan Museum of Art."
+    },
+    {
+      "question_id": "1cea1afa",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "score": 0.0,
+      "error_code": null,
+      "question": "How many Instagram followers do I currently have?",
+      "hypothesis": "Based on the information available to me, the most recent mention you made about your Instagram follower count was on **May 25, 2023**, when you said you had reached **600 followers**. \n\nHowever, that",
+      "gold": "600"
+    },
+    {
+      "question_id": "19b5f2b3_abs",
+      "question_type": "single-session-user",
+      "is_abstention": true,
+      "score": 0.0,
+      "error_code": null,
+      "question": "How long was I in Korea for?",
+      "hypothesis": "Based on the available memory, I don't have enough information to answer that. The conversations I can find show that you were **considering** visiting South Korea — you asked about Seoul food recomme",
+      "gold": "You did not mention this information. You mentioned staying in Japan, but not in Korea."
+    },
+    {
+      "question_id": "6456829e_abs",
+      "question_type": "multi-session",
+      "is_abstention": true,
+      "score": 0.0,
+      "error_code": null,
+      "question": "How many plants did I initially plant for tomatoes and chili peppers?",
+      "hypothesis": "Based on the memory records, here's what I can tell you:\n\n- **Tomatoes**: You initially planted **5 tomato plants**, as you mentioned on May 20, 2023.\n- **Chili peppers**: I couldn't find any record i",
+      "gold": "The information provided is not enough. You mentioned planting 5 plants for tomatoes but you did not mention chili peppe"
+    }
+  ],
+  "cases": [
+    {
+      "question_id": "afdc33df",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "question": "My kitchen's becoming a bit of a mess again. Any tips for keeping it clean?",
+      "gold": "The user would prefer responses that acknowledge and build upon their existing efforts to organize their kitchen, such as utilizing their new utensil holder to keep countertops clutter-free. They would also appreciate tips that address their concern for maintaining their granite surface, particularly around the sink area. Preferred responses would provide practical and actionable steps to maintain cleanliness, leveraging the user's current tools and setup. They might not prefer generic or vague suggestions that do not take into account their specific kitchen setup or concerns.",
+      "hypothesis": "I remember we talked about kitchen organization before — especially around your utensil holder and keeping countertops clutter-free. Here are some broader habits that can help stop the mess from piling up:\n\n**Daily \"Reset\" Habits**\n1. **Clean as you cook.** Fill the sink with warm soapy water before you start. Wash or rinse items as you go instead of letting them stack up.\n2. **One-touch rule.** Handle things once — mail, containers, dishes. Don't set something down \"for now\"; put it straight back where it belongs.\n3. **Wipe down surfaces nightly.** A quick 2-minute wipe of counters, stovetop, and the sink basin each evening makes a huge difference. A clean sink sets the tone for the whole room.\n\n**Weekly Maintenance**\n4. **Fridge purge.** Before grocery shopping, toss expired leftovers and wipe any spills. Less clutter in the fridge means you actually see what you have.\n5. **Floor sweep + mop.** Crumbs and grease build up fast. A quick pass once a week stops grime from spreading.\n\n**System & Storage (building on our earlier chat)**\n6. **Everything needs a home.** If something doesn't have a dedicated spot (like we did with your utensil holder dividers), it'll always end up on the counter. Apply that same logic to small appliances, spices, and pantry items.\n7. **Declutter surfaces.** The less you keep on your counters, the easier they are to wipe down and the less visual chaos you'll feel.\n\n**Mindset Tip**\n8. **\"Don't put it down, put it away.\"** This one habit alone can transform how fast mess accumulates.\n\nIs there a particular area (sink, counters, pantry, fridge) that's giving you the most trouble right now?",
+      "score": 0.5,
+      "judge": {
+        "score": 0.5,
+        "error_code": "PARTIAL",
+        "rationale": "The response acknowledges the utensil holder and countertop clutter, but it does not address the user's concern about maintaining the granite surface, particularly around the sink."
+      },
+      "n_episodes": 7,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 22.25,
+      "answered_at": "2026-08-12T14:24:24+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "95bcc1c8",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "How many amateur comedians did I watch perform at the open mic night?",
+      "gold": "10",
+      "hypothesis": "According to our conversation history, you mentioned that you went to an open mic night and saw **10 amateur comedians** perform.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that 10 amateur comedians performed, which perfectly matches the gold fact."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 8.07,
+      "answered_at": "2026-08-12T14:24:32+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "caf9ead2",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "How long did it take to move to the new apartment?",
+      "gold": "5 hours",
+      "hypothesis": "According to what you shared previously, it took you and your friends **around 5 hours** to move everything into the new apartment.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states it took around 5 hours, matching the gold fact."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 6.1,
+      "answered_at": "2026-08-12T14:24:38+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_18c2b244",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "What is the order of the three events: 'I signed up for the rewards program at ShopRite', 'I used a Buy One Get One Free coupon on Luvs diapers at Walmart', and 'I redeemed $12 cashback for a $10 Amazon gift card from Ibotta'?",
+      "gold": "First, I used a Buy One Get One Free coupon on Luvs diapers at Walmart. Then, I redeemed $12 cashback for a $10 Amazon gift card from Ibotta. Finally, I signed up for the rewards program at ShopRite.",
+      "hypothesis": "Based on the retrieved memory episodes, here is the chronological order of the three events:\n\n1. **\"I used a Buy One Get One Free coupon on Luvs diapers at Walmart\"** — April 1, 2023 (Saturday)\n2. **\"I redeemed $12 cashback for a $10 Amazon gift card from Ibotta\"** — April 10, 2023 (Monday)\n3. **\"I signed up for the rewards program at ShopRite\"** — April 15, 2023 (Saturday)",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly orders the three events in the same sequence as the gold answer: first the Walmart coupon, then the Ibotta redemption, then the ShopRite sign-up."
+      },
+      "n_episodes": 17,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 13.68,
+      "answered_at": "2026-08-12T14:24:51+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "618f13b2",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many times have I worn my new black Converse Chuck Taylor All Star sneakers?",
+      "gold": "six",
+      "hypothesis": "Based on your conversation history, you've worn your new black Converse Chuck Taylor All Star sneakers **six times** as of May 24, 2023.\n\nHere's the progression across your records:\n\n- **4 times** — mentioned on May 24 at 12:16 (including your friend's birthday party the previous Saturday)\n- **6 times** — mentioned later that same day at 21:51 (after wearing them to run errands the day before)",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states the number six times, matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 10.79,
+      "answered_at": "2026-08-12T14:25:02+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "c9f37c46",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "How long had I been watching stand-up comedy specials regularly when I attended the open mic night at the local comedy club?",
+      "gold": "2 months",
+      "hypothesis": "Based on your conversation history, here's what I found:\n\n- You mentioned on **May 27, 2023** that you started watching stand-up comedy regularly about **3 months prior**, which puts the start around **late February 2023** (after watching a John Mulaney Netflix special).\n- On that same day, you also mentioned attending an open mic night at a local comedy club **the previous month**, which would be **April 2023**.\n\nSo when you attended that open mic night in April 2023, you had been watching stand-up comedy specials regularly for about **2 months**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that the user had been watching stand-up comedy for about 2 months at the time of the open mic night, matching the gold answer exactly."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 12.03,
+      "answered_at": "2026-08-12T14:25:14+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "question": "I wanted to check back on our previous conversation about Netflix. I mentioned that I wanted to be able to access all seasons of old shows? Do you remember what show I used as an example, the one that only had the last season available?",
+      "gold": "Doc Martin",
+      "hypothesis": "Yes, I remember. The show you used as an example was **\"Doc Martin\"** — you mentioned that it was taken down after a while, leaving only the last season available on Netflix.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies 'Doc Martin' as the show the user used as an example, matching the gold fact."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 7.58,
+      "answered_at": "2026-08-12T14:25:22+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "e3fc4d6e",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "question": "I wanted to follow up on our previous conversation about the fusion breakthrough at Lawrence Livermore National Laboratory. Can you remind me who is the President's Chief Advisor for Science and Technology mentioned in the article?",
+      "gold": "Dr. Arati Prabhakar",
+      "hypothesis": "According to the article we discussed, the President's Chief Advisor for Science and Technology is **Dr. Arati Prabhakar**, who also serves as Director of the White House Office of Science and Technology Policy. She was quoted in the piece saying: *\"We have had a theoretical understanding of fusion for over a century, but the journey from knowing to doing can be long and arduous.\"*",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "Hypothesis correctly states Dr. Arati Prabhakar as the President's Chief Advisor for Science and Technology, matching the gold answer."
+      },
+      "n_episodes": 1,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 6.55,
+      "answered_at": "2026-08-12T14:25:28+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "54026fce",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "question": "I've been thinking about ways to stay connected with my colleagues. Any suggestions?",
+      "gold": "The user would prefer responses that acknowledge their desire for social interaction and collaboration while working remotely, utilizing their previous experiences with company initiatives and team collaborations. They might prefer suggestions of virtual team-building activities, regular check-ins, or joining interest-based groups within the company. The user may not prefer generic suggestions that do not take into account their specific work situation or previous attempts at staying connected with colleagues.",
+      "hypothesis": "Based on our previous discussions, here's a recap of the key strategies we've covered for staying connected with your colleagues while working remotely:\n\n**Six Core Approaches:**\n\n1. **Virtual Coffee Breaks** ☕ — Schedule regular, informal video calls for casual non-work chats. We discussed making them optional, keeping them to ~30 minutes, and setting ground rules like \"no work talk\" and \"keep it light.\"\n\n2. **Online Team Activities** 🎮 — Organize virtual games, trivia, or online escape rooms for team-building.\n\n3. **Collaborative Projects** 🤝 — Join cross-departmental projects or working groups to increase meaningful interactions.\n\n4. **Social Channels** 💬 — Use informal chat groups on Slack or Teams dedicated to non-work topics (hobbies, pets, weekend plans).\n\n5. **Recognition & Celebrations** 🎉 — Celebrate birthdays, work anniversaries, and milestones with virtual shout-outs or parties.\n\n6. **Interest-Based Groups** 📚 — Start or join groups around shared interests like book clubs or fitness challenges.\n\nWe also covered helpful implementation tips — like introducing ideas collaboratively in team meetings (starting with open-ended questions, sharing personal observations, and inviting feedback), ensuring everyone feels comfortable by keeping participation optional, and regularly gathering feedback to refine the approach.\n\nWould you like to dive deeper into any of these, or is there a particular one you'd like to try first?",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 6,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 22.97,
+      "answered_at": "2026-08-12T14:25:51+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "efc3f7c2",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "How much earlier do I wake up on Fridays compared to other weekdays?",
+      "gold": "30 minutes",
+      "hypothesis": "Based on what you've shared in our conversations, here's the answer:\n\n- **Monday through Thursday**, you wake up at **6:30 AM** (your standard weekday routine).\n- **On Fridays**, you like to get a head start and wake up at **6:00 AM**.\n\nSo you wake up **30 minutes earlier on Fridays** compared to other weekdays.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that the user wakes up 30 minutes earlier on Fridays, matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 13.38,
+      "answered_at": "2026-08-12T14:26:05+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "505af2f5",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "question": "I was thinking of trying a new coffee creamer recipe. Any recommendations?",
+      "gold": "The user would prefer responses that suggest variations on their existing almond milk, vanilla extract, and honey creamer recipe or new ideas that align with their goals of reducing sugar intake and saving money. They might not prefer responses that recommend commercial creamer products or recipes that are high in sugar or expensive.",
+      "hypothesis": "Based on our past conversation, you already have a solid foundation: your homemade creamer with **almond milk, vanilla extract, and honey**. Since you're looking to try something new, here are some fresh variations to switch things up:\n\n**Flavor Twists on Your Base:**\n- **Cinnamon Vanilla**: Add a pinch of cinnamon and a dash of nutmeg for a warm, cozy profile.\n- **Coconut Almond**: Swap vanilla extract for coconut extract, or add a splash of canned coconut milk for extra creaminess.\n- **Hazelnut Mocha**: Use hazelnut extract + a teaspoon of cocoa powder for a DIY hazelnut-chocolate creamer.\n- **Maple Brown Sugar**: Replace honey with maple syrup and a touch of brown sugar (or a brown sugar substitute like monk fruit golden).\n\n**Switch Up the Milk Base:**\n- **Oat milk** or **cashew milk** will give you a much creamier, richer texture than almond milk — closer to store-bought creamers.\n\n**Try a Seasonal Blend:**\n- **Pumpkin Spice**: Add pumpkin purée, pumpkin pie spice, and a drop of maple syrup. Strain if needed.\n- **Lavender Honey**: Steep dried lavender in warm milk, strain, then add honey and vanilla.\n\n**Boost It (from our earlier tips):**\n- A pinch of **Himalayan pink salt** to balance sweetness.\n- A teaspoon of **MCT oil or collagen peptides** for extra nutrition.\n\nSince you're also focused on reducing sugar, remember you can try **stevia or monk fruit** as a sweeter swap for honey if you want to experiment further. Want to dig deeper into any of these ideas?",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The response suggests variations on the user's existing almond milk, vanilla, and honey creamer recipe and offers lower-sugar alternatives, fully following the preference intent."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 18.92,
+      "answered_at": "2026-08-12T14:26:24+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "1192316e",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "What is the total time it takes I to get ready and commute to work?",
+      "gold": "an hour and a half",
+      "hypothesis": "Based on what you've shared in past conversations, here's the breakdown:\n\n- **Getting ready**: ~1 hour (waking up at 6:30 AM, including a 20-minute meditation, 30-minute workout, and quick breakfast)\n- **Commute**: ~30 minutes\n\n**Total**: approximately **1 hour and 30 minutes** from waking up to arriving at work.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states the total time as 1 hour and 30 minutes, which is equivalent to the gold answer 'an hour and a half'."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 9.02,
+      "answered_at": "2026-08-12T14:26:33+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "69fee5aa",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many pre-1920 American coins do I have in my collection?",
+      "gold": "38",
+      "hypothesis": "Based on your conversation history, you originally had **37 coins** in your pre-1920 American coin collection (mentioned on May 20, 2023). Then, on May 24, 2023, you added a **1915-S Barber quarter** to that same collection. \n\nThat brings your total to **38 pre-1920 American coins**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly calculates the total number of pre-1920 American coins as 38, matching the gold answer."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 9.95,
+      "answered_at": "2026-08-12T14:26:43+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "dccbc061",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "What was my previous stance on spirituality?",
+      "gold": "A staunch atheist",
+      "hypothesis": "Based on our conversation from May 20, 2023, you described your previous stance on spirituality quite clearly: **you used to be a staunch atheist**. However, at that time you were already in the midst of a shift — you had begun reading about Buddhism and exploring other possibilities, moving away from that purely atheistic viewpoint.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "Hypothesis correctly states the user was a staunch atheist, matching the gold answer, and additional context does not contradict it."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 8.68,
+      "answered_at": "2026-08-12T14:26:51+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_61e13b3c",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "How many weeks passed between the time I sold homemade baked goods at the Farmers' Market for the last time and the time I participated in the Spring Fling Market?",
+      "gold": "3 weeks",
+      "hypothesis": "Based on the retrieved memories, here's the timeline:\n\n- **Farmers' Market (last baked goods sale)**: **Sunday, February 26, 2023** — you mentioned selling homemade muffins, scones, and cookies there that day.\n- **Spring Fling Market**: **Monday, March 20, 2023** — you mentioned (on March 21) that you were selling handmade jewelry and candles at the downtown park \"yesterday.\"\n\nThat's a span of **22 days**, which is approximately **3 weeks** (3 weeks and 1 day) between the two events.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states approximately 3 weeks, matching the gold answer of 3 weeks."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 16.89,
+      "answered_at": "2026-08-12T14:27:08+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "b320f3f8",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "What type of action figure did I buy from a thrift store?",
+      "gold": "a blue Snaggletooth",
+      "hypothesis": "You bought a **rare blue Snaggletooth action figure** from a thrift store. (From your conversation on May 29, 2023.)",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies the action figure as a blue Snaggletooth, matching the gold key facts."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 9.33,
+      "answered_at": "2026-08-12T14:27:18+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "2311e44b_abs",
+      "question_type": "multi-session",
+      "is_abstention": true,
+      "question": "How many pages do I have left to read in 'Sapiens'?",
+      "gold": "The information provided is not enough. You did not mention how many paged do you have left to read in 'Sapiens'.",
+      "hypothesis": "I don't have enough information to answer that question. Based on what you've shared, I know you've been reading *Sapiens* at a pace of about 10–20 pages per week and that you've found it slow going, but you haven't mentioned:\n\n- The total page count of your edition of *Sapiens* (it varies; the paperback is typically around 464 pages, but editions differ).\n- What page you're currently on or how far you've progressed.\n\nIf you can tell me your current page and the total page count of your copy, I'd be happy to help you figure out how many pages you have left!",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "ABS_OK",
+        "rationale": "The response correctly states insufficient information and does not invent any unsupported facts."
+      },
+      "n_episodes": 9,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 13.71,
+      "answered_at": "2026-08-12T14:27:31+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "What is the average GPA of my undergraduate and graduate studies?",
+      "gold": "3.83",
+      "hypothesis": "Based on your memory records, here's a summary of your GPAs:\n\n| Degree | Institution | GPA (out of 4.0) |\n|---|---|---|\n| **Undergraduate** (Computer Science) | University of Mumbai | **3.86** (83%, First-Class Distinction) |\n| **Graduate** (M.S. Data Science) | University of Illinois at Urbana-Champaign | **3.80** |\n\nThe **average** of your undergraduate and graduate GPAs is **3.83 / 4.0**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis explicitly states the average GPA is 3.83, matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 9.38,
+      "answered_at": "2026-08-12T14:27:41+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "c4ea545c",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "Do I go to the gym more frequently than I did previously?",
+      "gold": "Yes",
+      "hypothesis": "Based on what I can find in your past conversations, here's what the record shows:\n\n- **June 2023**: You mentioned going to the gym on **Tuesdays, Thursdays, and Saturdays** — that's **3 times a week**.\n- **August 2023**: You said you'd been consistent with your gym routine and noted you were going **4 times a week**.\n\nSo yes, it does appear you increased your gym frequency from 3 to 4 times per week between June and August of 2023. That said, I only have these two data points — I don't have information about your routine before June or after August to give a fuller picture.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly answers 'Yes' and provides supporting evidence, matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 11.11,
+      "answered_at": "2026-08-12T14:27:52+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "b6025781",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "question": "I'm planning my meal prep next week, any suggestions for new recipes?",
+      "gold": "The user would prefer responses that suggest healthy meal prep recipes, especially those that incorporate quinoa and roasted vegetables, and offer variations in protein sources. They might appreciate suggestions that build upon their existing preferences, such as new twists on chicken Caesar salads or turkey and avocado wraps. The user may not prefer responses that suggest unhealthy or high-calorie meal prep options, or those that deviate significantly from their established healthy eating habits.",
+      "hypothesis": "Based on our past conversations, you've been working with a quinoa + roasted vegetables base, you've tried grilled chicken and turkey breast, and we've explored lentil bolognese and roasted sweet potato seasonings in depth. Here are some **new directions** to keep your meal prep fresh:\n\n---\n\n### 1. **Sheet Pan Harissa Chicken & Chickpeas**\nA one-pan wonder: toss chicken thighs, canned chickpeas, red onion, and bell peppers with harissa paste, olive oil, and a squeeze of lemon. Roast at 425°F for 25-30 minutes. Pairs great with couscous or flatbread.\n\n### 2. **Asian-Inspired Ground Turkey Lettuce Wraps**\nBrown ground turkey with garlic, ginger, soy sauce, and a touch of hoisin. Stir in shredded carrots and water chestnuts. Store the filling separately and scoop into butter lettuce leaves when ready to eat. Top with chopped peanuts and green onions.\n\n### 3. **Mediterranean Grain Bowl (switch up your base!)**\nInstead of quinoa, try **farro** or **bulgur** as your grain. Top with:\n- Marinated chickpeas (lemon, olive oil, cumin)\n- Diced cucumber and cherry tomatoes\n- Kalamata olives and crumbled feta\n- A dollop of tzatziki or hummus\n\n### 4. **Coconut Curry Lentil Soup**\nDifferent from the bolognese — simmer red lentils with coconut milk, curry paste, diced sweet potatoes, and spinach. It's a one-pot meal that freezes beautifully and feels completely different from tomato-based dishes.\n\n### 5. **Black Bean & Corn Salsa Bowls**\nMix black beans, corn, diced avocado, cherry tomatoes, cilantro, and lime juice. Serve over cilantro-lime rice with a chipotle crema drizzle. Great cold or warm, and super quick to assemble.\n\n---\n\nWould you like a full recipe for any of these? Also, are you in the mood for more plant-based options or do you want to keep a mix of proteins in the rotation?",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 30.36,
+      "answered_at": "2026-08-12T14:28:22+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "0ddfec37_abs",
+      "question_type": "knowledge-update",
+      "is_abstention": true,
+      "question": "How many autographed football have I added to my collection in the first three months of collection?",
+      "gold": "The information provided is not enough. You mentioned collecting autographed baseball but not football.",
+      "hypothesis": "Based on the information available in my memory, I don't have any record of you adding autographed **footballs** to your collection. \n\nWhat I do have are mentions of your **autographed baseball** collection: as of May 22, 2023, you mentioned having 15 autographed baseballs since you started collecting three months prior (around February 2023), and by May 25, 2023, you said you had added 20 autographed baseballs in the past few months.\n\nThere's no mention of any autographed football in any of the memories I've retrieved. If you have added autographed footballs, that information hasn't been captured in my records.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "ABS_OK",
+        "rationale": "The response correctly states that there is no record of autographed footballs and refuses to provide a number, aligning with the gold abstention."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 15.74,
+      "answered_at": "2026-08-12T14:28:38+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_88806d6e",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "Who did I meet first, Mark and Sarah or Tom?",
+      "gold": "Tom",
+      "hypothesis": "Based on the retrieved memories, here's what I can piece together:\n\n- **Mark and Sarah**: You mentioned on May 28, 2023 that you met them on a beach trip **\"about a month ago\"** — which would be around late April 2023.\n\n- **Tom**: You mentioned on May 28, 2023 that you met Tom at a charity event **\"a few months ago\"** — which would be around February–March 2023.\n\nSo, **you met Tom first**, before Mark and Sarah.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies Tom as the person met first, matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 10.03,
+      "answered_at": "2026-08-12T14:28:48+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "7161e7e2",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "question": "I'm checking our previous chat about the shift rotation sheet for GM social media agents. Can you remind me what was the rotation for Admon on a Sunday?",
+      "gold": "Admon was assigned to the 8 am - 4 pm (Day Shift) on Sundays.",
+      "hypothesis": "According to our previous chat, here's Admon's shift on **Sunday**:\n\n**Admon → 8 am – 4 pm (Day Shift)**\n\nThat was from the final rotation sheet we built — a 1-week schedule (Sunday to Saturday) with 7 agents, 4 shifts, and 2 days off each. Let me know if you need the full table again or want to make any changes!",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis accurately states Admon's Sunday shift as 8 am – 4 pm (Day Shift), matching the gold answer."
+      },
+      "n_episodes": 7,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 7.88,
+      "answered_at": "2026-08-12T14:28:56+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_c27434e8_abs",
+      "question_type": "temporal-reasoning",
+      "is_abstention": true,
+      "question": "Which project did I start first, the Ferrari model or the Porsche 991 Turbo S model?",
+      "gold": "The information provided is not enough. You did not mention starting the Porsche 991 Turbo S model.",
+      "hypothesis": "Based on my search of your episodic memory, here's what I can tell you:\n\n**Ferrari model:** You started your Ferrari 288 GTO model about three weeks before May 26, 2023 — on a Sunday afternoon (roughly around early May 2023). It was a rainy day, and you spent about 5 hours getting the basic chassis and engine block assembled.\n\n**Porsche 991 Turbo S model:** I couldn't find any record of you starting or working on a Porsche 991 Turbo S model in your memory. The only car model you've discussed is the Ferrari 288 GTO, along with a 1/48 scale Japanese Zero fighter plane.\n\nSo based on the available information, I can only confirm the Ferrari model. There's insufficient evidence about a Porsche 991 Turbo S project to make a comparison.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "ABS_OK",
+        "rationale": "The hypothesis states there is insufficient evidence about the Porsche 991 Turbo S model and refuses to make a comparison, correctly abstaining without inventing unsupported facts."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 16.75,
+      "answered_at": "2026-08-12T14:29:13+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "6b168ec8",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "How many bikes do I own?",
+      "gold": "three",
+      "hypothesis": "Based on your previous conversations, you own **three bikes**: a **road bike** (your Trek Emonda), a **mountain bike**, and a **commuter bike**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states the number of bikes as three, matching the gold answer."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 6.81,
+      "answered_at": "2026-08-12T14:29:19+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "8e91e7d9",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "What is the total number of siblings I have?",
+      "gold": "4",
+      "hypothesis": "Based on the retrieved memories, you've mentioned having **1 brother** (from a conversation on May 23, 2023) and **3 sisters** (from a conversation on May 25, 2023). That adds up to a total of **4 siblings**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis states the total number of siblings as 4, which exactly matches the gold answer."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 4,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 9.64,
+      "answered_at": "2026-08-12T14:29:29+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "60036106",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "What was the total number of people reached by my Facebook ad campaign and Instagram influencer collaboration?",
+      "gold": "12,000",
+      "hypothesis": "Here's what I found from your past conversations:\n\n- **Facebook Ad Campaign**: Your previous Facebook ad campaign reached **around 2,000 people** (mentioned on May 25 and May 27, 2023).\n- **Instagram Influencer Collaboration**: You collaborated with an influencer who promoted your product to her **10,000 followers** (mentioned on May 25, 2023).\n\n**Total reach: approximately 12,000 people** (2,000 from the Facebook ad + 10,000 from the influencer collaboration).",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis accurately states the total reach as approximately 12,000, matching the gold answer exactly."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 10.01,
+      "answered_at": "2026-08-12T14:29:39+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "5831f84d",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many Crash Course videos have I watched in the past few weeks?",
+      "gold": "15",
+      "hypothesis": "Based on your conversation history, here's what I found regarding your Crash Course video watching:\n\n- **August 11, 2023**: You mentioned finishing **10 videos** (and later that same day, **12 videos** on computer science).\n- **September 30, 2023**: You reported having watched **15 videos** in the past few weeks.\n\nThe most recent data point is **15 Crash Course videos**, mentioned on September 30, 2023. However, keep in mind that these records are from 2023 — I don't have any more recent updates on your Crash Course viewing. If you've watched more since then, I wouldn't have that information.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that the most recent reported number of Crash Course videos watched is 15, matching the gold answer."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 11.96,
+      "answered_at": "2026-08-12T14:29:51+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "ac031881",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "question": "I'm trying to recall what the designation on my jumpsuit was that helped me find the file number in the records room?",
+      "gold": "The designation on your jumpsuit was 'LIV'.",
+      "hypothesis": "The designation on your jumpsuit was **\"LIV\"** — the Roman numeral for 54. That's what allowed you to connect the designation to a numbered file. Once you realized LIV = 54, you searched for file 54 in the records room. (And when the clipboard mentioned the \"aberration in previous iteration,\" you later deduced that referred to **LIII / file 53**.)",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": "{\"score\": 1, \"error_code\": \"OK\", \"rationale\": \"The hypothesis states the designation was \"LIV\", which matches the gold fact exactly, despite additional explanation.\"}"
+      },
+      "n_episodes": 16,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 8.22,
+      "answered_at": "2026-08-12T14:29:59+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "45dc21b6",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many of Emma's recipes have I tried out?",
+      "gold": "3",
+      "hypothesis": "Based on our past conversations, you've mentioned Emma's recipes twice:\n\n- On **May 24, 2023**, you said you'd tried out **2** of Emma's recipes.\n- On **May 28, 2023**, you updated that to **3**, saying they were all amazing.\n\nSo, according to the most recent record, you've tried **3** of Emma's recipes.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that the user tried 3 recipes, matching the gold."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 8.58,
+      "answered_at": "2026-08-12T14:30:08+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "c8090214_abs",
+      "question_type": "temporal-reasoning",
+      "is_abstention": true,
+      "question": "How many days before I bought my iPad did I attend the Holiday Market?",
+      "gold": "The information provided is not enough. You mentioned getting the iPhone 13 Pro and attending the market, but you did not mention buying an iPad.",
+      "hypothesis": "I wasn't able to answer your question with the available information. Here's what I found:\n\n**Holiday Market**: You mentioned in multiple conversations that you attended the annual Holiday Market at the local mall \"a week before Black Friday.\"\n\n**iPad purchase**: I searched thoroughly through my memory, but there's **no record of you buying an iPad**. The closest related purchase I found is that you bought an **iPhone 13 Pro** from Best Buy on Black Friday for $800.\n\nWithout any record of when (or if) you bought an iPad, I can't calculate the number of days between that purchase and your Holiday Market visit. If you recall any more details about the iPad purchase, I might be able to help you track it down!",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "ABS_OK",
+        "rationale": "The hypothesis correctly states that there is no record of buying an iPad and does not invent any false information."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 14.75,
+      "answered_at": "2026-08-12T14:30:23+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "6e984301",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "How many weeks have I been taking sculpting classes when I invested in my own set of sculpting tools?",
+      "gold": 3,
+      "hypothesis": "Based on the retrieved memories:\n\n- You started sculpting classes on **Saturday, February 11, 2023** (your first class)\n- You bought your own set of sculpting tools on **Saturday, March 4, 2023**\n\nFrom February 11 to March 4 is exactly **3 weeks**. So when you invested in your own set of sculpting tools (modeling tool set, wire cutter, and sculpting mat), you had been taking sculpting classes for **3 weeks**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states 3 weeks, matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 14.09,
+      "answered_at": "2026-08-12T14:30:37+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "41698283",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "What type of camera lens did I purchase most recently?",
+      "gold": "a 70-200mm zoom lens",
+      "hypothesis": "Based on your memory records, your most recent camera lens purchase was a **70-200mm zoom lens**, mentioned on August 30, 2023. Prior to that, you had purchased a **50mm prime lens** back around March 2023.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies the most recent camera lens purchase as a 70-200mm zoom lens, exactly matching the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 16.52,
+      "answered_at": "2026-08-12T14:30:53+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "b46e15ed",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "How many months have passed since I participated in two charity events in a row, on consecutive days?",
+      "gold": 2,
+      "hypothesis": "Based on the retrieved memories, I can identify the two consecutive charity events:\n\n- **February 14, 2023 (Tuesday)** — \"24-Hour Bike Ride\" charity event, cycling for 4 hours to raise money for a local children's hospital.\n- **February 15, 2023 (Wednesday)** — \"Books for Kids\" charity book drive at the local library, sorting and packing over 500 books for underprivileged kids.\n\nThese are the two charity events you participated in on consecutive days. However, I don't have enough information to tell you how many months have passed since then — specifically, I don't know what the current date is. If you can tell me today's date, I can calculate the months for you.",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "error_code": "WRONG",
+        "rationale": "The hypothesis fails to provide the number of months (2) and states it cannot answer, which is incorrect."
+      },
+      "n_episodes": 24,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 17.68,
+      "answered_at": "2026-08-12T14:31:11+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "d23cf73b",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "How many different cuisines have I learned to cook or tried out in the past few months?",
+      "gold": 4,
+      "hypothesis": "Based on what I can find in your conversation history from May 2023, you've encountered **4 different cuisines**:\n\n1. **Indian** — You took a class on Indian cuisine and learned to make chicken tikka masala.\n2. **Vegan** — You attended a class on vegan cuisine and learned to make vegan lasagna with cashew-based ricotta.\n3. **Korean** — You tried a recipe for Korean bibimbap from a cooking class's online recipe library.\n4. **Ethiopian** — You tried a new Ethiopian restaurant and loved it (you also asked about making injera from scratch).\n\nSo that's Indian, Vegan, Korean, and Ethiopian — four cuisines across both cooking and dining out.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states there are 4 different cuisines, matching the gold answer."
+      },
+      "n_episodes": 24,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 16.99,
+      "answered_at": "2026-08-12T14:31:28+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "87f22b4a",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "How much have I made from selling eggs this month?",
+      "gold": "$120",
+      "hypothesis": "Based on the information in your memory, here's what I can piece together:\n\n- On **May 24, 2023**, you mentioned you'd sold **40 dozen eggs** so far that month.\n- On **May 29, 2023**, you confirmed you sell eggs to your neighbor at **$3 per dozen**.\n\nSo for that month (May 2023), your egg sales revenue would have been:  \n**40 dozen × $3 = $120**.\n\nHowever, I don't have any more recent data beyond May 29, 2023. If you're asking about a different month, I don't have enough information to answer — you'd need to share your latest sales numbers with me.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly calculates the egg sales revenue as $120, matching the gold answer exactly."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 15.03,
+      "answered_at": "2026-08-12T14:31:43+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "75499fd8",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "What breed is my dog?",
+      "gold": "Golden Retriever",
+      "hypothesis": "Based on your past conversations, your dog Max is a **Golden Retriever**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies the dog breed as Golden Retriever, matching the gold fact."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 6.56,
+      "answered_at": "2026-08-12T14:31:50+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_93159ced_abs",
+      "question_type": "temporal-reasoning",
+      "is_abstention": true,
+      "question": "How long have I been working before I started my current job at Google?",
+      "gold": "The information provided is not enough. From the information provided, You haven't started working at Google yet.",
+      "hypothesis": "Based on the retrieved episodes, I don't have enough information to answer this question. Here's what I can piece together:\n\n- You graduated from UC Berkeley with a Computer Science degree.\n- As of May 2023, you had been working at **NovaTech** for about **4 years and 3 months** (which would mean you started there around early 2019).\n- In another conversation, you mentioned having been **working professionally for 9 years** in total (as of May 2023).\n\nHowever, I couldn't find any record in your memory of you working at **Google** — whether as a current or past employer. The only employer that appears in the retrieved episodes is NovaTech.\n\nWithout records of when (or if) you started at Google, I'm unable to calculate how long you worked before that. Could you clarify or provide more context about your move to Google?",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 12,
+      "n_retrieve": 5,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 21.52,
+      "answered_at": "2026-08-12T14:32:11+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "6f9b354f",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "What color did I repaint my bedroom walls?",
+      "gold": "a lighter shade of gray",
+      "hypothesis": "You repainted your bedroom walls **a lighter shade of gray**. (You mentioned this back in May 2023 while discussing ZZ Plants, noting that the new color made the room feel much brighter.)",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis directly states the exact color 'a lighter shade of gray' matching the gold fact."
+      },
+      "n_episodes": 5,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 6.88,
+      "answered_at": "2026-08-12T14:32:18+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "question": "I've been feeling a bit stuck with my paintings lately. Do you have any ideas on how I can find new inspiration?",
+      "gold": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "Feeling stuck is something every artist goes through — you're definitely not alone! Based on what I know about your work, here are some tailored ideas to shake things up:\n\n**Build on What You Already Love:**\n- **Flowers with a twist:** You've been drawn to realistic flower paintings before. Try pushing beyond realism — paint them in unnatural, surreal colors, or zoom way in on a single petal for an abstract macro study.\n- **Texture experiments:** Since you've explored palette knife techniques, try combining them with entirely new materials — mix modeling paste with acrylics for heavy impasto, or embed unconventional items (sand, fabric, paper) into your work for mixed-media texture.\n\n**Step Outside Your Comfort Zone:**\n- **Switch up your subject matter.** You've spent time on flowers — try portraits, urban landscapes, or pure abstraction. Even a quick series of small abstract studies can unlock new ideas.\n- **Try a constraint-based challenge.** You mentioned doing a 30-day painting challenge before. Consider a new one with a tight constraint: use only 3 colors, finish each piece in 30 minutes, or paint with only palette knives — no brushes allowed.\n\n**Change Your Environment & Inputs:**\n- **Rearrange your studio.** You put thought into setting up your apartment studio — sometimes physically refreshing the space (new reference images on the wall, different lighting, rearranging supplies) can shift your mental state.\n- **Step away from Instagram.** Social media inspiration can become samey. Visit a botanical garden, a museum, or just take a walk. Bring a sketchbook instead of a phone. Physical observation often sparks ideas that scrolling can't.\n\n**Create Without Pressure:**\n- **Paint something \"just for you\"** — not for sale, not for posting. The pricing and photography concerns can wait. Reconnecting with the joy of making is often the best cure for a block.\n\nWould any of these resonate? If you tell me more about what kind of \"stuck\" you're feeling — blank canvas paralysis, boredom with your subject matter, or something else — I can tailor the suggestions further!",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 8,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 23.51,
+      "answered_at": "2026-08-12T14:32:41+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "8aef76bc",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "question": "I'm going back to our previous conversation about DIY home decor projects using recycled materials. Can you remind me what sealant you recommended for the newspaper flower vase?",
+      "gold": "Mod Podge or another sealant",
+      "hypothesis": "From our earlier conversation about DIY recycled home decor, I recommended **Mod Podge** as the sealant for the newspaper flower vase. The suggestion was to seal the woven newspaper vase with Mod Podge (or a similar sealant) to make it water-resistant. Mod Podge is a popular all-in-one glue, sealer, and finish that dries clear and works well for paper-based crafts like that project.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis mentions Mod Podge and also says 'or a similar sealant', perfectly matching the gold answer 'Mod Podge or another sealant'."
+      },
+      "n_episodes": 4,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 7.57,
+      "answered_at": "2026-08-12T14:32:49+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "I mentioned that I participated in an art-related event two weeks ago. Where was that event held at?",
+      "gold": "The Metropolitan Museum of Art.",
+      "hypothesis": "I've searched through the memory records available to me, but I wasn't able to find any mention of you participating in an art-related event two weeks ago. The art-related conversations I could find include:\n\n- A guided tour at the **Museum of Modern Art (MoMA)** focused on 20th-century modern art movements (January 8, 2023)\n- Attending the **\"Ancient Civilizations\" exhibit at the Metropolitan Museum of Art** (January 15, 2023)\n\nHowever, none of these appear to match a specific art-related event you participated in two weeks ago, nor do they mention the location of such an event.\n\nI don't have enough information to answer your question. Could you share any more details about the event, such as what kind of art it involved or what you did there? That might help me locate the relevant conversation.",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 11,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 19.27,
+      "answered_at": "2026-08-12T14:33:08+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "1cea1afa",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many Instagram followers do I currently have?",
+      "gold": "600",
+      "hypothesis": "Based on the information available to me, the most recent mention you made about your Instagram follower count was on **May 25, 2023**, when you said you had reached **600 followers**. \n\nHowever, that was quite some time ago, and I don't have any more recent data on your follower count. Your current number may have changed since then — I'd need more up-to-date information to give you an accurate answer.",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 12.73,
+      "answered_at": "2026-08-12T14:33:21+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "f4f1d8a4",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "question": "Who gave me a new stand mixer as a birthday gift?",
+      "gold": "my sister",
+      "hypothesis": "Your **sister** gave you the new stand mixer as a birthday gift. You mentioned it in May 2023, saying she gave it to you the month prior (around April 2023).",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies the sister as the gift giver, matching the gold answer of 'my sister'."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 7.27,
+      "answered_at": "2026-08-12T14:33:28+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "e25c3b8d",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "question": "How much did I save on the designer handbag at TK Maxx?",
+      "gold": "$300",
+      "hypothesis": "Based on your past conversations, you bought the designer handbag at TK Maxx for **$200**, and you mentioned it was originally **$500**. That means you saved **$300** on that deal — a nice 60% off!",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis states the correct savings amount of $300."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 7.97,
+      "answered_at": "2026-08-12T14:33:36+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "19b5f2b3_abs",
+      "question_type": "single-session-user",
+      "is_abstention": true,
+      "question": "How long was I in Korea for?",
+      "gold": "You did not mention this information. You mentioned staying in Japan, but not in Korea.",
+      "hypothesis": "Based on the available memory, I don't have enough information to answer that. The conversations I can find show that you were **considering** visiting South Korea — you asked about Seoul food recommendations and DMZ tours — but all of those discussions were in the planning stages. There's no record in my memory of you actually having gone to Korea, let alone how long you may have stayed.\n\nWhat I do have is that you spent **two weeks** traveling solo around **Japan** a few months prior (around May 2023). If you did end up going to Korea after those conversations, that information isn't in my memory. Could you tell me more about your trip?",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": "{\"score\":"
+      },
+      "n_episodes": 6,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 17.98,
+      "answered_at": "2026-08-12T14:33:54+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "29f2956b_abs",
+      "question_type": "single-session-user",
+      "is_abstention": true,
+      "question": "How much time do I dedicate to practicing violin every day?",
+      "gold": "You did not mention this information. You mentioned practing guitar everyday, but not violin.",
+      "hypothesis": "Based on what's stored in my memory, there's no record of you practicing the violin at all. The instrument-related practice you've mentioned is playing **guitar for 30 minutes daily**. If you do play violin and have mentioned it in conversations I no longer have access to, I wouldn't be able to confirm that — but from the episodes available to me, I don't have enough information to answer how much time you dedicate to violin practice.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "ABS_OK",
+        "rationale": "The response correctly states there is no record of violin practice and does not assert any specific unsupported fact."
+      },
+      "n_episodes": 6,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 11.36,
+      "answered_at": "2026-08-12T14:34:06+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "830ce83f",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "Where did Rachel move to after her recent relocation?",
+      "gold": "the suburbs",
+      "hypothesis": "Based on the retrieved conversations, Rachel's relocation timeline is:\n\n1. **Initially**, she moved to an apartment in **Chicago** (mentioned on May 21).\n2. **Most recently**, she moved \"back to the suburbs again\" (mentioned on May 26). The context of that conversation suggests the suburbs are near **Tampa**, as the assistant's recommendations were all centered around proximity to Tampa.\n\nSo after her recent relocation, Rachel moved back to the **suburbs near Tampa**. However, the exact name of the suburb isn't specified in the available memory — only that it's in the suburbs near the Tampa area.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that Rachel moved back to the suburbs, which matches the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 10.91,
+      "answered_at": "2026-08-12T14:34:17+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "6456829e_abs",
+      "question_type": "multi-session",
+      "is_abstention": true,
+      "question": "How many plants did I initially plant for tomatoes and chili peppers?",
+      "gold": "The information provided is not enough. You mentioned planting 5 plants for tomatoes but you did not mention chili peppers.",
+      "hypothesis": "Based on the memory records, here's what I can tell you:\n\n- **Tomatoes**: You initially planted **5 tomato plants**, as you mentioned on May 20, 2023.\n- **Chili peppers**: I couldn't find any record in your memory about you planting chili peppers. There's not enough information to answer this part of your question.",
+      "score": 0.0,
+      "judge": {
+        "score": 0.0,
+        "parse_error": true,
+        "raw": ""
+      },
+      "n_episodes": 12,
+      "n_retrieve": 3,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 17.69,
+      "answered_at": "2026-08-12T14:34:34+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "7401057b",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many free night's stays can I redeem at any Hilton property with my accumulated points?",
+      "gold": "Two",
+      "hypothesis": "Based on our past conversations, you've accumulated enough Hilton Honors points for **two free night stays** at any Hilton property. \n\n- Back on May 20, 2023, you mentioned you had enough for one free night. \n- Then on May 28, 2023, you updated that you'd accumulated enough points for **two free nights**, and you were considering using them for a separate trip to Las Vegas.\n\nSo as of your last update, you can redeem **two free nights** across any Hilton property, subject to availability and the specific point requirements of the hotel category you choose. Would you like help figuring out which properties would be the best fit?",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that the accumulated points are enough for two free night stays, which matches the gold answer."
+      },
+      "n_episodes": 12,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 10.51,
+      "answered_at": "2026-08-12T14:34:45+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "0ddfec37",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "question": "How many autographed baseballs have I added to my collection in the first three months of collection?",
+      "gold": "15",
+      "hypothesis": "Based on your earlier conversation, you mentioned on **July 11, 2023** that you had accumulated **15 autographed baseballs** since you started collecting three months prior. So in the first three months of your collection, you added **15 autographed baseballs**.",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly states that 15 autographed baseballs were added in the first three months, matching the gold key fact."
+      },
+      "n_episodes": 11,
+      "n_retrieve": 1,
+      "tools": [
+        "retrieve_episode"
+      ],
+      "seconds": 8.84,
+      "answered_at": "2026-08-12T14:34:54+08:00",
+      "error": ""
+    },
+    {
+      "question_id": "gpt4_93f6379c",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "question": "Which group did I join first, 'Page Turners' or 'Marketing Professionals'?",
+      "gold": "Page Turners",
+      "hypothesis": "Based on the retrieved memory episodes:\n\n- **Page Turners**: You mentioned on **May 25, 2023** that you had joined this book club **\"last week\"** — placing your join date around the week of May 15–19, 2023.\n- **Marketing Professionals**: On the same day (May 25, 2023, later in the evening), you said you had joined this LinkedIn group **\"yesterday\"** — meaning **May 24, 2023**.\n\nSo you joined **\"Page Turners\"** first, about a week before you joined \"Marketing Professionals.\"",
+      "score": 1.0,
+      "judge": {
+        "score": 1.0,
+        "error_code": "OK",
+        "rationale": "The hypothesis correctly identifies 'Page Turners' as the group joined first, matching the gold answer."
+      },
+      "n_episodes": 18,
+      "n_retrieve": 2,
+      "tools": [
+        "retrieve_episode",
+        "retrieve_episode"
+      ],
+      "seconds": 10.42,
+      "answered_at": "2026-08-12T14:35:04+08:00",
+      "error": ""
+    }
+  ]
+}

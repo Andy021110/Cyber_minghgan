@@ -16,6 +16,7 @@ hitl_review.py — 通用 HITL 审查引擎 v1.1
         --output protocols/health_nodes_reviewed.json
 """
 
+import os
 import json
 import re
 import sys
@@ -176,7 +177,7 @@ def classify_batch(
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=os.environ.get("MODEL", "deepseek-v4-pro"),
                 max_tokens=2048,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
@@ -246,7 +247,7 @@ def generate_revision_proposal(
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=os.environ.get("MODEL", "deepseek-v4-pro"),
                 max_tokens=512,
                 system=system,
                 messages=[{"role": "user", "content": user_msg}],
@@ -670,7 +671,7 @@ def classify_nodes_batch(
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = client.messages.create(
-                model="claude-sonnet-4-6",
+                model=os.environ.get("MODEL", "deepseek-v4-pro"),
                 max_tokens=2048,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_msg}],

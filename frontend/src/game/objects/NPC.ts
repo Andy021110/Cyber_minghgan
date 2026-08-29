@@ -26,6 +26,7 @@ export class NPC {
   private patrol:   NPCPatrol | null = null;
   private dir:      1 | -1 = 1;
   private curAnim:  string = '';
+  private paused:   boolean = false;
 
   constructor(scene: Phaser.Scene, opts: NPCOpts) {
     const { npcId, npcName, spriteKey, x, y, patrol, triggerSystem } = opts;
@@ -33,7 +34,7 @@ export class NPC {
     this.npcName = npcName;
 
     this.sprite = scene.add.sprite(x, y, spriteKey);
-    this.sprite.setScale(2);
+    this.sprite.setScale(1);
     this.sprite.setDepth(10);
 
     // Register animations (idempotent)
@@ -48,7 +49,7 @@ export class NPC {
 
     this._play(`${spriteKey}_idle`);
 
-    this.label = scene.add.text(x, y - 28, npcName, {
+    this.label = scene.add.text(x, y - 18, npcName, {
       fontSize: '6px', color: '#f0d090', fontFamily: 'monospace',
     }).setOrigin(0.5).setDepth(11);
 
@@ -67,7 +68,7 @@ export class NPC {
   }
 
   update(dt: number): void {
-    if (!this.patrol) return;
+    if (!this.patrol || this.paused) return;
     const { x1, x2, speed = 30 } = this.patrol;
     const dx = speed * (dt / 1000) * this.dir;
     const nx = this.sprite.x + dx;
@@ -83,6 +84,13 @@ export class NPC {
 
     this.label.x = this.sprite.x;
   }
+
+  pause(): void {
+    this.paused = true;
+    this._play(`${this.sprite.texture.key}_idle`);
+  }
+
+  resume(): void { this.paused = false; }
 
   private _play(key: string): void {
     if (this.curAnim !== key) {

@@ -1,0 +1,111 @@
+{
+  "bench": "MemoryBank-CN",
+  "user": "张曼婷",
+  "model": "deepseek-v4-pro",
+  "sandbox_kg": "/Users/minghan/Desktop/秋招2026_精简版/秋招2026_精简版/补洞产物/公认评测集/沙箱_MemoryBank_张曼婷/kg/eval_kg_张曼婷.json",
+  "nodes_ingested": 50,
+  "score": "0/7",
+  "accuracy": 0.0,
+  "isolation_ok": true,
+  "real_kg_sha256": "36c5bd6f24d1ace5e11d7c8162f4dca03d8004aa8b456659d909a63d22ccf4c3",
+  "rows": [
+    {
+      "id": "MB-ZM-01",
+      "user": "张曼婷",
+      "question": "我曾经和你推荐过一部科幻电影，它的名字是？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.82,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "id": "MB-ZM-02",
+      "user": "张曼婷",
+      "question": "我曾经在图书馆学习时看过一本小说，它的名字是？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.44,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "id": "MB-ZM-03",
+      "user": "张曼婷",
+      "question": "你曾经给我推荐过哪些画家？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.46,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "id": "MB-ZM-04",
+      "user": "张曼婷",
+      "question": "我曾经和你提到我去过绿禾公园，我在绿禾公园看到了什么景色？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.44,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "id": "MB-ZM-05",
+      "user": "张曼婷",
+      "question": "我曾经和你分享过一部文艺片《出租车司机》，它的内容是？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.44,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "id": "MB-ZM-06",
+      "user": "张曼婷",
+      "question": "我曾经在5月2日提到过我去了博物馆，你还记得我当时看了什么展览吗？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.45,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "id": "MB-ZM-07",
+      "user": "张曼婷",
+      "question": "我曾经在5月4日这天分享了一些我遇到的麻烦，是关于什么的？",
+      "answer": "",
+      "tools": "",
+      "n_retrieve": 0,
+      "judge": {
+        "score": 0
+      },
+      "score": 0,
+      "seconds": 0.54,
+      "error": "Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****0d65 is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    }
+  ]
+}

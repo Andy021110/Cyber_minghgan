@@ -31,7 +31,7 @@ import anthropic  # pip install anthropic
 MD_PATH  = Path(__file__).parent.parent / "archive_sources" / "Yuanbao_Battle_Raw.md"
 KG_PATH  = Path(__file__).parent.parent / "yuanbao_cyber_minghan_kg.json"
 
-MODEL    = "claude-sonnet-4-6"          # 分析用模型
+MODEL    = os.environ.get("MODEL", "deepseek-v4-pro")          # 分析用模型
 MAX_TOKENS = 4096                       # 每次 API 调用最大 token
 
 logging.basicConfig(

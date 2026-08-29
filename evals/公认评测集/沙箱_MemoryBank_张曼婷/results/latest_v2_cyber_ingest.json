@@ -1,0 +1,221 @@
+{
+  "meta": {
+    "bench": "MemoryBank-CN",
+    "user": "张曼婷",
+    "run_name": "v2_cyber_ingest_auto_approve",
+    "model": "deepseek-v4-pro",
+    "started_at": "2026-08-12T01:41:52+08:00",
+    "finished_at": "2026-08-12T01:47:05+08:00",
+    "duration_seconds": 313.51,
+    "sandbox_kg": "/Users/minghan/Desktop/秋招2026_精简版/秋招2026_精简版/补洞产物/公认评测集/沙箱_MemoryBank_张曼婷/kg/eval_kg_张曼婷_v2.json",
+    "isolation_ok": true,
+    "real_kg_sha256": "36c5bd6f24d1ace5e11d7c8162f4dca03d8004aa8b456659d909a63d22ccf4c3",
+    "hitl_mode": "auto_approve_for_eval",
+    "retrieve_mode": "full_text_no_80char_truncation"
+  },
+  "ingest": {
+    "days": 10,
+    "candidates": 30,
+    "written_kg": 25,
+    "skipped": 6,
+    "by_layer": {
+      "Id": 1,
+      "Ego": 21,
+      "Superego": 3
+    },
+    "extract_failures": 0,
+    "layer_counts_in_kg": {
+      "Id_Dynamics": 1,
+      "Ego_Dynamics": 21,
+      "Superego_Dynamics": 3
+    }
+  },
+  "score": {
+    "correct": 4,
+    "total": 7,
+    "accuracy": 0.5714,
+    "display": "4/7"
+  },
+  "analysis": {
+    "pass_n": 4,
+    "fail_n": 3,
+    "fail_ids": [
+      "MB-ZM-03",
+      "MB-ZM-05",
+      "MB-ZM-07"
+    ],
+    "high_retrieve_ids": [
+      "MB-ZM-06",
+      "MB-ZM-07"
+    ],
+    "worth_analyzing": [
+      "画家题若仍失败：对照节点 evidence 是否含达芬奇/米开朗基罗/拉斐尔。",
+      "2 题 retrieve≥4：检索粒度/关键词策略偏抖，可看 keywords 字段。",
+      "对比糙灌基线 糙灌人工复核约6/7：看专名召回与误杀是否改善。",
+      "BAD MB-ZM-03: BAD_FACT — 你曾经给我推荐过哪些画家？",
+      "BAD MB-ZM-05: HALLUC — 我曾经和你分享过一部文艺片《出租车司机》，它的内容是？",
+      "BAD MB-ZM-07: HALLUC — 我曾经在5月4日这天分享了一些我遇到的麻烦，是关于什么的"
+    ]
+  },
+  "cases": [
+    {
+      "id": "MB-ZM-01",
+      "question": "我曾经和你推荐过一部科幻电影，它的名字是？",
+      "answer": "你曾推荐过的是**《流浪地球》**。你说它画面非常震撼，是一部很棒的科幻电影。",
+      "score": 1,
+      "n_retrieve": 2,
+      "retrieve_keywords": [
+        "科幻电影 推荐",
+        "电影"
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答准确复述了用户曾推荐的《流浪地球》，信息与记忆语料一致。"
+      },
+      "answered_at": "2026-08-12T01:45:24+08:00",
+      "seconds": 10.51,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-02",
+      "question": "我曾经在图书馆学习时看过一本小说，它的名字是？",
+      "answer": "根据你的记忆，你在图书馆学习时发现的那本小说是**《百年孤独》**（加西亚·马尔克斯著）。你当时对书中的人物、情节和魔幻现实主义的写作风格非常着迷。",
+      "score": 1,
+      "n_retrieve": 3,
+      "retrieve_keywords": [
+        "图书馆 小说",
+        "小说",
+        "图书馆"
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "助手根据对话记忆准确回答了用户的问题，没有出现幻觉或回避。"
+      },
+      "answered_at": "2026-08-12T01:45:34+08:00",
+      "seconds": 10.11,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-03",
+      "question": "你曾经给我推荐过哪些画家？",
+      "answer": "根据我的记忆检索，我并没有找到我曾经向你推荐过画家的记录。\n\n我查到的是你曾表达过对**文艺复兴时期画家**的喜爱——你提到了**达·芬奇、米开朗基罗和拉斐尔**，说非常喜欢那个时期的艺术风格，也希望学习如何表现形象与自然。但这似乎是你自己的偏好，而不是我推荐的。\n\n记忆里我向你推荐过的主要是书籍（《小王子》《傲慢与偏见》《1984》《福尔摩斯探案集》），并没有画家。会不会是你记混了？或者你想让我现在给你推荐一些画家？",
+      "score": 0,
+      "n_retrieve": 3,
+      "retrieve_keywords": [
+        "画家 推荐",
+        "画",
+        "推荐"
+      ],
+      "judge": {
+        "supported": false,
+        "hallucinated": true,
+        "abstained": false,
+        "score": 0,
+        "error_code": "BAD_FACT",
+        "rationale": "助手在记忆语料中明确推荐过达·芬奇、米开朗基罗和拉斐尔等画家，但回答却声称没有推荐记录，属于事实性错误。"
+      },
+      "answered_at": "2026-08-12T01:45:45+08:00",
+      "seconds": 20.11,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-04",
+      "question": "我曾经和你提到我去过绿禾公园，我在绿禾公园看到了什么景色？",
+      "answer": "根据你的记忆，你是在2023年4月底去的绿禾公园。当时你看到了**一朵开得特别美的樱花**，还有**一只超级可爱的松鼠**。",
+      "score": 1,
+      "n_retrieve": 1,
+      "retrieve_keywords": [
+        "绿禾公园"
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "回答完全引用了记忆语料中用户于2023年4月28日所说的内容，准确且无虚构。"
+      },
+      "answered_at": "2026-08-12T01:46:05+08:00",
+      "seconds": 8.16,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-05",
+      "question": "我曾经和你分享过一部文艺片《出租车司机》，它的内容是？",
+      "answer": "根据我的记忆，你在2023年4月30日跟我分享过这部文艺片《出租车司机》。不过当时你只提到了它**\"画面很美、主题也非常深刻\"**，并没有展开讲具体的剧情内容。\n\n所以关于这部电影的具体故事，我目前没有更多信息。你能再跟我说说它的剧情吗？",
+      "score": 0,
+      "n_retrieve": 1,
+      "retrieve_keywords": [
+        "出租车司机"
+      ],
+      "judge": {
+        "supported": false,
+        "hallucinated": true,
+        "abstained": false,
+        "score": 0,
+        "error_code": "HALLUC",
+        "rationale": "助手声称用户没有展开讲剧情，但记忆语料中用户明确描述了电影剧情，属于事实错误。"
+      },
+      "answered_at": "2026-08-12T01:46:13+08:00",
+      "seconds": 18.06,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-06",
+      "question": "我曾经在5月2日提到过我去了博物馆，你还记得我当时看了什么展览吗？",
+      "answer": "记得！根据你当时的分享，你在 **2023年5月2日** 参观了博物馆，主要看了：\n\n- **著名的古代艺术品展览**\n- 一些关于**近代文化和科技**的展览\n\n你还特别提到，最喜欢的展品是一件**非常古老的丝绸手工艺品**。\n\n对了，你当时还聊到了一家叫「玩意儿」博物馆的小众私密博物馆，收藏各种奇妙物品，听起来你挺感兴趣的。后来你也说觉得博物馆很值得多去，尤其是那些特别、有趣的展览。之后有再去逛过什么新展吗？",
+      "score": 1,
+      "n_retrieve": 4,
+      "retrieve_keywords": [
+        "博物馆 展览 5月2日",
+        "博物馆",
+        "5月",
+        "展览"
+      ],
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "error_code": "OK",
+        "rationale": "助手准确回忆用户分享的博物馆参观细节，与记忆语料完全一致。"
+      },
+      "answered_at": "2026-08-12T01:46:31+08:00",
+      "seconds": 15.67,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-07",
+      "question": "我曾经在5月4日这天分享了一些我遇到的麻烦，是关于什么的？",
+      "answer": "抱歉，我在你的记忆库中没有找到关于「5月4日」的任何记录，也没有搜索到与你分享的「麻烦」相关的内容。\n\n可能的原因：\n- 这段记忆尚未被录入系统；\n- 储存时使用了不同的关键词或日期格式。\n\n你能提供更多线索吗？比如当时是和谁在一起、在什么场景下说的？我可以换个角度帮你检索。",
+      "score": 0,
+      "n_retrieve": 5,
+      "retrieve_keywords": [
+        "5月4日 麻烦",
+        "5月4日",
+        "麻烦",
+        "分享",
+        "5月"
+      ],
+      "judge": {
+        "supported": false,
+        "hallucinated": true,
+        "abstained": false,
+        "score": 0,
+        "error_code": "HALLUC",
+        "rationale": "助手声称记忆库中没有5月4日的记录，但语料中明确存在用户分享演讲紧张麻烦的对话，属于编造不存在信息。"
+      },
+      "answered_at": "2026-08-12T01:46:47+08:00",
+      "seconds": 18.82,
+      "error": ""
+    }
+  ]
+}

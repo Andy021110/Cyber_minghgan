@@ -100,7 +100,7 @@ def _ai_summarize_drift(persona_text: str, nodes: list) -> str:
 只列出真正有意义的漂移，无漂移时直接输出"无明显漂移"。"""
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model=os.environ.get("MODEL", "deepseek-v4-pro"),
         max_tokens=1024,
         messages=[{"role": "user", "content": prompt}],
     )

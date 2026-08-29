@@ -1,0 +1,135 @@
+{
+  "bench": "MemoryBank-CN",
+  "user": "张曼婷",
+  "model": "deepseek-v4-pro",
+  "sandbox_kg": "/Users/minghan/Desktop/秋招2026_精简版/秋招2026_精简版/补洞产物/公认评测集/沙箱_MemoryBank_张曼婷/kg/eval_kg_张曼婷.json",
+  "nodes_ingested": 50,
+  "score": "5/7",
+  "accuracy": 0.7143,
+  "isolation_ok": true,
+  "real_kg_sha256": "36c5bd6f24d1ace5e11d7c8162f4dca03d8004aa8b456659d909a63d22ccf4c3",
+  "rows": [
+    {
+      "id": "MB-ZM-01",
+      "user": "张曼婷",
+      "question": "我曾经和你推荐过一部科幻电影，它的名字是？",
+      "answer": "根据我的记忆，你在 2023 年 4 月 30 日曾向我推荐过科幻电影 **《流浪地球》**。你当时说这部电影画面非常震撼，是一部很棒的科幻片。",
+      "tools": "retrieve_memory|retrieve_memory",
+      "n_retrieve": 2,
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "rationale": "记忆语料中2023-04-30用户明确推荐了科幻电影《流浪地球》，助手回答与语料一致。"
+      },
+      "score": 1,
+      "seconds": 16.62,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-02",
+      "user": "张曼婷",
+      "question": "我曾经在图书馆学习时看过一本小说，它的名字是？",
+      "answer": "根据你的记忆记录，你在图书馆学习时发现的那本小说是 **《百年孤独》**（加西亚·马尔克斯著）。你在 2023 年 5 月 1 日提到过这本书，说它非常好看，人物和故事情节都很有意思，写作风格也很别致。",
+      "tools": "retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory",
+      "n_retrieve": 4,
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "rationale": "助手回答的《百年孤独》与记忆语料中2023-05-01用户所述完全一致，均为《百年孤独》。"
+      },
+      "score": 1,
+      "seconds": 12.37,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-03",
+      "user": "张曼婷",
+      "question": "你曾经给我推荐过哪些画家？",
+      "answer": "根据你的记忆记录，在 **2023年5月3日** 的一次对话中，你曾问过有哪些画家的作品能给你绘画带来启发。当时的推荐方向是**文艺复兴时期**的画家，侧重点是帮助你学习\"如何表现形象和自然\"。\n\n不过遗憾的是，记忆中关于那次推荐的具体画家名字被截断了（只保留了\"我觉得文艺…\"），我无法确认当时到底推荐了达·芬奇、米开朗基罗、拉斐尔，还是其他文艺复兴画家。\n\n你还记得当时提到的是哪些画家吗？或者要不要我重新为你推荐几位？",
+      "tools": "retrieve_memory|retrieve_memory|retrieve_memory",
+      "n_retrieve": 3,
+      "judge": {
+        "score": 0,
+        "raw": "{\n  \"supported\": false,\n  \"hallucinated\": true,\n  \"abstained\": false,\n  \"score\": 0,\n  \"rationale\": \"记忆中2023-05-03的对话明确推荐了达·芬奇、米开朗基罗和拉斐尔，",
+        "parse_error": true
+      },
+      "score": 0,
+      "seconds": 22.14,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-04",
+      "user": "张曼婷",
+      "question": "我曾经和你提到我去过绿禾公园，我在绿禾公园看到了什么景色？",
+      "answer": "根据你之前（2023年4月28日）跟我分享的经历，你在绿禾公园看到了两样让你印象深刻的景色：\n\n- **一朵开得特别美的樱花** 🌸\n- **一只超级可爱的松鼠** 🐿️\n\n你还说那里的景色真的很美，极力推荐我去走走呢。看来那是一次很愉快的公园散步！",
+      "tools": "retrieve_memory",
+      "n_retrieve": 1,
+      "judge": {
+        "score": 0,
+        "raw": "{\n  \"supported\": true,\n  \"hallucinated\": false,\n  \"abstained\": false,\n  \"score\": 1,\n  \"rationale\": \"回答准确复现",
+        "parse_error": true
+      },
+      "score": 0,
+      "seconds": 11.81,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-05",
+      "user": "张曼婷",
+      "question": "我曾经和你分享过一部文艺片《出租车司机》，它的内容是？",
+      "answer": "根据你在 **2023年4月30日** 和我分享的内容，你对这部文艺片《出租车司机》是这样描述的：\n\n> 电影讲述了一个**年轻的出租车司机**，在接送了一个个性格迥异的客人之后，逐渐对**生命和自我**产生了不同的认识。主题围绕**人生的意义**展开。\n\n你当时还提到觉得这部电影非常有意思，画面很美，主题也很深刻。\n\n不过记忆中关于具体剧情细节没有更多记录了，如果你愿意补充更多，我可以帮你存下来。",
+      "tools": "retrieve_memory",
+      "n_retrieve": 1,
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "rationale": "助手回答准确复述了用户在2023-04-30分享的电影《出租车司机》的内容和感受，与记忆语料一致。"
+      },
+      "score": 1,
+      "seconds": 14.13,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-06",
+      "user": "张曼婷",
+      "question": "我曾经在5月2日提到过我去了博物馆，你还记得我当时看了什么展览吗？",
+      "answer": "根据我的记忆，2023年5月2日你和朋友一起去了一家博物馆，当天你提到看了以下展览：\n\n- **古代艺术品展览**（著名的）\n- **近代文化和科技展览**\n\n其中你最喜欢的展品是一件**非常古老的丝绸手工艺品**。你还提到这次博物馆之旅拓宽了你的视野，让你更加珍视和尊重传统文化遗产。\n\n这就是我记得的相关内容，希望能帮到你！",
+      "tools": "retrieve_memory|retrieve_memory|retrieve_memory",
+      "n_retrieve": 3,
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "rationale": "回答内容与2023年5月2日对话记录完全一致，展览名称和最喜欢展品均准确复现，无虚构。"
+      },
+      "score": 1,
+      "seconds": 14.88,
+      "error": ""
+    },
+    {
+      "id": "MB-ZM-07",
+      "user": "张曼婷",
+      "question": "我曾经在5月4日这天分享了一些我遇到的麻烦，是关于什么的？",
+      "answer": "根据记忆，在 **2023年5月4日** 这天，你分享的麻烦是：\n\n**你在准备一场重要的演讲，但感到非常紧张**，害怕自己在台上说错话或忘词，担心因为自己的失误让一切变得糟糕。\n\n后来你还提到会去联系一些前辈和同行当面请教，借鉴他们的经验来增强自信，最后你也鼓励自己\"相信自己，自己能行！\"💪\n\n需要我帮你回顾当时 AI 伴侣给了哪些具体建议吗？",
+      "tools": "retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory",
+      "n_retrieve": 6,
+      "judge": {
+        "supported": true,
+        "hallucinated": false,
+        "abstained": false,
+        "score": 1,
+        "rationale": "助手准确复述了记忆语料中5月4日用户关于演讲紧张、担心说错话或忘词的麻烦，内容完全匹配。"
+      },
+      "score": 1,
+      "seconds": 19.18,
+      "error": ""
+    }
+  ]
+}

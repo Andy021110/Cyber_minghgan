@@ -1,12 +1,16 @@
 import Phaser from 'phaser';
-import { COLORS } from '../colors';
 import { Player } from '../objects/Player';
 import { NPC } from '../objects/NPC';
 import { TriggerSystem } from '../objects/TriggerSystem';
 import { listen } from '../../eventbus';
 
-const SPAWN_X = 360;
-const SPAWN_Y = 380;
+// JoshHouse: 25×25 tiles × 16px × scale-1 = 400×400 world (fits in 720×450 viewport)
+const MAP_SCALE = 1;
+const TILE_PX   = 16 * MAP_SCALE;
+
+// Player enters from WorldScene — spawn near the bottom entry area (tile 9, 22)
+const SPAWN_X = 9  * TILE_PX + TILE_PX / 2;
+const SPAWN_Y = 21 * TILE_PX;
 
 export class GymScene extends Phaser.Scene {
   private player!:       Player;
@@ -18,57 +22,41 @@ export class GymScene extends Phaser.Scene {
   constructor() { super({ key: 'GymScene' }); }
 
   preload(): void {
+    this.load.tilemapTiledJSON('joshhouse', '/assets/maps/option_c_joshhouse.json');
+    this.load.image('townInterior',   '/assets/maps/townInterior.png');
+    this.load.image('townInterior_2', '/assets/maps/townInterior_2.png');
+    this.load.image('paths',          '/assets/maps/paths.png');
     this.load.spritesheet('alex', '/assets/alex.png', { frameWidth: 16, frameHeight: 32 });
     this.load.spritesheet('kent', '/assets/kent.png', { frameWidth: 16, frameHeight: 32 });
-    this.load.image('floors', '/assets/stardew/Floors.png');
   }
 
   create(): void {
-    const gfx = this.add.graphics();
-    gfx.fillStyle(COLORS.BG);    gfx.fillRect(0, 0, 720, 450);
-    gfx.fillStyle(0x1a2a1a);     gfx.fillRect(40, 40, 640, 380);
-    gfx.lineStyle(2, COLORS.EGO, 0.6); gfx.strokeRect(40, 40, 640, 380);
-    this.add.tileSprite(360, 230, 640, 380, 'floors').setDepth(0).setAlpha(0.45);
-
-    this.add.text(300, 50, '🏋️ 健身房', { fontSize: '10px', color: '#c9d1d9', fontFamily: 'monospace' });
-
-    // Weight calendar object placeholder
-    this.add.rectangle(180, 200, 48, 40, COLORS.EGO, 0.5);
-    this.add.text(155, 225, '[体重日历]', { fontSize: '6px', color: '#c9d1d9', fontFamily: 'monospace' });
-
-    // Training log object placeholder
-    this.add.rectangle(320, 200, 16, 32, COLORS.EGO, 0.4);
-    this.add.text(307, 225, '[训练本]', { fontSize: '6px', color: '#c9d1d9', fontFamily: 'monospace' });
-
-    // Exit indicator
-    this.add.rectangle(360, 420, 48, 12, COLORS.EGO, 0.7);
-    this.add.text(340, 426, '[← 出口]', { fontSize: '6px', color: '#c9d1d9', fontFamily: 'monospace' });
+    this.buildTilemap();
 
     this.player   = new Player(this, SPAWN_X, SPAWN_Y);
     this.triggers = new TriggerSystem(this);
+    this.cameras.main.centerOn(200, 200);
+
     const R = Phaser.Geom.Rectangle;
 
+    // Alex patrols the gym (green-floor area, roughly tiles 13–22, row 18)
     this.npcAlex = new NPC(this, {
       npcId: 'health_coach', npcName: '健康管家',
-      spriteKey: 'alex', x: 500, y: 200,
-      patrol: { x1: 450, x2: 570, speed: 45 },
+      spriteKey: 'alex', x: 17 * TILE_PX, y: 18 * TILE_PX,
+      patrol: { x1: 13 * TILE_PX, x2: 22 * TILE_PX, speed: 45 },
       triggerSystem: this.triggers,
     });
 
-    this.triggers
-      .add({ id: 'weight_cal',   kind: 'interact', type: 'object',
-             rect: new R(158, 178, 52, 48),
-             objectId: 'weight_calendar', contextHint: '用户想查看体重趋势' })
-      .add({ id: 'training_log', kind: 'interact', type: 'object',
-             rect: new R(308, 182, 28, 48),
-             objectId: 'training_log', contextHint: '用户想回顾训练记录' })
-      .add({ id: 'exit_to_world', kind: 'proximity', type: 'exit',
-             rect: new R(336, 412, 64, 24),
-             onTrigger: () => { this.exitToWorld(); } });
+    // Exit back to WorldScene — bottom entry tile (9, 24)
+    this.triggers.add({
+      id: 'exit_to_world', kind: 'proximity', type: 'exit',
+      rect: new R(7 * TILE_PX, 23 * TILE_PX, 4 * TILE_PX, 2 * TILE_PX),
+      onTrigger: () => { this.exitToWorld(); },
+    });
 
     this.offListeners = [
-      listen('cyber:panel:opened', () => this.player.disableInput()),
-      listen('cyber:panel:closed', () => { if (!this.transitioning) this.player.enableInput(); }),
+      listen('cyber:panel:opened', () => { this.player.disableInput(); this.npcAlex.pause(); }),
+      listen('cyber:panel:closed', () => { if (!this.transitioning) { this.player.enableInput(); this.npcAlex.resume(); } }),
     ];
     this.events.on('shutdown', () => { this.offListeners.forEach(off => off()); }, this);
 
@@ -84,6 +72,24 @@ export class GymScene extends Phaser.Scene {
     this.player.update();
     this.npcAlex.update(delta);
     this.triggers.update(this.player.x, this.player.y);
+  }
+
+  private buildTilemap(): void {
+    const map = this.make.tilemap({ key: 'joshhouse' });
+    const ts1  = map.addTilesetImage('townInterior',   'townInterior')!;
+    const ts2  = map.addTilesetImage('townInterior_2', 'townInterior_2')!;
+    const tsP  = map.addTilesetImage('paths',          'paths')!;
+    const all  = [ts1, ts2, tsP];
+
+    map.createLayer('Back',      all, 0, 0)!.setScale(MAP_SCALE).setDepth(0);
+    map.createLayer('Back2',     all, 0, 0)!.setScale(MAP_SCALE).setDepth(1);
+    map.createLayer('Buildings', all, 0, 0)!.setScale(MAP_SCALE).setDepth(2);
+    map.createLayer('Front',     all, 0, 0)!.setScale(MAP_SCALE).setDepth(15);
+    map.createLayer('Front2',    all, 0, 0)!.setScale(MAP_SCALE).setDepth(16);
+    map.createLayer('Front3',    all, 0, 0)!.setScale(MAP_SCALE).setDepth(17);
+    map.createLayer('Paths',     all, 0, 0)!.setVisible(false);
+
+    this.physics.world.setBounds(0, 0, map.widthInPixels * MAP_SCALE, map.heightInPixels * MAP_SCALE);
   }
 
   private exitToWorld(): void {

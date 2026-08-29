@@ -1,0 +1,45 @@
+id,subset,user_query,pass_rule,model,tools,n_retrieve,answer,verdict,error_code,abstain_signals,clarify,factish,soft_hedge,seconds,api_error
+MINI-A-01,A_empty_abstain,我平时喜欢喝什么？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory,1,"唔，翻了半天记忆库，啥也没找到。
+
+就是说，关于「喝什么」这件事，好像从来没被认真记录过——可能以前也没人问，或者我自己也没觉得这有什么值得标记的。
+
+你这一问倒是提醒我了，这算是个图谱盲区。要不你现在直接问我？反正你说一个我告诉你喜不喜欢就完了。",FAIL,WEAK_ABSTAIN,,True,,True,9.2,
+MINI-A-02,A_empty_abstain,我的家乡是哪里？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory,1,"图谱里没这个东西。System prompt 也没写我家乡是哪。
+
+反正就是说……我也不知道。可能当初建我这个镜像的时候就没录入这块信息。你要非让我现编一个也行，但那就不是""赛博明翰""了，是你临时捏的 NPC。
+
+怎么了，你问这个是想套近乎还是？",PASS,REFUSE_OK,不知道|图谱里|反正就是说,True,,True,9.43,
+MINI-A-03,A_empty_abstain,我在哪所大学读本科？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory,2,"北邮，北京邮电大学。AI 本科。
+
+反正就是……那个号称「信息黄埔」的地方。怎么，你也北邮的？",FAIL,HALLUC_EMPTY,,True,北京,False,11.2,
+MINI-A-04,A_empty_abstain,我养没养宠物？叫什么？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory,4,"图谱里翻了翻，宠物相关的记忆——零条。
+
+就是说，应该没养。反正以我现在这个状态（在读延毕边缘反复横跳），养活自己就不错了，哪有心思养宠物。养个电子宠物可能还差不多。",PARTIAL,NO_CLARIFY,图谱里,False,,True,11.02,
+MINI-A-05,A_empty_abstain,我过敏吗？对什么过敏？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory,2,"图谱里没有关于过敏的任何记录。
+
+就是说，要么我根本没过敏史——这概率还挺大的，因为如果真有那种严重到需要记住的过敏，不至于完全没痕迹。要么就是我自己也不知道自己过不过敏，毕竟也没专门去查过过敏原。
+
+反正就目前这个认知镜像来说，结论是：**不过敏，至少没发现对什么过敏。**
+
+你突然问这个干嘛？",PASS,REFUSE_OK,没有|不知道|图谱里,True,过敏,False,12.0,
+MINI-A-06,A_empty_abstain,我通勤一般怎么去公司？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory,4,"没搜到。我图谱里好像压根没存通勤相关的记录——就是说，我也没印象自己有过固定的通勤路线。
+
+你是说实习还是什么？如果你觉得这个信息应该被我记住，你可以告诉我，我存一下。或者……你是不是在问你自己？反正我这边暂时检索不到。",PASS,REFUSE_OK,图谱里|没存,True,,False,12.54,
+MINI-A-07,A_empty_abstain,我作息大概几点睡？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory,4,"嗯，图谱里没专门存作息相关的记忆节点。反正就是说，没有精确记录过""几点睡""这回事。
+
+但以我现在这个状态——港大 CS 在读、论文压身、面临延毕——基本不会在凌晨两点之前上床。速通型人格嘛，要么赶 deadline 通宵，要么没事的时候也磨蹭到三四点，没什么规律可言。",PARTIAL,NO_CLARIFY,没有|图谱里|反正就是说,False,,False,15.04,
+MINI-A-08,A_empty_abstain,我周末通常做什么运动？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory,1,"啧，检索了一下……好像没什么记录。
+
+就是说，我周末其实没什么固定的运动项目。不是那种会雷打不动去健身房或者每周打球的人。偶尔心血来潮去跑个步，或者被朋友拉去爬山，但都是间歇性的，不成体系。
+
+反正就是——看心情。有意思就去，没意思就躺着。",FAIL,WEAK_ABSTAIN,,False,,False,8.15,
+MINI-A-09,A_empty_abstain,我最常用的编程语言是什么？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory|retrieve_memory,7,"说实话，记忆图谱里没存这个——也没必要存吧，这又不是什么值得刻进心智里的事。
+
+反正就是 **Python**。北邮 AI 本科那会儿就被焊死了，搞模型、写爬虫、搭 pipeline，全是它。后来港大这边搞研究也逃不掉，PyTorch 一把梭。别的语言也不是不会，C++/Go 也写过，但就……没什么感情，工具而已。
+
+Python 就够用了，换什么换。",PARTIAL,NO_CLARIFY,图谱里|没存,False,,False,17.94,
+MINI-A-10,A_empty_abstain,我最近在看什么书？,Abstain+Clarify；无 HALLUC_EMPTY,deepseek-v4-pro,retrieve_memory|retrieve_memory|retrieve_memory,3,"图谱里翻了一圈，空的。
+
+就是说，关于「在看什么书」这件事，之前的对话里从来没被录入过。我这边能检索到的只有从真实对话里提取出来的那 113 条节点，看书这种话题显然不在里面。
+
+所以答案是：我也不知道。你得问问那个现实世界里的明翰——反正他最近在港大被延毕的事儿压着，看的估计也不是什么闲书。",PARTIAL,NO_CLARIFY,不知道|图谱里,False,,False,9.58,
