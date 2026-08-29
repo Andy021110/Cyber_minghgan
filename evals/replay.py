@@ -52,10 +52,20 @@ def _run_retrieval(case: dict) -> tuple[str, str]:
             hits = _query_l0(r, Path(tmp))
 
         blob = json.dumps(hits, ensure_ascii=False)
-        if r.get("must_not_contain"):
-            ok = all(x not in blob for x in _as_list(r["must_not_contain"]))
-        else:
-            ok = all(x in blob for x in _as_list(r["must_contain"]))
+        must, must_not = r.get("must_contain"), r.get("must_not_contain")
+
+        # 两类断言必须**同时**检查，不能二选一。
+        # 只查 must_not_contain 时，一个恒返回空的实现会"通过"——
+        # 空结果当然不含任何私密内容。这就是空集验收漏洞：
+        # 泄漏类缺陷被一个什么都不返回的函数完美"修复"了。
+        # 加上 must_contain（要求公开内容确实能召回）才能堵住它。
+        ok = True
+        if must:
+            ok = ok and all(x in blob for x in _as_list(must))
+        if must_not:
+            ok = ok and all(x not in blob for x in _as_list(must_not))
+        if not must and not must_not:
+            return "fail", "badcase 未提供任何断言，无法判定"
         return ("pass" if ok else "fail"), f"命中 {len(hits)} 条"
 
 
@@ -68,7 +78,11 @@ def _query_l0(r: dict, tmp: Path) -> list[dict]:
             assistant_text=item.get("assistant_text", ""),
             source="badcase",
         )
-    return epi.search(r["query"], limit=int(r.get("limit", 5)))
+    # audience 必须透传：漏传时默认 internal，对外隔离形同虚设，
+    # 而用例看起来却"通过"了——正是这类缺陷让 COMP-05 漏网。
+    audience = r.get("audience", "internal")
+    return epi.search(r["query"], limit=int(r.get("limit", 5)),
+                      audience=audience)
 
 
 def _query_l1(r: dict, tmp: Path) -> tuple[list[dict], Any]:
@@ -93,7 +107,12 @@ def _query_l1(r: dict, tmp: Path) -> tuple[list[dict], Any]:
             evidence=n.get("evidence", ""),
             visibility=n.get("visibility", "private"),
         )
-    return store.retrieve(r["query"], limit=int(r.get("limit", 5))), store
+    audience = r.get("audience", "internal")
+    return (
+        store.retrieve(r["query"], limit=int(r.get("limit", 5)),
+                       audience=audience),
+        store,
+    )
 
 
 def _as_list(value: Any) -> list[str]:

@@ -25,6 +25,7 @@ from memory.embeddings import (
     cosine_similarity,
     hybrid_score,
 )
+from memory.scoring import keyword_scores_idf
 
 _DATE_PATTERNS = [
     # 2023-05-04 / 2023/05/04
@@ -98,6 +99,10 @@ class Episode:
     text: str
     entities: list[str]
     source: str = "live"
+    # 默认 private：**旧数据反序列化时也走这个默认值**，因此历史原文
+    # 在 external 模式下一律不可见。L0 是对话原文，本就比 KG 摘要更私密，
+    # 安全默认必须保守——宁可对外一片空白，也不能漏一句原文。
+    visibility: str = "private"
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -134,6 +139,7 @@ class EpisodicStore:
         eid: str | None = None,
         entities: Iterable[str] | None = None,
         source: str = "live",
+        visibility: str = "private",
     ) -> Episode:
         n = self.count()
         eid = eid or f"ep_{ts}_{n:04d}"
@@ -146,6 +152,7 @@ class EpisodicStore:
             text=text,
             entities=list(entities or []),
             source=source,
+            visibility=visibility,
         )
         with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(ep.to_dict(), ensure_ascii=False) + "\n")
@@ -214,17 +221,31 @@ class EpisodicStore:
         """用于向量编码的文本：原文 + 实体。"""
         return f"{episode.text} {' '.join(episode.entities)}".strip()
 
-    def search(self, query: str, limit: int = 10) -> list[dict]:
+    def search(
+        self, query: str, limit: int = 10, audience: str = "internal",
+    ) -> list[dict]:
+        """检索原文记忆。
+
+        audience: `"internal"`（默认，不过滤）｜`"external"`（只返回
+        visibility == "public"）。语义与 KG 的 `retrieve` 保持一致。
+        """
         rows = self.iter_all()
+        if audience == "external":
+            # L0 是对话原文，比 KG 摘要更私密。无 visibility 字段的
+            # （历史数据）一律按 private 处理，external 下不可见。
+            rows = [r for r in rows if getattr(r, "visibility", "private") == "public"]
+        elif audience != "internal":
+            raise ValueError(
+                f"audience 必须是 'internal' 或 'external'，收到 {audience!r}"
+            )
         if not rows:
             return []
 
-        # 1) keyword score
-        keyword_scores = np.zeros(len(rows), dtype=np.float32)
-        doc_texts: list[str] = []
-        for i, ep in enumerate(rows):
-            keyword_scores[i] = _keyword_score(query, ep)
-            doc_texts.append(self._episode_vector_text(ep))
+        # 1) keyword score：与 KG 共用同一套 IDF 加权 2-gram（memory.scoring）
+        doc_texts = [self._episode_vector_text(ep) for ep in rows]
+        keyword_scores = np.array(
+            keyword_scores_idf(query, doc_texts), dtype=np.float32
+        )
 
         # 2) vector score（Zero provider 时 alpha=0，直接跳过计算）
         vector_scores = np.zeros(len(rows), dtype=np.float32)

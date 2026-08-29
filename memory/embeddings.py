@@ -114,7 +114,21 @@ def get_provider(name: str | None = None) -> EmbeddingProvider:
     """
     name = (name or os.environ.get("CYBER_EMBEDDING_PROVIDER", "zero")).lower()
     if name == "bge":
-        return BgeEmbeddingProvider()
+        try:
+            return BgeEmbeddingProvider()
+        except Exception as exc:
+            # 模型拉不到（huggingface.co 与 hf-mirror 在本环境均不可达，已实测）
+            # 时降级，而不是让整个检索挂掉——关键词通路仍可工作。
+            # 但**不能静默降级**：否则"向量通路其实没生效"会变成极难察觉的问题
+            # （表现为检索效果差却查不出原因）。所以必须告警。
+            import warnings
+
+            warnings.warn(
+                f"BGE 不可用，降级为 Zero provider（向量通路不参与）：{exc}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return ZeroEmbeddingProvider()
     return ZeroEmbeddingProvider()
 
 

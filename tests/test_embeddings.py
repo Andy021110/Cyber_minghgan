@@ -1,5 +1,7 @@
 """embedding 模块单元测试：零向量回退 + 余弦相似度 + 混合打分。"""
 
+import warnings
+
 import numpy as np
 import pytest
 
@@ -53,14 +55,27 @@ def test_get_provider_defaults_to_zero():
     assert isinstance(p2, ZeroEmbeddingProvider)
 
 
-def test_get_provider_bge_requires_dependency(monkeypatch):
+def test_get_provider_bge_degrades_gracefully(monkeypatch):
+    """BGE 拉不到模型时应降级为 Zero，且**必须告警**。
+
+    为什么强调告警：静默降级会让"向量通路其实没生效"变成极难察觉的问题
+    ——表现为检索效果差，却查不出原因。
+    """
     monkeypatch.setenv("CYBER_EMBEDDING_PROVIDER", "bge")
-    # 如果没有安装 sentence-transformers，应抛出 ImportError
-    try:
-        p = get_provider("bge")
-        assert isinstance(p, BgeEmbeddingProvider)
-    except ImportError:
-        pytest.skip("sentence-transformers 未安装，跳过 BGE 加载测试")
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        provider = get_provider("bge")
+
+    if isinstance(provider, BgeEmbeddingProvider):
+        return                       # 模型可用，走正常路径
+    assert isinstance(provider, ZeroEmbeddingProvider), "降级后应是 Zero provider"
+    assert any("降级" in str(w.message) for w in caught), "降级必须告警，不能静默"
+
+
+def test_get_provider_default_is_zero(monkeypatch):
+    """默认零向量通路，保证没有模型也能跑——这是 BC-001 之前没崩的原因。"""
+    monkeypatch.delenv("CYBER_EMBEDDING_PROVIDER", raising=False)
+    assert isinstance(get_provider(), ZeroEmbeddingProvider)
 
 
 def test_cosine_similarity_orthogonal():
