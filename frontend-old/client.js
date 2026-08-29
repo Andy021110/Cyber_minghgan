@@ -9,8 +9,8 @@
 
 export const USE_MOCK = true;
 
-// Private mode: set PRIVATE_KEY to your server key for local dev; leave empty for public access
-export const PRIVATE_KEY = 'minghan';
+// 注意：勿在此硬编码真实密钥（曾误提交明文密钥）。本地调试自行填入，切勿提交。
+export const PRIVATE_KEY = '';
 export const IS_PRIVATE_MODE = PRIVATE_KEY !== '';
 
 const API_BASE = 'http://localhost:8000';

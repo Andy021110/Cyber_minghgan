@@ -31,8 +31,9 @@ evals/**/__pycache__/
 evals/公认评测集/LongMemEval/longmemeval_s_cleaned.json
 evals/公认评测集/LongMemEval/longmemeval_m_cleaned.json
 
-# 对话导出记录
+# 对话导出记录（含个人隐私，不入库）
 对话导出_*.md
+archive_sources/*.md
 
 # Claude Code 会话
 .claude/

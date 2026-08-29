@@ -100,12 +100,14 @@ cyber_minghan/
 ├── evals/                    # 公开集 · 沙箱 · 产品契约（统一入口）
 ├── api/                      # FastAPI 入口与路由
 ├── frontend/                 # React + Phaser 客户端
-├── memory/                   # L0 episodic_store / tools / policy
+├── memory/                   # L0 episodic_store / tools / policy / embeddings
 ├── pipelines/                # 蒸馏、HITL、批处理
+├── tests/                    # pytest（Mock LLM，零 API 调用）
 ├── cyber_planner.py          # Agent 核心（工具环 + KG）
 ├── health_coach.py           # 健康专项
-├── yuanbao_cyber_minghan_kg.json        # L1 图谱（公开前请脱敏）
-└── yuanbao_cyber_minghan_kg_EMPTY.json  # 空图谱模板
+├── Dockerfile                # 后端镜像
+├── docker-compose.yml        # 一键起服务
+└── yuanbao_cyber_minghan_kg.json        # L1 图谱（公开前请脱敏）
 ```
 
 评测怎么跑、目录说明见 → [`evals/README.md`](evals/README.md)
@@ -159,6 +161,31 @@ npm run dev
 ```bash
 python3 cyber_planner.py
 ```
+
+### 5.6 测试与 Lint
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -q          # 37 passed，零 API 调用（FakeAnthropic Mock）
+ruff check tests/ memory/ cyber_planner.py api/main.py
+```
+
+### 5.7 Docker 一键起服务
+
+```bash
+docker compose up --build          # 后端 http://localhost:8000
+```
+
+### 5.8 启用本地向量检索（可选）
+
+默认 `ZeroEmbeddingProvider`（纯关键词，零依赖）。启用本地 BGE：
+
+```bash
+pip install -r requirements-embed.txt     # sentence-transformers + torch
+export CYBER_EMBEDDING_PROVIDER=bge       # 首次运行会从 HuggingFace 下载 bge-small-zh-v1.5
+```
+
+启用后 L0 `retrieve_episode` 与 L1 `retrieve_memory` 均切换为 **keyword + vector 混合打分**（`vector_alpha` 可调，默认 0.4）。
 
 ---
 
@@ -220,10 +247,12 @@ flowchart LR
 
 ## 9. 安全与合规（公开仓必读）
 
-- [ ] 轮换并作废曾出现在聊天/截图中的 API Key  
+- [x] 轮换并作废曾出现在聊天/截图中的 API Key（含 `PRIVATE_KEY`，2026-08-29 已轮换）  
+- [x] `.env` / `frontend/.env` 已停止跟踪；仓库只留 `frontend/.env.example`  
+- [ ] **清理 git 历史**：早期提交仍含 `frontend/.env` 与原始对话导出，需用 `git filter-repo` / BFG  purge 后强推  
 - [ ] 公开前脱敏 KG（真实人名、私密节点）或仅发布 EMPTY + 示例  
-- [ ] 不要上传第三方游戏完整美术资源包；仅保留你有权分发的资产  
-- [ ] `decision_logs/`、本地 episodic 运行时数据默认不入库  
+- [x] 未上传第三方游戏完整美术资源包（`raw-assets/` 已忽略）  
+- [x] `decision_logs/`、本地 episodic 运行时数据不入库  
 
 ---
 
@@ -232,17 +261,20 @@ flowchart LR
 | Status | Item |
 |--------|------|
 | Done | L0+L1 双层、Tool Use、HITL、Web demo、公开集评测闭环 |
-| Next | README Demo 录像、公开脱敏图谱、一键 compose |
-| Later | LongMemEval-S 更大样本、向量检索、多用户隔离 |
+| Done | 工程地基：37 个 pytest（Mock LLM）、ruff、GitHub Actions CI、Docker/compose |
+| Done | 本地 BGE embedding + keyword/vector 混合检索（`memory/embeddings.py`） |
+| Next | 自动遗忘（importance 衰减 + compaction）、冲突版本化（supersede + HITL） |
+| Next | 混合检索 vs 纯关键词 的 LongMemEval 对比跑分 |
+| Later | LangGraph 编排重写、KG 迁 SQLite、多用户隔离 |
 
 ---
 
 ## 11. License
 
-代码默认以 MIT 意向开源（若仓内尚无 `LICENSE` 文件，发布前请补齐）。  
+代码以 MIT 开源，见 [`LICENSE`](LICENSE)。  
 第三方数据集与美术素材遵循其各自许可，不随本声明自动授权。
 
 ---
 
 **Author:** Minghan Gao（高明翰）· 2027 秋招作品集项目  
-**Remote:** `github.com/Andy021110/cyber_minghan`
+**Remote:** `github.com/Andy021110/Cyber_minghgan`
