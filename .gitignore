@@ -59,3 +59,9 @@ frontend/.env
 # ===== 虚拟环境 =====
 .venv/
 venv/
+
+# LongMemEval 数据本体（体积大，按 docs/数据集来源与下载说明.md 自行下载）
+evals/**/longmemeval_oracle.json
+evals/**/longmemeval_s_cleaned.json
+evals/**/longmemeval_m_cleaned.json
+evals/**/PerLTQA/Dataset/**/*.json
