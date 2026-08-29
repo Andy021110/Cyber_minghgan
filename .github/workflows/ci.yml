@@ -25,6 +25,11 @@ jobs:
         run: ruff check tests/ agent/ memory/ api/deps.py api/routes/v1.py
       - name: Pytest (zero API calls)
         run: pytest tests/ -q
+      - name: Badcase replay (guard already-fixed defects)
+        # 无人值守下唯一能拦住「已修好的东西又坏掉」的闸门：
+        # 标记为 fixed 的 badcase 回放失败即退出码 1。
+        # 前端回归测试在缺 node_modules 时会自动降级为 manual，不会误报失败。
+        run: python -m evals.replay
       - name: Memory maintenance smoke (dry-run)
         run: |
           python pipelines/memory_maintenance.py forget
@@ -49,6 +54,14 @@ jobs:
           mkdir -p "evals/公认评测集/LongMemEval"
           curl -sSL --fail -o "evals/公认评测集/LongMemEval/longmemeval_oracle.json" \
             "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/main/longmemeval_oracle.json"
+      - name: Cross-seed determinism (guards BC-008)
+        # BC-008：测试 stub 曾用内置 hash()，Python 字符串哈希逐进程随机，
+        # 单跑一次可能碰巧通过。必须跨 PYTHONHASHSEED 验证才算真的稳。
+        run: |
+          for s in 0 1 2; do
+            echo "--- PYTHONHASHSEED=$s"
+            PYTHONHASHSEED=$s pytest tests/test_hybrid_search.py -q --no-header
+          done
       - name: Retrieval A/B (keyword vs hybrid)
         # 有数据集就跑 Recall@5 / MRR@5；没有就明确跳过，不静默假装通过
         run: |
