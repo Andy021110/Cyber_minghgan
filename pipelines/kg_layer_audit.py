@@ -159,7 +159,7 @@ def distinctive_terms(nodes_by_layer: dict[str, list[dict]], top_k: int = 8) -> 
             glob.update(grams)
         per_layer[layer] = c
 
-    total_by_layer = {l: max(1, sum(c.values())) for l, c in per_layer.items()}
+    total_by_layer = {layer: max(1, sum(c.values())) for layer, c in per_layer.items()}
     glob_total = max(1, sum(glob.values()))
     out = {}
     for layer, c in per_layer.items():
