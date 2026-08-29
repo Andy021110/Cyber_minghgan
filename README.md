@@ -249,7 +249,8 @@ flowchart LR
 
 - [x] 轮换并作废曾出现在聊天/截图中的 API Key（含 `PRIVATE_KEY`，2026-08-29 已轮换）  
 - [x] `.env` / `frontend/.env` 已停止跟踪；仓库只留 `frontend/.env.example`  
-- [ ] **清理 git 历史**：早期提交仍含 `frontend/.env` 与原始对话导出，需用 `git filter-repo` / BFG  purge 后强推  
+- [x] **已清理 git 历史**：`git filter-repo` 全量 purge 密钥文件、原始对话与数据集（2026-08-29 强推，`.git` 146MB → 2.2MB）  
+- [x] 评测数据集不入库，来源与许可见 [`evals/数据集来源与下载说明.md`](evals/数据集来源与下载说明.md)  
 - [ ] 公开前脱敏 KG（真实人名、私密节点）或仅发布 EMPTY + 示例  
 - [x] 未上传第三方游戏完整美术资源包（`raw-assets/` 已忽略）  
 - [x] `decision_logs/`、本地 episodic 运行时数据不入库  
