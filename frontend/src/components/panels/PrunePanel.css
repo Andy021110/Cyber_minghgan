@@ -20,8 +20,8 @@
 }
 
 .prune-title {
-  font-family: var(--font-pixel);
-  font-size: 8px;
+  font-family: var(--font-display);
+  font-size: 12px;
   color: var(--panel-gold);
 }
 
@@ -44,9 +44,9 @@
 .prune-stat-count {
   font-size: 20px;
   font-weight: bold;
-  font-family: var(--font-pixel);
+  font-family: var(--font-display);
 }
-.prune-stat-label { font-size: 8px; color: var(--panel-text-dim); margin-top: 4px; }
+.prune-stat-label { font-size: 12px; color: var(--panel-text-dim); margin-top: 4px; }
 
 .prune-stat--critical .prune-stat-count { color: var(--color-id); }
 .prune-stat--warning  .prune-stat-count { color: var(--color-superego); }
@@ -55,7 +55,7 @@
 .prune-loading, .prune-empty {
   padding: 24px;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-text-dim);
 }
 
@@ -83,7 +83,7 @@
 .prune-candidate-meta {
   display: flex;
   gap: 8px;
-  font-size: 8px;
+  font-size: 12px;
   color: var(--panel-text-dim);
   margin-top: 4px;
 }
@@ -102,7 +102,7 @@
 .prune-boost-input {
   width: 50px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   background: var(--panel-bg-card);
   color: var(--panel-text);
   border: var(--border-width) solid var(--panel-border);

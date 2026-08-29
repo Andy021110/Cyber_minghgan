@@ -137,6 +137,8 @@ describe('DialoguePanel', () => {
     );
 
     await act(async () => {});
+    // 参数顺序：npcId, message, privateKey, onToken, onDone, onReflection,
+    //           onTool, onKGUpdate, onError（onError 为后加，用于暴露后端故障）
     expect(mockChatStream).toHaveBeenCalledWith(
       'cyber_minghan',
       '我最近学了什么？',
@@ -146,6 +148,33 @@ describe('DialoguePanel', () => {
       expect.any(Function),
       expect.any(Function),
       expect.any(Function),
+      expect.any(Function),
     );
+  });
+
+  it('shows backend error instead of failing silently', async () => {
+    // 回归测试：chatStream 曾静默吞掉所有后端错误（catch { return; }），
+    // 界面表现为"什么都不发生"，用户会误以为功能没实现。
+    mockChatStream.mockImplementation((...args: unknown[]) => {
+      const onError = args[8] as ((msg: string) => void) | undefined;
+      onError?.('无法连接后端 http://localhost:8000/api（Failed to fetch）');
+      return () => {};
+    });
+
+    render(
+      <AuthContext.Provider value={{ isOwner: false, privateKey: 'test-key' } satisfies AuthContextValue}>
+        <DialoguePanel
+          npcId="cyber_minghan"
+          npcName="赛博明翰"
+          onClose={vi.fn()}
+          initialQuery="你好"
+        />
+      </AuthContext.Provider>,
+    );
+
+    await act(async () => {});
+    const banner = screen.getByTestId('dialogue-error');
+    expect(banner.textContent).toContain('无法连接后端');
+    expect(banner.getAttribute('role')).toBe('alert');
   });
 });

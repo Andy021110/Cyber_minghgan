@@ -21,15 +21,15 @@
 
 .kg-panel-title {
   flex: 1;
-  font-family: var(--font-pixel);
-  font-size: 8px;
+  font-family: var(--font-display);
+  font-size: 12px;
   color: var(--panel-gold);
 }
 
 .kg-help-card {
   background: var(--panel-shadow);
   color: var(--panel-gold);
-  font-size: 9px;
+  font-size: 12px;
   padding: 8px 16px;
   border-bottom: var(--border-width) solid var(--panel-border);
   line-height: 1.8;
@@ -44,7 +44,7 @@
 }
 .kg-tab {
   flex: 1;
-  font-size: 8px;
+  font-size: 12px;
   border: none;
   border-right: 1px solid var(--panel-border);
   background: transparent;
@@ -60,7 +60,7 @@
 .kg-loading, .kg-empty {
   padding: 24px;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-text-dim);
 }
 
@@ -108,10 +108,10 @@
 }
 
 .kg-node-label { font-size: 11px; font-weight: bold; color: var(--panel-text); }
-.kg-node-importance { font-size: 9px; color: var(--panel-text-dim); }
-.kg-node-layer-tag { font-size: 8px; color: var(--panel-text-dim); }
+.kg-node-importance { font-size: 12px; color: var(--panel-text-dim); }
+.kg-node-layer-tag { font-size: 12px; color: var(--panel-text-dim); }
 .kg-node-desc {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--panel-text);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -148,7 +148,7 @@
   background: var(--panel-title-bg);
   border-bottom: var(--border-width) solid var(--panel-border);
 }
-.kg-expanded-layer { font-size: 9px; font-weight: bold; }
+.kg-expanded-layer { font-size: 12px; font-weight: bold; }
 .kg-expanded-title { flex: 1; font-size: 12px; font-weight: bold; color: var(--panel-gold); }
 
 .kg-expanded-desc {
@@ -164,7 +164,7 @@
   display: flex;
   gap: 16px;
   padding: 8px 12px;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--panel-text-dim);
   border-top: 1px solid var(--panel-border);
 }

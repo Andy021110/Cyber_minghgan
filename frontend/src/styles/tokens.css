@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+Mono:wght@400;700&display=swap');
+/* 字体说明：
+   原用 Press Start 2P（像素字体），但它**仅含拉丁字符，不含 CJK**，
+   中文标题会回退到系统字体，导致中英混排断裂 —— 这是"美工差"的成因之一。
+   改为 Noto Sans SC（支持中文）。像素感改由边框 / 阴影 / image-rendering 承担，
+   不依赖字体本身（见 docs/产品形态与前端规划.md 风格三原则）。
+*/
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+Mono:wght@400;700&display=swap');
 
 :root {
   /* Panel layer — warm parchment */
@@ -17,15 +23,18 @@
   --color-ego:       #3fb950;
   --color-superego:  #f0a500;
 
-  /* Game world layer — dark (Phaser uses hex constants directly) */
-  --game-bg:         #0d1117;
-  --game-card:       #161b22;
-  --game-border:     #30363d;
-  --game-text:       #c9d1d9;
+  /* Game world layer — warm night
+     原为 #0d1117 / #161b22 / #30363d（GitHub Dark 冷灰），与上方暖棕面板正面对冲。
+     统一为暖色夜景，与羊皮纸面板同一色系。
+     注意：Phaser 侧有独立的硬编码色值，见 src/game/colors.ts，改这里必须同步改那边。 */
+  --game-bg:         #241408;
+  --game-card:       #33200f;
+  --game-border:     #6b3a10;
+  --game-text:       #f0d090;
 
   /* Typography */
-  --font-pixel: 'Press Start 2P', monospace;
-  --font-mono:  'Noto Sans Mono', 'Courier New', monospace;
+  --font-display: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono:    'Noto Sans Mono', 'Noto Sans SC', 'Courier New', monospace;
 
   /* Pixel UI constraints */
   --border-width:  3px;
@@ -44,12 +53,13 @@ body {
   overflow: hidden;
   background: var(--game-bg);
   font-family: var(--font-mono);
+  font-size: 13px;
 }
 
 /* Pixel button base */
 .btn-pixel {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 12px;
   border: var(--border-width) solid var(--panel-border);
   background: var(--panel-bg-card);
   color: var(--panel-text);

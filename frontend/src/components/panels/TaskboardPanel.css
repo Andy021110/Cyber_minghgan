@@ -25,8 +25,8 @@
   border-bottom: var(--border-width) solid var(--panel-border);
 }
 .taskboard-title {
-  font-family: var(--font-pixel);
-  font-size: 8px;
+  font-family: var(--font-display);
+  font-size: 12px;
   color: var(--panel-gold);
 }
 
@@ -34,7 +34,7 @@
 .taskboard-empty {
   padding: 24px;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-text-dim);
 }
 
@@ -73,11 +73,11 @@
 .taskboard-badge--neutral { color: var(--panel-text-dim); border: none; font-size: 16px; }
 
 .taskboard-row-title {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-text);
   margin-bottom: 2px;
 }
 .taskboard-row-desc {
-  font-size: 8px;
+  font-size: 12px;
   color: var(--panel-text-dim);
 }

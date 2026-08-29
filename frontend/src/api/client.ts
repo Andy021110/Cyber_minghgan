@@ -121,6 +121,7 @@ export function chatStream(
   onReflection: (triggered: boolean, feature: string | null) => void,
   onTool?: (label: string) => void,
   onKGUpdate?: (nodeId: string, label: string) => void,
+  onError?: (message: string) => void,
 ): () => void {
   let cancelled = false;
 
@@ -132,8 +133,24 @@ export function chatStream(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ npcId, message, privateKey }),
       });
-    } catch { return; }
-    if (!res.ok || !res.body) return;
+    } catch (err) {
+      // 原实现是 `catch { return; }`：后端不可达时静默无反应，
+      // 用户会以为"功能没做出来"。这里必须把错误暴露出去。
+      onError?.(
+        `无法连接后端 ${BASE}（${
+          err instanceof Error ? err.message : String(err)
+        }）。请确认 uvicorn 已在 8000 端口启动。`,
+      );
+      return;
+    }
+    if (!res.ok) {
+      onError?.(`后端返回 ${res.status} ${res.statusText || ''}`.trim());
+      return;
+    }
+    if (!res.body) {
+      onError?.('后端未返回响应流（SSE 未建立）');
+      return;
+    }
 
     const reader  = res.body.getReader();
     const decoder = new TextDecoder();

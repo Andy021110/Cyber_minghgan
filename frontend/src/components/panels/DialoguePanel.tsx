@@ -27,6 +27,8 @@ export function DialoguePanel({ npcId, npcName, onClose, initialQuery }: Dialogu
   const [expanded,  setExpanded]  = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [toolStatus, setToolStatus] = useState('');
+  // 后端故障必须可见：原先 chatStream 静默吞错，界面表现为"什么都不发生"
+  const [error, setError] = useState('');
   const lastReflectionRef = useRef(false);
   const cancelRef  = useRef<(() => void) | null>(null);
   const historyRef = useRef<HTMLDivElement>(null);
@@ -49,6 +51,7 @@ export function DialoguePanel({ npcId, npcName, onClose, initialQuery }: Dialogu
     if (!text.trim() || isSending) return;
     setInput('');
     setIsSending(true);
+    setError('');
     setStreaming('');
     setToolStatus('思考中…');
     lastReflectionRef.current = false;
@@ -94,6 +97,12 @@ export function DialoguePanel({ npcId, npcName, onClose, initialQuery }: Dialogu
       },
       (label)     => { setToolStatus(label); },
       (nodeId, label) => { dispatch('cyber:kg:updated', { nodeId, label }); },
+      (msg)      => {
+        setError(msg);
+        setStreaming('');
+        setToolStatus('');
+        setIsSending(false);
+      },
     );
   }, [npcId, privateKey, isSending]);
 
@@ -143,6 +152,11 @@ export function DialoguePanel({ npcId, npcName, onClose, initialQuery }: Dialogu
         </div>
 
         <div className="dialogue-bar-main">
+          {error && (
+            <div className="dialogue-error" data-testid="dialogue-error" role="alert">
+              错误：{error}
+            </div>
+          )}
           <div className="dialogue-current">
             {isSending ? (
               <>

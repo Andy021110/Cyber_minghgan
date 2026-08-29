@@ -30,7 +30,7 @@
 .dialogue-msg--npc  { align-self: flex-start; }
 
 .dialogue-msg-text {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-gold);
   background: var(--panel-title-bg);
   border: 1px solid var(--panel-border);
@@ -47,7 +47,7 @@
 }
 
 .dialogue-msg-time {
-  font-size: 7px;
+  font-size: 11px;
   color: var(--panel-text-dim);
   align-self: flex-end;
 }
@@ -74,7 +74,7 @@
   line-height: 1;
 }
 .dialogue-npc-name {
-  font-size: 8px;
+  font-size: 12px;
   color: var(--panel-gold);
   text-align: center;
   max-width: 70px;
@@ -91,7 +91,7 @@
 }
 
 .dialogue-current {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-gold);
   min-height: 20px;
   line-height: 1.6;
@@ -109,11 +109,24 @@
 
 .dialogue-tool-status {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--panel-gold);
   opacity: 0.8;
   margin-bottom: 4px;
   animation: tool-pulse 1.2s ease-in-out infinite;
+}
+
+/* 后端故障提示：原先 chatStream 静默吞错，界面无任何反馈 */
+.dialogue-error {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #f5d0d0;
+  background: #7a1f1f;
+  border: 2px solid var(--panel-shadow);
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 @keyframes tool-pulse {
@@ -128,7 +141,7 @@
 .dialogue-input {
   flex: 1;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   background: var(--panel-bg-card);
   color: var(--panel-text);
   border: var(--border-width) solid var(--panel-border);
