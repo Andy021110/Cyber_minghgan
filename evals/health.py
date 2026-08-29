@@ -38,6 +38,9 @@ _ROOT = Path(__file__).resolve().parent.parent
 _CORE_PREFIXES = ("cyber_planner.py", "memory/", "agent/", "api/", "pipelines/")
 _REF_RE = re.compile(r"\b(EXP-\d{3}|BC-\d{3})\b")
 
+# 自动快照（scripts/auto_snapshot.py）不算开发决策，否则每小时一次会稀释关联率
+_SNAPSHOT_PREFIX = "chore(snapshot)"
+
 
 def commit_linkage(n: int = 30) -> dict:
     """最近 N 个提交里，改动核心代码的有多少关联了实验或 badcase。
@@ -61,6 +64,8 @@ def commit_linkage(n: int = 30) -> dict:
         if not lines:
             continue
         subject, files = lines[0], lines[1:]
+        if subject.startswith(_SNAPSHOT_PREFIX):
+            continue                      # 自动快照是保存动作，不是开发决策
         if not any(f.startswith(_CORE_PREFIXES) for f in files):
             continue                      # 改文档/注释/测试不算
         core += 1
