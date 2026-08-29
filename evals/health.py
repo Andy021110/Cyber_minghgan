@@ -25,9 +25,57 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import subprocess
+from pathlib import Path
 
 from evals import badcases, replay
 from experiments import ledger
+
+_ROOT = Path(__file__).resolve().parent.parent
+
+# 只有改动核心代码路径才算「需要走流程」；改文档/注释/测试不算
+_CORE_PREFIXES = ("cyber_planner.py", "memory/", "agent/", "api/", "pipelines/")
+_REF_RE = re.compile(r"\b(EXP-\d{3}|BC-\d{3})\b")
+
+
+def commit_linkage(n: int = 30) -> dict:
+    """最近 N 个提交里，改动核心代码的有多少关联了实验或 badcase。
+
+    为什么必须有这个指标：
+    台账和 badcase 只能约束「登记过的东西」。**如果改动时压根不登记，
+    整套机制管不着**——这是回溯唯一的盲区，也是最容易被糊弄过去的地方。
+    量化出来，才谈得上「到底有没有在用」，而不是嘴上说有。
+    """
+    try:
+        out = subprocess.run(
+            ["git", "log", f"-{n}", "--format=__C__%s", "--name-only"],
+            cwd=_ROOT, capture_output=True, text=True, timeout=10,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return {"scanned": 0, "core": 0, "linked": 0, "rate": 0.0, "unlinked": []}
+
+    core, linked, unlinked = 0, 0, []
+    for block in out.split("__C__")[1:]:
+        lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
+        if not lines:
+            continue
+        subject, files = lines[0], lines[1:]
+        if not any(f.startswith(_CORE_PREFIXES) for f in files):
+            continue                      # 改文档/注释/测试不算
+        core += 1
+        if _REF_RE.search(subject):
+            linked += 1
+        else:
+            unlinked.append(subject[:52])
+
+    return {
+        "scanned": len(out.split("__C__")) - 1,
+        "core": core,
+        "linked": linked,
+        "rate": round(linked / core, 3) if core else 0.0,
+        "unlinked": unlinked[:5],
+    }
 
 
 def collect() -> dict:
@@ -64,6 +112,7 @@ def collect() -> dict:
             "adoption_rate": exp_stats["adoption_rate"],
             "pre_registered": pct(exp_stats["with_baseline"], exp_stats["total"]),
         },
+        "process": commit_linkage(),
     }
 
 
@@ -91,6 +140,14 @@ def diagnose(m: dict) -> list[str]:
             f"[提示] 实验采纳率 {e['adoption_rate']:.0%} 偏高："
             "若长期如此，说明只做安全实验，没有真正尝试证伪"
         )
+    p = m["process"]
+    if p["core"] >= 3 and p["rate"] < 0.5:
+        tips.append(
+            f"[警告] 实验关联率 {p['rate']:.0%}：{p['core'] - p['linked']} 个核心改动"
+            "没关联实验或 badcase——这些改动事后无从回溯（机制管不住"
+            "「压根不登记」，这是最大的漏洞，只能靠这个指标盯着）"
+        )
+
     if not tips:
         tips.append("各项指标正常。")
     return tips
@@ -117,6 +174,15 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  预登记率     {e['pre_registered']:.0%}   （登记了基线的比例）")
     print(f"  采纳率       {e['adoption_rate']:.0%}   "
           f"（采纳 {e['adopted']} / 否决 {e['rejected']}）")
+    p = m["process"]
+    print("流程（最近 30 个提交）")
+    print(f"  核心改动     {p['core']} 个，关联实验/badcase {p['linked']} 个")
+    print(f"  实验关联率   {p['rate']:.0%}   "
+          "（低 = 有改动绕过了流程，事后无法回溯）")
+    if p["unlinked"]:
+        print("    未关联的改动：")
+        for s in p["unlinked"]:
+            print(f"      - {s}")
     print("\n诊断")
     for t in diagnose(m):
         print(f"  {t}")

@@ -10,13 +10,23 @@ from evals import health
 
 @pytest.fixture(autouse=True)
 def _isolate(tmp_path, monkeypatch):
-    """所有测试都在临时台账/用例上进行，不碰仓库里的真实数据。"""
+    """所有测试都在临时台账/用例上进行，不碰仓库里的真实数据。
+
+    commit_linkage 也要打桩：它读的是**真实 git 历史**，
+    不打桩的话「干净状态」的断言会被仓库真实状态污染
+    （本项目当前关联率仅 10%，正是这个指标要照出来的东西）。
+    """
     cases = tmp_path / "cases.jsonl"
     led = tmp_path / "ledger.jsonl"
     cases.write_text("", encoding="utf-8")
     led.write_text("", encoding="utf-8")
     monkeypatch.setattr(health.badcases, "_DEFAULT_PATH", cases)
     monkeypatch.setattr(health.ledger, "_DEFAULT_PATH", led)
+    monkeypatch.setattr(
+        health, "commit_linkage",
+        lambda n=30: {"scanned": 0, "core": 0, "linked": 0,
+                      "rate": 0.0, "unlinked": []},
+    )
     return cases, led
 
 
@@ -91,3 +101,30 @@ def test_diagnose_flags_low_coverage(_isolate):
 
 def test_diagnose_clean_state(_isolate):
     assert "正常" in health.diagnose(health.collect())[0]
+
+
+def test_ref_re_matches_exp_and_bc():
+    """commit message 里的关联引用要能识别出来。"""
+    assert health._REF_RE.search("fix(BC-003): 接入检索")
+    assert health._REF_RE.search("experiment EXP-004 结题")
+    assert not health._REF_RE.search("just a normal commit message")
+
+
+def test_commit_linkage_shape_is_stable():
+    """不断言具体数值（依赖仓库历史），只保证结构稳定、不崩、率在 [0,1]。"""
+    m = health.commit_linkage(5)
+    assert {"scanned", "core", "linked", "rate", "unlinked"} <= set(m)
+    assert 0.0 <= m["rate"] <= 1.0
+    assert m["linked"] <= m["core"]
+
+
+def test_diagnose_flags_low_linkage(_isolate):
+    """关联率低必须被点出来——这是机制唯一盯不住的漏洞。"""
+    tips = health.diagnose({
+        "badcase": {"regressions": [], "fixed": 0, "retention": 1.0,
+                    "coverage": 1.0, "manual": 0, "total": 1},
+        "experiment": {"total": 1, "done": 1, "adopted": 1,
+                       "pre_registered": 1.0, "adoption_rate": 0.5},
+        "process": {"core": 10, "linked": 1, "rate": 0.1, "unlinked": []},
+    })
+    assert any("关联率" in t for t in tips)
