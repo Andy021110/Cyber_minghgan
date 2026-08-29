@@ -42,8 +42,19 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install --quiet -r requirements.txt -r requirements-dev.txt
-      - name: Run evals suite (placeholder gate)
-        # 阶段 2 接入：跑 product_suite 跑分，对比基线，退化则失败
+      - name: Fetch LongMemEval oracle dataset (not vendored in repo)
+        # 数据集不入库（体积 + 许可），CI 每次现取；取不到就跳过跑分，不算失败
+        continue-on-error: true
         run: |
-          echo "nightly evals regression — 待阶段 2 接入 product_suite 跑分对比"
-          python -c "import cyber_planner, health_coach; print('imports OK')"
+          mkdir -p "evals/公认评测集/LongMemEval"
+          curl -sSL --fail -o "evals/公认评测集/LongMemEval/longmemeval_oracle.json" \
+            "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/main/longmemeval_oracle.json"
+      - name: Retrieval A/B (keyword vs hybrid)
+        # 有数据集就跑 Recall@5 / MRR@5；没有就明确跳过，不静默假装通过
+        run: |
+          DATA="evals/公认评测集/LongMemEval/longmemeval_oracle.json"
+          if [ -s "$DATA" ]; then
+            python evals/retrieval_ab.py --data "$DATA" --k 5
+          else
+            echo "数据集不可用，跳过跑分。下载方式见 evals/数据集来源与下载说明.md"
+          fi

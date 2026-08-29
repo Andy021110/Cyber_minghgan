@@ -265,15 +265,18 @@ flowchart LR
 
 | 文档 | 用途 |
 |------|------|
-| [`docs/PRD.md`](docs/PRD.md) | 产品需求、范围、成功指标 |
-| [`docs/TECH_SPEC.md`](docs/TECH_SPEC.md) | 前端与交互技术规范 |
-| [`docs/SYSTEM_DESIGN_V2.md`](docs/SYSTEM_DESIGN_V2.md) | 系统设计 |
-| [`docs/开发方案_企业级对齐.md`](docs/开发方案_企业级对齐.md) | 三阶段改造计划与实录（差距评分、决策记录） |
-| [`docs/LangGraph编排设计.md`](docs/LangGraph编排设计.md) | **LangGraph 编排：记忆分层映射、图结构、HITL 硬约束（附官方依据引用）** |
-| [`docs/USER_GUIDE_CRUD.md`](docs/USER_GUIDE_CRUD.md) | KG 操作指南 |
+| **[`docs/路线图.md`](docs/路线图.md)** | **唯一真相来源**：定位 / 现状清点 / 优先级 / 取舍 |
+| [`docs/关键决策记录.md`](docs/关键决策记录.md) | ADR-001～011（背景 / 选项 / 决定 / 依据 / 后果） |
+| [`docs/变更记录.md`](docs/变更记录.md) | CHANGELOG，含回滚方式 |
+| [`docs/赛博明翰总体架构与规划.md`](docs/赛博明翰总体架构与规划.md) | 架构分层、双端形态、操作方式 |
+| [`docs/LangGraph编排设计.md`](docs/LangGraph编排设计.md) | LangGraph 编排：记忆分层映射、HITL 硬约束（附官方依据引用） |
+| [`docs/产品形态与前端规划.md`](docs/产品形态与前端规划.md) | 前端形态、四个视觉缺陷、星露谷风格三原则 |
+| [`docs/待决策清单.md`](docs/待决策清单.md) | 待拍板事项（A 需你定 / B 我可定 / C 需实验） |
+| [`docs/PRD.md`](docs/PRD.md) | 产品需求（**待复查**：写于旧定位下） |
+| [`docs/USER_GUIDE_CRUD.md`](docs/USER_GUIDE_CRUD.md) | KG 操作指南（**待复查**） |
 | [`memory/`](memory/) | L0 实现、embedding、遗忘（lifecycle）、冲突版本化（versioning） |
 | [`evals/README.md`](evals/README.md) | 公开集 / 沙箱 / 产品契约入口 |
-| [`docs/evals/`](docs/evals/) | 评测方案与迁入 handoff |
+| [`docs/archive/`](docs/archive/) | 20 份历史文档（旧定位产物，仅作沿革追溯，**不代表仍然有效**） |
 
 ---
 
@@ -293,13 +296,18 @@ flowchart LR
 
 | Status | Item |
 |--------|------|
-| Done | L0+L1 双层、Tool Use、HITL、Web demo、公开集评测闭环 |
-| Done | 工程地基：68 个 pytest（零 API 调用）、ruff、GitHub Actions CI、Docker/compose |
+| Done | L0+L1 双层、Tool Use、HITL、Web demo |
+| Done | 工程地基：venv / ruff / GitHub Actions CI / Docker compose |
 | Done | 本地 BGE embedding + keyword/vector 混合检索（`memory/embeddings.py`） |
-| Done | 自动遗忘（`memory/lifecycle.py`：半衰期衰减 + 只归档可回滚）、冲突版本化（`memory/versioning.py`：supersede 链 + history） |
-| Done | **LangGraph 编排重写**（`agent/`）：短期/长期记忆分层、ToolNode、HITL `interrupt()`、v1 API |
-| Next | 混合检索 vs 纯关键词 的 LongMemEval 对比跑分（接入 nightly CI） |
-| Next | 统一错误处理、结构化日志 + token 成本追踪 |
+| Done | 自动遗忘（`memory/lifecycle.py`：衰减 + 只归档可回滚）、冲突版本化（`memory/versioning.py`：supersede 链） |
+| Done | **LangGraph 编排重写**（`agent/`）：短期/长期记忆分层、ToolNode、HITL `interrupt()`、v1 API（Pydantic 响应模型） |
+| Done | 三层结构实证审计（`pipelines/kg_layer_audit.py`：可分性 0.589 vs 基线 0.411） |
+| Testing | **136 个测试**：后端 83 passed + 1 skipped（pytest，零 API）、前端 53 passed（vitest） |
+| Next | 对外模式：可见性硬隔离 / 只答检索到的 + 引用校验 / 话题敏感度三态 |
+| Next | 移动端对外主页（身份声明 + 引导问题 + 引用溯源 + 转真人） |
+| Blocked | 混合检索 vs 纯关键词 跑分（骨架已就绪，待联网下载评测集 + 安装 BGE） |
+| Deferred | KG 迁 SQLite、结构化日志 —— 当前规模（16.2k tokens）非瓶颈，见 `docs/路线图.md` §4 |
+| Pending | 公开前脱敏 KG（真实人名、私密节点） |
 | Later | KG 迁 SQLite、多用户隔离、LangGraph 图可视化 |
 
 ---
