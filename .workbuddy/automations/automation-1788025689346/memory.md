@@ -11,6 +11,11 @@
 - 推送后校验：`git rev-list --left-right --count origin/main...HEAD` = `0 0`，完全同步
 - 退出码 0
 
+### 2026-08-30 03:41 — 跳过
+- 工作区无改动（`git status --porcelain` 为空），脚本输出「无改动，跳过」，未产生 commit
+- 与远端完全同步：`origin/main...HEAD` = `0 0`
+- 退出码 0
+
 ## 运行备注（供后续参考）
 - 首次运行时本文件不存在；`.workbuddy/automations/` 目录需手动 mkdir
 - 验证推送是否真正落地，最可靠的是比对 `origin/main...HEAD` 的左右计数，不能只看脚本 stdout
