@@ -14,26 +14,32 @@ from memory.episodic_store import EpisodicStore
 
 
 class _StubProvider(EmbeddingProvider):
-    """每个文本返回基于 hash 的确定性向量，保证测试稳定。"""
+    """字符袋（bag-of-chars）向量：文本含词表第 i 个字，则第 i 维置 1。
 
-    def __init__(self, dim: int = 8):
-        self._dim = dim
+    为什么不用内置 hash()：Python 的字符串哈希逐进程随机（PYTHONHASHSEED），
+    同一份代码在不同进程里会得到不同排序。早期版本正是因此变成 flaky test
+    （本地跑过、换进程就挂），这里改用与进程无关的字符袋编码。
+    """
+
+    def __init__(self, vocab: str = "元宇宙发布会完全不同的内容"):
+        self.vocab = list(vocab)
 
     @property
     def dim(self) -> int:
-        return self._dim
+        return len(self.vocab)
 
     def encode(self, texts: list[str]) -> np.ndarray:
-        out = np.zeros((len(texts), self._dim), dtype=np.float32)
+        out = np.zeros((len(texts), self.dim), dtype=np.float32)
         for i, t in enumerate(texts):
-            h = hash(t) % self._dim
-            out[i, h] = 1.0
+            for j, ch in enumerate(self.vocab):
+                if ch in t:
+                    out[i, j] = 1.0
         return out
 
 
 @pytest.fixture
 def stub_provider():
-    return _StubProvider(dim=8)
+    return _StubProvider()
 
 
 def test_episodic_keyword_search_still_works(stub_provider, tmp_env):

@@ -34,7 +34,12 @@ class CyberState(TypedDict):
 
 
 def initial_state(user_text: str) -> CyberState:
-    """构造一次对话的初始状态。"""
+    """构造一次对话的完整初始状态。
+
+    仅在「明确要重置一个线程」时使用。续接已有线程请改用 new_turn()——
+    传入完整状态会把 checkpointer 里已持久化的 turn / working_summary / compacted_upto
+    覆盖回 0，这是 LangGraph 增量更新语义下的坑。
+    """
     from langchain_core.messages import HumanMessage
 
     return CyberState(
@@ -45,3 +50,10 @@ def initial_state(user_text: str) -> CyberState:
         pending_question="",
         compacted_upto=0,
     )
+
+
+def new_turn(user_text: str) -> dict:
+    """一轮对话的增量输入：只带新消息，其余字段交给 checkpointer 里已有的状态。"""
+    from langchain_core.messages import HumanMessage
+
+    return {"messages": [HumanMessage(content=user_text)]}

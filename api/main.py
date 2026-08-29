@@ -14,7 +14,7 @@ sys.path.insert(0, str(_ROOT / "pipelines"))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import chat, kg, notifications, prune, review
+from api.routes import chat, kg, notifications, prune, review, v1
 from cyber_planner import (
     _CHAT,
     CyberBrainStore,
@@ -93,6 +93,9 @@ app.include_router(review.router,        prefix="/api")
 app.include_router(kg.router,            prefix="/api")
 app.include_router(prune.router,         prefix="/api")
 app.include_router(notifications.router, prefix="/api")
+
+# ── v1（LangGraph 编排层，版本化 API）────────────────────────────
+app.include_router(v1.router, prefix="/api/v1")
 
 # ── 健康检查 ─────────────────────────────────────────────────────
 

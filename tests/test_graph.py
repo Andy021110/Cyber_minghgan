@@ -17,7 +17,7 @@ from langgraph.types import Command
 from agent.graph import build_graph, compose_system
 from agent.memory import build_compact_messages, compact
 from agent.models import FakeChatModel
-from agent.state import initial_state
+from agent.state import new_turn
 from cyber_planner import CyberBrainStore
 from memory.episodic_store import EpisodicStore
 
@@ -66,7 +66,7 @@ def test_pure_text_reply_persists_to_l0(env):
     llm = FakeChatModel([AIMessage(content="我记得这事。")])
     g = build_graph(llm, env["store"], env["episodic"])
 
-    out = g.invoke(initial_state("你还记得我喜欢什么吗"),
+    out = g.invoke(new_turn("你还记得我喜欢什么吗"),
                    config={"configurable": {"thread_id": "t1"}})
 
     assert out["messages"][-1].content == "我记得这事。"
@@ -83,7 +83,7 @@ def test_read_tool_loop_returns_tool_result(env):
     llm = FakeChatModel([call, AIMessage(content="找到了。")])
     g = build_graph(llm, env["store"], env["episodic"])
 
-    out = g.invoke(initial_state("你知道检索关键词吗"),
+    out = g.invoke(new_turn("你知道检索关键词吗"),
                    config={"configurable": {"thread_id": "t2"}})
 
     kinds = [type(m).__name__ for m in out["messages"]]
@@ -113,7 +113,7 @@ def test_write_tool_interrupts_and_writes_on_approval(env):
     cfg = {"configurable": {"thread_id": "t3"}}
 
     before = _count_ego_nodes(env["store"])
-    out = g.invoke(initial_state("帮我记住这件事"), config=cfg)
+    out = g.invoke(new_turn("帮我记住这件事"), config=cfg)
 
     # 1) 应当在 hitl_gate 处暂停
     interrupts = out.get("__interrupt__")
@@ -146,7 +146,7 @@ def test_write_tool_rejected_does_not_write(env):
     cfg = {"configurable": {"thread_id": "t4"}}
     before = _count_ego_nodes(env["store"])
 
-    g.invoke(initial_state("记一下"), config=cfg)
+    g.invoke(new_turn("记一下"), config=cfg)
     resumed = g.invoke(Command(resume="rejected"), config=cfg)
 
     assert _count_ego_nodes(env["store"]) == before, "rejected 不得写入图谱"
@@ -173,7 +173,7 @@ def test_approved_log_only_records(env):
     cfg = {"configurable": {"thread_id": "t5"}}
     before = _count_ego_nodes(env["store"])
 
-    g.invoke(initial_state("记一下"), config=cfg)
+    g.invoke(new_turn("记一下"), config=cfg)
     resumed = g.invoke(Command(resume="approved_log"), config=cfg)
 
     assert _count_ego_nodes(env["store"]) == before
@@ -219,14 +219,47 @@ def test_thread_isolation(env):
     llm = FakeChatModel([AIMessage(content="A 线程"), AIMessage(content="B 线程")])
     g = build_graph(llm, env["store"], env["episodic"])
 
-    g.invoke(initial_state("第一句"), config={"configurable": {"thread_id": "ta"}})
-    out_b = g.invoke(initial_state("第二句"), config={"configurable": {"thread_id": "tb"}})
+    g.invoke(new_turn("第一句"), config={"configurable": {"thread_id": "ta"}})
+    out_b = g.invoke(new_turn("第二句"), config={"configurable": {"thread_id": "tb"}})
 
     # B 线程不应看到 A 线程的消息
     human_texts = [str(getattr(m, "content", ""))
                    for m in out_b["messages"] if getattr(m, "type", "") == "human"]
     assert "第二句" in human_texts
     assert "第一句" not in human_texts
+
+
+def test_runner_builds_graph_without_touching_api(env, tmp_path):
+    """runner 注入假 LLM 时应能组装图（不连 API、不写真实 KG）。"""
+    from agent.runner import build_default_graph
+
+    g = build_default_graph(
+        kg_path=env["tmp"]["kg_path"],
+        epi_path=env["tmp"]["epi_path"],
+        checkpoint_db=str(tmp_path / "ckpt.db"),
+        llm=FakeChatModel([AIMessage(content="组装成功")]),
+    )
+    out = g.invoke(new_turn("ping"), config={"configurable": {"thread_id": "r1"}})
+    assert out["messages"][-1].content == "组装成功"
+
+
+def test_sqlite_checkpointer_persists_across_graph_rebuilds(env, tmp_path):
+    """短期记忆必须能跨重启续上：新图实例 + 同 thread_id 应读回既有状态。"""
+    from agent.runner import build_sqlite_saver
+
+    db = tmp_path / "ckpt.db"
+    g1 = build_graph(FakeChatModel([AIMessage(content="第一轮")]),
+                     env["store"], env["episodic"], checkpointer=build_sqlite_saver(db))
+    g1.invoke(new_turn("第一句"), config={"configurable": {"thread_id": "persist"}})
+
+    g2 = build_graph(FakeChatModel([AIMessage(content="第二轮")]),
+                     env["store"], env["episodic"], checkpointer=build_sqlite_saver(db))
+    snap = g2.get_state({"configurable": {"thread_id": "persist"}})
+    assert snap.values["turn"] == 1
+    assert "第一句" in str(snap.values["messages"][0].content)
+
+    out = g2.invoke(new_turn("第二句"), config={"configurable": {"thread_id": "persist"}})
+    assert out["turn"] == 2
 
 
 def test_compose_system_includes_summary_and_retrieved():

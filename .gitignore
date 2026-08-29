@@ -8,6 +8,10 @@
 decision_logs/
 memory/episodic/*.jsonl
 
+# 短期记忆 checkpoint（运行时数据，不入库）
+memory/checkpoints.db
+memory/checkpoints.db-journal
+
 # Python 编译缓存
 __pycache__/
 *.pyc
