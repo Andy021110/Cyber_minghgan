@@ -65,3 +65,8 @@ evals/**/longmemeval_oracle.json
 evals/**/longmemeval_s_cleaned.json
 evals/**/longmemeval_m_cleaned.json
 evals/**/PerLTQA/Dataset/**/*.json
+
+# KG 写入副产物（原子写的临时文件 + 上一次成功状态的备份）
+*.kg.json.tmp
+yuanbao_cyber_minghan_kg.json.bak
+*.json.tmp

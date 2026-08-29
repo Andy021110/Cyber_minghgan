@@ -15,6 +15,7 @@ cyber_planner.py
 import asyncio
 import json
 import os
+import shutil
 import sys
 import uuid as _uuid
 from collections.abc import AsyncGenerator
@@ -140,11 +141,35 @@ class CyberBrainStore:
         return [node[k] for k in self._DYNAMIC_LAYERS if k in node]
 
     def _save(self) -> None:
+        """持久化 KG。
+
+        为什么不用 `write_text` 直接覆写：
+        原实现 `self._path.write_text(...)` 是**非原子**的。序列化后的 JSON 有几十 KB，
+        写到一半进程被杀（OOM / 强制退出 / 断电）会留下**半截文件**，
+        JSON 解析失败 → 全部记忆不可恢复。KG 是唯一数据源且无备份，损失不可逆。
+
+        改法：先写同目录临时文件，再 `os.replace()` 原子替换（POSIX 上原子）。
+        同时保留一份 `.bak` 作为上一次成功状态的兜底。
+        """
         self._kg["updated_at"] = datetime.now(timezone.utc).isoformat()
-        self._path.write_text(
-            json.dumps(self._kg, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        payload = json.dumps(self._kg, ensure_ascii=False, indent=2)
+
+        tmp_path = self._path.with_suffix(self._path.suffix + ".tmp")
+        try:
+            tmp_path.write_text(payload, encoding="utf-8")
+            # 先备份上一份成功状态，再原子替换
+            if self._path.exists():
+                try:
+                    shutil.copy2(self._path, self._path.with_suffix(self._path.suffix + ".bak"))
+                except OSError:
+                    pass  # 备份失败不阻塞主写入
+            os.replace(tmp_path, self._path)
+        finally:
+            if tmp_path.exists():
+                try:
+                    tmp_path.unlink()
+                except OSError:
+                    pass
 
     def _find_by_uuid(self, node_uuid: str) -> tuple[list, int]:
         """在三层中定位节点，返回 (所在列表引用, 索引)；找不到抛 KeyError。"""
