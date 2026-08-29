@@ -12,14 +12,24 @@ from typing import Any
 
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
 
+from agent.citations import short_uuid
+
 
 def _format_l1(hits: list[dict], limit: int = 5) -> str:
+    """格式化 L1 命中项。
+
+    每条都带 `[ref:xxxx]`——**这是引用校验的前提**。
+    之前只输出 layer/label/description，LLM 根本无从引用，
+    于是"回答要带引用"这条要求只能靠模型编一个 uuid 来应付。
+    """
     if not hits:
         return ""
     lines = []
     for h in hits[:limit]:
+        ref = short_uuid(h.get("uuid", "")) or "?"
         lines.append(
-            f"- [{h.get('layer', '?')}] {h.get('event_label', '')}: {h.get('description', '')}"
+            f"- [ref:{ref}] [{h.get('layer', '?')}] "
+            f"{h.get('event_label', '')}: {h.get('description', '')}"
         )
     return "\n".join(lines)
 
@@ -31,7 +41,8 @@ def _format_l0(hits: list[dict], limit: int = 5, chars: int = 120) -> str:
     for h in hits[:limit]:
         user = (h.get("user_text") or "").replace("\n", " ")[:chars]
         asst = (h.get("assistant_text") or "").replace("\n", " ")[:chars]
-        lines.append(f"- {h.get('ts', '')} 用户: {user}｜助手: {asst}")
+        ref = h.get("eid") or "?"
+        lines.append(f"- [ref:{ref}] {h.get('ts', '')} 用户: {user}｜助手: {asst}")
     return "\n".join(lines)
 
 

@@ -58,16 +58,23 @@ def test_get_provider_defaults_to_zero():
 def test_get_provider_bge_degrades_gracefully(monkeypatch):
     """BGE 拉不到模型时应降级为 Zero，且**必须告警**。
 
-    为什么强调告警：静默降级会让"向量通路其实没生效"变成极难察觉的问题
-    ——表现为检索效果差，却查不出原因。
+    为什么要打桩：真实构造 BgeEmbeddingProvider 会 import torch，
+    实测在本机与 CI 上都会因占用过大被 SIGKILL（exit 137）。
+    而这里要测的是**降级逻辑**，不是 torch 装没装——所以替换掉即可。
     """
+    import memory.embeddings as emb
+
     monkeypatch.setenv("CYBER_EMBEDDING_PROVIDER", "bge")
+
+    def _unreachable(*_a, **_k):
+        raise OSError("huggingface.co 不可达（测试桩）")
+
+    monkeypatch.setattr(emb, "BgeEmbeddingProvider", _unreachable)
+
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        provider = get_provider("bge")
+        provider = emb.get_provider("bge")
 
-    if isinstance(provider, BgeEmbeddingProvider):
-        return                       # 模型可用，走正常路径
     assert isinstance(provider, ZeroEmbeddingProvider), "降级后应是 Zero provider"
     assert any("降级" in str(w.message) for w in caught), "降级必须告警，不能静默"
 
