@@ -16,16 +16,16 @@ distill_health_protocol.py
     python3 pipelines/distill_health_protocol.py --batch 0  # 只跑单个批次（调试用）
 """
 
-import os
+import argparse
 import json
+import logging
+import os
 import re
+import sys
 import time
 import uuid
-import argparse
-import logging
-import sys
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 import anthropic

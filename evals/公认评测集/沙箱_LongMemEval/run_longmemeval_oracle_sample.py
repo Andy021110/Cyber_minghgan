@@ -11,7 +11,6 @@ import json
 import os
 import random
 import re
-import shutil
 import sys
 import time
 from collections import defaultdict
@@ -48,6 +47,7 @@ from dotenv import load_dotenv
 load_dotenv(CYBER / ".env", override=True)
 
 import anthropic
+
 import cyber_planner as cp
 from memory.episodic_store import EpisodicStore
 

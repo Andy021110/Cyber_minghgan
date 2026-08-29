@@ -11,8 +11,10 @@ test_similar_nodes.py — 相似节点检测验收（C1）
   python3 pipelines/test_similar_nodes.py
 """
 
-import sys, json
+import json
+import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).parent.parent
@@ -36,6 +38,7 @@ print("  相似节点检测验收（C1）")
 print("══════════════════════════════════════\n")
 
 import anthropic
+
 from cyber_planner import CyberBrainStore, find_similar_nodes
 
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"

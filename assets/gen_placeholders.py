@@ -2,8 +2,9 @@
 生成开发占位图资产。
 运行：python3 assets/gen_placeholders.py
 """
-from PIL import Image, ImageDraw
 import os
+
+from PIL import Image, ImageDraw
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 

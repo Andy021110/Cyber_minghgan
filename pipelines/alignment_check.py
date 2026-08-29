@@ -11,14 +11,16 @@ alignment_check.py — MD vs KG 对齐检查
     用户确认后更新 meta.last_alignment_at。
 """
 
-import sys, json, os
-from pathlib import Path
+import json
+import os
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 _ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(_ROOT))
 
-from cyber_planner import CyberBrainStore, KG_PATH
+from cyber_planner import KG_PATH, CyberBrainStore
 
 PERSONA_PATH     = _ROOT / "persona.md"
 INLINE_THRESHOLD = 10  # 节点数 ≤ 此值时直接展示，不调用 AI

@@ -16,11 +16,11 @@ sync_to_kg.py — 将 HITL 审查后的产物同步回 KG JSON
         --kg     yuanbao_cyber_minghan_kg.json
 """
 
+import argparse
 import json
 import re
-import argparse
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
 ROOT    = Path(__file__).parent.parent
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"

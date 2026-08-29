@@ -70,17 +70,20 @@ check("/review 拦截在 handle_admin_command 之前", 0 < review_pos < admin_po
 
 # ── 准备测试数据 ───────────────────────────────────────────────────
 from decision_log import (
-    write_pending, write_approval_item, read_awaiting,
-    _read_all, _rewrite,
-    PENDING_PATH, APPROVAL_PATH,
+    APPROVAL_PATH,
+    PENDING_PATH,
+    _read_all,
+    _rewrite,
+    write_approval_item,
+    write_pending,
 )
-from cyber_planner import CyberBrainStore, HEALTH_LOG_PATH
+
+from cyber_planner import HEALTH_LOG_PATH, CyberBrainStore
 
 store = CyberBrainStore()
 
 # 读取当前 KG 节点数
 def kg_id_count():
-    import json
     kg = json.loads(Path(ROOT / "yuanbao_cyber_minghan_kg.json").read_text(encoding="utf-8"))
     return len(kg["nodes"]["Cyber_Minghan"].get("Id_Dynamics", []))
 
@@ -126,9 +129,11 @@ print(f"\n  {INFO} 测试数据已写入，开始模拟审批...\n")
 # ── [7][8][9] 模拟 handle_review 核心逻辑 ─────────────────────────
 # 直接调用各写入路径，不需要交互式 input()
 
-from cyber_planner import _write_health_log_entry, _uuid
-from decision_log import resolve_approval, update_pending_status
 from datetime import datetime, timezone
+
+from decision_log import resolve_approval, update_pending_status
+
+from cyber_planner import _uuid, _write_health_log_entry
 
 ts = datetime.now(timezone.utc).isoformat()
 

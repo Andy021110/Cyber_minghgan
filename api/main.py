@@ -14,15 +14,20 @@ sys.path.insert(0, str(_ROOT / "pipelines"))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from cyber_planner import CyberBrainStore, build_system_prompt, build_public_system_prompt, _CHAT
+from api.routes import chat, kg, notifications, prune, review
+from cyber_planner import _CHAT, CyberBrainStore, build_public_system_prompt, build_system_prompt
 from health_coach import (
-    build_system_prompt  as _hc_build_system_prompt,
-    build_kg_summary     as _hc_build_kg_summary,
-    check_protocol_freshness,
     HEALTH_TOOLS,
-    PROTOCOL_PATH        as _HEALTH_PROTOCOL_PATH,
 )
-from api.routes import chat, review, kg, prune, notifications
+from health_coach import (
+    PROTOCOL_PATH as _HEALTH_PROTOCOL_PATH,
+)
+from health_coach import (
+    build_kg_summary as _hc_build_kg_summary,
+)
+from health_coach import (
+    build_system_prompt as _hc_build_system_prompt,
+)
 
 # ── 全局单例（所有路由复用，不在每次请求时重新初始化）─────────────
 
@@ -32,7 +37,10 @@ LOGS_DIR   = _ROOT / "decision_logs"
 _store = CyberBrainStore(kg_path=KG_PATH)
 
 # 初始化模块级聊天状态（process_message 所需）
-import anthropic as _anthropic, os as _os
+import os as _os
+
+import anthropic as _anthropic
+
 _CHAT["store"]         = _store
 _CHAT["system_prompt"] = build_system_prompt()
 _CHAT["system_prompt_private"] = _CHAT["system_prompt"]

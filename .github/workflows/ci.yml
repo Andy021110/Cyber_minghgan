@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # 每日 18:00 跑评测回归（nightly，防记忆逻辑退化）
+    - cron: '0 18 * * *'
+
+jobs:
+  test:
+    name: Lint + Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install --quiet -r requirements.txt -r requirements-dev.txt
+      - name: Ruff lint (new code & tests)
+        run: ruff check tests/
+      - name: Pytest (zero API calls)
+        run: pytest tests/ -q
+
+  evals-nightly:
+    name: Evals Regression (nightly)
+    if: github.event_name == 'schedule'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install --quiet -r requirements.txt -r requirements-dev.txt
+      - name: Run evals suite (placeholder gate)
+        # 阶段 2 接入：跑 product_suite 跑分，对比基线，退化则失败
+        run: |
+          echo "nightly evals regression — 待阶段 2 接入 product_suite 跑分对比"
+          python -c "import cyber_planner, health_coach; print('imports OK')"

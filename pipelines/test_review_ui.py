@@ -16,10 +16,11 @@ test_review_ui.py — /review 两步决策流程验收（A1 + A2）
   python3 pipelines/test_review_ui.py
 """
 
-import sys, json, uuid
+import json
+import sys
+import uuid
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from datetime import datetime, timezone
+from unittest.mock import patch
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -40,12 +41,18 @@ print("\n═══════════════════════�
 print("  /review UI 验收（A1 + A2）")
 print("══════════════════════════════════════\n")
 
+from decision_log import (
+    APPROVAL_PATH,
+    PENDING_PATH,
+    _read_all,
+    _rewrite,
+    read_awaiting,
+    write_approval_item,
+    write_pending,
+)
+
 import cyber_planner as cp
 from cyber_planner import CyberBrainStore, _review_ask_decision
-from decision_log import (
-    write_approval_item, write_pending, read_awaiting,
-    _read_all, _rewrite, APPROVAL_PATH, PENDING_PATH,
-)
 
 HEALTH_LOG_PATH = ROOT / "decision_logs" / "health_log.jsonl"
 
@@ -185,6 +192,7 @@ def capture_print(*args, **kwargs):
     original_print(*args, **kwargs)
 
 import builtins
+
 builtins.print = capture_print
 with patch("builtins.input", side_effect=["q"]):
     cp.handle_review(store9)

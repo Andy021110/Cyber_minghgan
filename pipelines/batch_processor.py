@@ -10,13 +10,13 @@ batch_processor.py — 蓄水池批处理器（Phase 4）
     python3 pipelines/batch_processor.py --dry-run # 只打印分类结果，不落盘
 """
 
-import os
+import argparse
 import json
+import logging
+import os
 import re
 import sys
 import time
-import argparse
-import logging
 from pathlib import Path
 
 import anthropic

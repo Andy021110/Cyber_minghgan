@@ -2,8 +2,9 @@
 api/routes/notifications.py — /api/notifications/* 路由
 """
 
-from fastapi import APIRouter, HTTPException
 from pathlib import Path
+
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 

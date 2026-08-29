@@ -17,15 +17,15 @@ import json
 import os
 import re
 import sys
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
 import anthropic
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent / "pipelines"))
-from decision_log import write_pending, count_pending, write_notification
-from assistant_utils import is_exit_command, confirm_exit
+from assistant_utils import confirm_exit, is_exit_command
+from decision_log import count_pending, write_notification, write_pending
 
 load_dotenv(Path(__file__).parent / ".env")
 
@@ -426,7 +426,7 @@ def run(trigger_context: str = "") -> None:
                     "pending_ready",
                     f"蓄水池已达 {total} 条，下次启动赛博明翰时将自动批处理",
                 )
-                print(f"  [提示] 已达触发阈值，下次启动时自动处理")
+                print("  [提示] 已达触发阈值，下次启动时自动处理")
         else:
             print(f"  {_GRAY}[OK] 本次会话无新观察{_RESET}")
 

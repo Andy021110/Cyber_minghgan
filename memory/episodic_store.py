@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
-from typing import Iterable
-
 
 _DATE_PATTERNS = [
     # 2023-05-04 / 2023/05/04

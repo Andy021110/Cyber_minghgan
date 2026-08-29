@@ -6,7 +6,6 @@
 import pipelines.decision_log as dl
 from cyber_planner import CyberBrainStore, process_review_decision
 
-
 # ── 蓄水池：pending 生命周期 ──────────────────────────────────
 
 def test_write_and_read_pending(hitl_env):

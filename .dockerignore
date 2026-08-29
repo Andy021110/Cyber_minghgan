@@ -1,0 +1,19 @@
+# Docker 忽略：密钥 / 虚拟环境 / 数据 / 日志
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+decision_logs/
+memory/episodic/*.jsonl
+.git/
+.github/
+docs/
+evals/
+frontend/
+frontend-old/
+map_previews/
+raw-assets/
+星露谷美术资源/
+*.log
+.DS_Store

@@ -24,9 +24,7 @@ test_phase2.py — Phase 2 验收测试（结构与集成，不调 API）
 
 import json
 import sys
-import importlib
 from pathlib import Path
-from datetime import datetime
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -99,7 +97,7 @@ check("_retrieve 结果包含 layer 字段", all("layer" in r for r in results) 
 check("_retrieve 结果包含 event_label", all("event_label" in r for r in results) if results else True)
 
 # ── [7] pending 写入不影响 KG ─────────────────────────────────────
-from decision_log import write_pending, _read_all, _rewrite, PENDING_PATH
+from decision_log import PENDING_PATH, _read_all, _rewrite, write_pending
 
 test_entry = write_pending(
     source_mode="health",

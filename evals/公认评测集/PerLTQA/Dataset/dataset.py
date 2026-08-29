@@ -1,12 +1,13 @@
 import json
 
+
 # Class PerLTMem is a tool class to extract the personal memory including semantic_memory(profiles, social relationships) and episodic memory(events and dialogues).
 class PerLTMem:
     def __init__(self):
         self.character = {}
 
     def read_json_data(self, file_name):
-        with open(file_name, 'r', encoding="utf-8") as f:
+        with open(file_name, encoding="utf-8") as f:
             content = f.read()
             dataset = json.loads(content)
 
@@ -24,7 +25,7 @@ class PerLTMem:
         try:
             character_sample = self.character[character_name]
 
-        except Exception as e:
+        except Exception:
             print(f"No such sample in AgentMem for {character_name}")
             character_sample = {}
         return character_sample
@@ -120,7 +121,7 @@ class PerLTQA:
         self.character = {}
 
     def read_json_data(self, file_name):
-        with open(file_name, 'r', encoding="utf-8") as f:
+        with open(file_name, encoding="utf-8") as f:
             content = f.read()
 
             dataset = json.loads(content)
@@ -137,7 +138,7 @@ class PerLTQA:
         try:
             character_sample = self.character[character_name]
 
-        except Exception as e:
+        except Exception:
             print(f"No such sample in AgentMem for {character_name}")
             character_sample = {}
         return character_sample

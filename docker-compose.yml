@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      # 数据卷：图谱 / 审核队列 / 情景记忆 持久化在宿主机
+      - ./decision_logs:/app/decision_logs
+      - ./memory:/app/memory
+      - ./yuanbao_cyber_minghan_kg.json:/app/yuanbao_cyber_minghan_kg.json
+    restart: unless-stopped

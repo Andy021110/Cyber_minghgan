@@ -4,15 +4,14 @@ parse_yuanbao_har.py
 解析腾讯元宝 HAR 文件，输出清洗后的对话 Markdown 文档。
 """
 
+import glob
 import json
 import logging
 import re
 import sys
-import glob
-import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,7 +36,7 @@ OUTPUT_FILE = Path(__file__).parent.parent / "archive_sources" / "Yuanbao_Battle
 # ══════════════════════════════════════════════════════════════════
 
 def load_har(path: str) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 

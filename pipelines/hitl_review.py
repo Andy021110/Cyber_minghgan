@@ -16,16 +16,16 @@ hitl_review.py — 通用 HITL 审查引擎 v1.1
         --output protocols/health_nodes_reviewed.json
 """
 
-import os
+import argparse
 import json
+import logging
+import os
 import re
 import sys
 import time
-import argparse
-import logging
-from pathlib import Path
 from datetime import datetime, timezone
-from typing import List, Dict, Tuple, Optional
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 import anthropic
 from dotenv import load_dotenv
@@ -90,7 +90,7 @@ def build_user_prompt(rules: List[str], batch_idx: int, total: int) -> str:
 # ══════════════════════════════════════════════════════════════════
 
 def load_rules(input_path: Path) -> List[str]:
-    """
+    r"""
     自动识别输入格式并提取规则列表。
 
     支持：
@@ -591,7 +591,7 @@ class Orchestrator:
                 print(f"\n  本次完成。还剩 {len(pending)} 条待裁决。")
             if pending_revision:
                 print(f"  还有 {len(pending_revision)} 条在二次审核池（裁决完所有条目后自动进入）。")
-            print(f"  再次运行相同命令即可继续。\n")
+            print("  再次运行相同命令即可继续。\n")
             return
 
         # ── 全部裁决完毕 → 合并输出 ──────────────────────────────

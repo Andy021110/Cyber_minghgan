@@ -18,9 +18,11 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "pipelines"))
 
 from dotenv import load_dotenv
+
 load_dotenv(ROOT / ".env")
 
 import anthropic
+
 from health_coach import extract_pending
 
 PASS = "\033[92m[PASS]\033[0m"

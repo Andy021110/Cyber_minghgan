@@ -3,7 +3,9 @@ api/schemas.py — Pydantic 数据模型（对应 TECH_SPEC 第五章 5.7）
 """
 
 from __future__ import annotations
+
 from typing import Literal, Optional
+
 from pydantic import BaseModel
 
 

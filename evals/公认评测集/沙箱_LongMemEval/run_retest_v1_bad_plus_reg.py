@@ -14,7 +14,7 @@ import random
 import re
 import sys
 import time
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -39,6 +39,7 @@ from dotenv import load_dotenv
 load_dotenv(CYBER / ".env", override=True)
 
 import anthropic
+
 import cyber_planner as cp
 from memory.episodic_store import EpisodicStore
 from memory.episodic_tools import EPISODIC_TOOLS, dispatch_episodic_tool, tool_result_content

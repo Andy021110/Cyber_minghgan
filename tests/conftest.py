@@ -6,7 +6,6 @@
 - tmp_env 用临时目录隔离 KG / L0 / 日志，绝不碰真实数据。
 - 所有 LLM 调用被记录（client.messages.calls），供断言「调了几次、传了什么」。
 """
-import os
 import shutil
 import sys
 import tempfile
@@ -125,8 +124,9 @@ def hitl_env(tmp_env, monkeypatch):
     """隔离 HITL 队列：把 decision_log 全部函数的 logs_dir 默认值绑到临时目录，
     并把 cyber_planner 的 HEALTH_LOG_PATH 也指过去——任何路径都不会碰真实数据。"""
     import functools
-    import pipelines.decision_log as dl
+
     import cyber_planner as cp
+    import pipelines.decision_log as dl
 
     logs = tmp_env["logs_dir"]
     _HITL_FNS = [

@@ -15,10 +15,11 @@ test_kg_browse.py — /kg 节点浏览验收（B1 + B2）
   python3 pipelines/test_kg_browse.py
 """
 
-import sys, json, io
-from pathlib import Path
-from unittest.mock import patch
+import io
+import json
+import sys
 from contextlib import redirect_stdout
+from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -45,7 +46,8 @@ print("\n═══════════════════════�
 print("  /kg 浏览验收（B1 + B2）")
 print("══════════════════════════════════════\n")
 
-from cyber_planner import CyberBrainStore, handle_kg, _archive_node
+from cyber_planner import CyberBrainStore, _archive_node, handle_kg
+
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"
 
 # 准备测试节点

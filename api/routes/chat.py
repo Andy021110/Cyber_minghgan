@@ -2,17 +2,19 @@
 api/routes/chat.py — /api/chat 路由（SSE 流式对话）
 """
 
+import asyncio
 import hmac
 import json
 import os
-import asyncio
 from typing import Optional
+
 import anthropic
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from cyber_planner import process_message
+
 from cyber_planner import _CHAT as _state
+from cyber_planner import process_message
 
 HEALTH_EXTRACT_EVERY = 5  # every 5 health coach turns
 
@@ -94,7 +96,7 @@ async def _health_to_kg() -> Optional[dict]:
 async def _auto_reflect() -> Optional[str]:
     """API 模式反刍：分析近期对话 → 有新特征时自动写入 KG → 截断消息历史。
     返回角色自述的反刍发言，若无新发现返回 None。"""
-    from cyber_planner import _CHAT, _reflect, _safe_truncate, REFLECT_EVERY, MODEL
+    from cyber_planner import _CHAT, MODEL, REFLECT_EVERY, _reflect, _safe_truncate
 
     state       = _CHAT
     client      = state.get("client")
@@ -215,7 +217,7 @@ async def chat(req: ChatRequest):
 
         yield f"data: {json.dumps({'type': 'done', 'fullText': ''.join(full_text)})}\n\n"
         yield f"data: {json.dumps({'type': 'reflection', 'triggered': reflection_triggered, 'feature': reflection_feature})}\n\n"
-        
+
         if health_node:
             yield f"data: {json.dumps({'type': 'kg_update', 'nodeId': health_node['id'], 'label': health_node['label']})}\n\n"
 

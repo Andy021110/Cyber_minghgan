@@ -18,16 +18,16 @@ class BoostRequest(BaseModel):
 
 @router.get("/prune/candidates")
 async def get_prune_candidates():
-    from cyber_planner import get_prune_candidates as _get
     from api.main import _store
+    from cyber_planner import get_prune_candidates as _get
 
     return _get(_store)
 
 
 @router.post("/prune/{node_id}/archive")
 async def archive_node(node_id: str, req: ArchiveRequest):
-    from cyber_planner import archive_node as _archive
     from api.main import _store
+    from cyber_planner import archive_node as _archive
 
     result = _archive(_store, node_id, req.reason)
     if not result["success"]:
@@ -37,8 +37,8 @@ async def archive_node(node_id: str, req: ArchiveRequest):
 
 @router.post("/prune/{node_id}/boost")
 async def boost_node(node_id: str, req: BoostRequest):
-    from cyber_planner import boost_node_importance as _boost
     from api.main import _store
+    from cyber_planner import boost_node_importance as _boost
 
     if not 1 <= req.newImportance <= 10:
         raise HTTPException(status_code=422, detail="newImportance 须在 1–10 之间")

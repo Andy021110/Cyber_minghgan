@@ -18,7 +18,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "pipelines"))
 
-from assistant_utils import is_exit_command, confirm_exit
+from assistant_utils import confirm_exit, is_exit_command
 
 PASS = "\033[92m[PASS]\033[0m"
 FAIL = "\033[91m[FAIL]\033[0m"

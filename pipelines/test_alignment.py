@@ -1,5 +1,7 @@
 """test_alignment.py — alignment_check 功能测试"""
-import sys, json, tempfile, shutil
+import shutil
+import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))

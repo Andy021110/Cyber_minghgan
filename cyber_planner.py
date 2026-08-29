@@ -12,14 +12,14 @@ cyber_planner.py
     /<其他指令>      路由至 KG 管理员 Tool Use Agent
 """
 
+import asyncio
 import json
 import os
 import sys
 import uuid as _uuid
-import asyncio
+from collections.abc import AsyncGenerator
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import AsyncGenerator
 
 import anthropic
 from dotenv import load_dotenv
@@ -28,10 +28,10 @@ load_dotenv(Path(__file__).parent / ".env")
 
 sys.path.insert(0, str(Path(__file__).parent / "pipelines"))
 from decision_log import (
-    read_unconsumed_notifications,
     consume_notification,
-    read_awaiting,
     count_pending,
+    read_awaiting,
+    read_unconsumed_notifications,
     resolve_approval,
     update_pending_status,
     write_notification,
@@ -509,7 +509,7 @@ def handle_switch(mode: str, messages: list) -> bool:
     print(f"\n{'─'*56}")
     print(f"  切换至 {mode} 模式")
     print(f"{'─'*56}")
-    print(f"  · 当前对话将结束，历史不继承")
+    print("  · 当前对话将结束，历史不继承")
     print(f"  · 图谱只读，{mode} 模式无法修改你的内心")
     if trigger_context:
         print(f"  · 带入摘要：「{trigger_context}」")
@@ -749,7 +749,7 @@ def handle_review(store: "CyberBrainStore", client: "anthropic.Anthropic | None"
         print(f"  原始证据: {evidence}")
         print(f"  AI 分类:  {rationale}")
         print("─"*56)
-        print(f"  Y=采纳  N=拒绝  s=跳过本条（留待下次）  q=暂停审批（剩余条目保留）")
+        print("  Y=采纳  N=拒绝  s=跳过本条（留待下次）  q=暂停审批（剩余条目保留）")
 
         decision = _review_ask_decision()
 
@@ -1135,7 +1135,7 @@ def handle_prune(store: "CyberBrainStore", subcommand: str = "") -> None:
     /prune          → 分布概览 → 逐条裁决（归档/提升重要度/跳过）
     /prune restore  → 列出已归档节点，选择恢复
     """
-    from prune import scan_candidates, distribution_summary
+    from prune import distribution_summary, scan_candidates
 
     config = store._kg.get("meta", {}).get("prune_config", {
         "staleness_threshold": 30,
@@ -1191,7 +1191,7 @@ def handle_prune(store: "CyberBrainStore", subcommand: str = "") -> None:
         print(f"  创建   : {created}  调用: {count} 次  重要度: {imp}/10")
         print(f"  老化分 : {staleness}  理由: {hint}")
         print(f"{'─'*56}")
-        print(f"  [1] 归档  [2] 保留并提升重要度  [3] 跳过")
+        print("  [1] 归档  [2] 保留并提升重要度  [3] 跳过")
 
         try:
             choice = input("> ").strip()
@@ -1238,7 +1238,7 @@ def _prune_merge(store: "CyberBrainStore") -> None:
         return
 
     print(f"\n{'═'*56}")
-    print(f"  /prune merge  正在扫描重复节点对…")
+    print("  /prune merge  正在扫描重复节点对…")
     print(f"{'─'*56}")
 
     pairs = scan_duplicate_pairs(store, _client)
@@ -1256,7 +1256,7 @@ def _prune_merge(store: "CyberBrainStore") -> None:
         print(f"[{i}/{len(pairs)}] 重叠：{reason}")
         print(f"  [1] [{na['layer']}] imp={na['importance']}  {na['event_label']}")
         print(f"  [2] [{nb['layer']}] imp={nb['importance']}  {nb['event_label']}")
-        print(f"  1=保留A合并B  2=保留B合并A  s=跳过  q=结束")
+        print("  1=保留A合并B  2=保留B合并A  s=跳过  q=结束")
 
         try:
             raw = input("  > ").strip().lower()
@@ -1604,7 +1604,7 @@ def _cleanup_health_log(retention_days: int) -> int:
     from decision_log import _read_all, _rewrite
     if not HEALTH_LOG_PATH.exists():
         return 0
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta, timezone
     cutoff = datetime.now(timezone.utc) - timedelta(days=retention_days)
     entries = _read_all(HEALTH_LOG_PATH)
     kept = []
@@ -1660,13 +1660,13 @@ def _startup_check(store: "CyberBrainStore") -> None:
         print(f"\n  {_YELLOW}[提醒] 有 {len(awaiting)} 条待审批，输入 /review 查看{_RESET}")
 
     # 4. 季度 KG 老化扫描
-    from prune import scan_candidates, distribution_summary
+    from prune import distribution_summary
     meta   = store._kg.get("meta", {})
     config = meta.get("prune_config", {})
     interval = config.get("prune_interval_days", 90)
     last_check = meta.get("last_prune_check")
 
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timezone
     now_str = datetime.now(timezone.utc).date().isoformat()
     needs_scan = True
     if last_check:

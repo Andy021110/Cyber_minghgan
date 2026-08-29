@@ -10,15 +10,15 @@ build_kg.py
 """
 
 # ── 标准库 ────────────────────────────────────────────────────────
-import json
-import re
-import os
-import sys
-import logging
 import argparse
-from pathlib import Path
+import json
+import logging
+import os
+import re
+import sys
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from dataclasses import dataclass, field, asdict
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 # ── 第三方库 ──────────────────────────────────────────────────────
@@ -897,7 +897,7 @@ def main():
         turns   = parser.load_and_split_turns(MD_PATH)
         batches = parser.batch_turns(turns)
         print(f"\n{'='*58}")
-        print(f"  解析结果概览")
+        print("  解析结果概览")
         print(f"{'='*58}")
         print(f"  总 Turn 数：{len(turns)}")
         print(f"  批次数    ：{len(batches)}")

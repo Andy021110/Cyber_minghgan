@@ -20,9 +20,15 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "pipelines"))
 
 from decision_log import (
-    write_pending, read_pending, count_pending, update_pending_status,
-    write_notification, read_unconsumed_notifications, consume_notification,
-    PENDING_PATH, NOTIFICATIONS_PATH,
+    NOTIFICATIONS_PATH,
+    PENDING_PATH,
+    consume_notification,
+    count_pending,
+    read_pending,
+    read_unconsumed_notifications,
+    update_pending_status,
+    write_notification,
+    write_pending,
 )
 
 PASS = "\033[92m[PASS]\033[0m"

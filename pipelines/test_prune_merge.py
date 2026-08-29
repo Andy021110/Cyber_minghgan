@@ -12,10 +12,13 @@ test_prune_merge.py — /prune merge 存量合并验收（D1）
   python3 pipelines/test_prune_merge.py
 """
 
-import sys, json, io
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+import io
+import json
+import sys
 from contextlib import redirect_stdout
+from pathlib import Path
+from unittest.mock import patch
+
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).parent.parent
@@ -45,7 +48,8 @@ print("  /prune merge 验收（D1）")
 print("══════════════════════════════════════\n")
 
 import anthropic
-from cyber_planner import CyberBrainStore, scan_duplicate_pairs, _prune_merge
+
+from cyber_planner import CyberBrainStore, _prune_merge, scan_duplicate_pairs
 
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"
 client  = anthropic.Anthropic()

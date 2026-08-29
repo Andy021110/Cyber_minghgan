@@ -24,8 +24,8 @@ test_phase7_8.py — Phase 7+8 验收测试
 
 import json
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -47,14 +47,21 @@ print("\n═══════════════════════�
 print("  Phase 7+8 验收测试")
 print("══════════════════════════════════════\n")
 
-import cyber_planner as cp
-from cyber_planner import CyberBrainStore, _archive_node, _cleanup_health_log, HEALTH_LOG_PATH
 from decision_log import (
-    write_pending, write_approval_item, read_awaiting,
-    read_unconsumed_notifications, consume_notification, write_notification,
-    _read_all, _rewrite, APPROVAL_PATH, PENDING_PATH, NOTIFICATIONS_PATH,
+    APPROVAL_PATH,
+    NOTIFICATIONS_PATH,
+    PENDING_PATH,
+    _read_all,
+    _rewrite,
+    read_awaiting,
+    read_unconsumed_notifications,
+    write_approval_item,
+    write_pending,
 )
-from prune import compute_staleness, scan_candidates, distribution_summary
+from prune import compute_staleness, distribution_summary, scan_candidates
+
+import cyber_planner as cp
+from cyber_planner import HEALTH_LOG_PATH, CyberBrainStore, _archive_node, _cleanup_health_log
 
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"
 
@@ -184,6 +191,7 @@ store8._save()
 old_ts = (datetime.now(timezone.utc) - timedelta(days=91)).isoformat()
 new_ts = datetime.now(timezone.utc).isoformat()
 import uuid as _uuid_mod
+
 test_log_old = {"id": _uuid_mod.uuid4().hex, "timestamp": old_ts, "content": "旧记录", "status": "approved"}
 test_log_new = {"id": _uuid_mod.uuid4().hex, "timestamp": new_ts, "content": "新记录", "status": "approved"}
 with HEALTH_LOG_PATH.open("a") as f:

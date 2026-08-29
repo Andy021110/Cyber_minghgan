@@ -5,8 +5,8 @@ prune.py — KG 节点老化评分模块（Phase 8a）
 """
 
 import json
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 _LAYERS = ("Id_Dynamics", "Ego_Dynamics", "Superego_Dynamics")

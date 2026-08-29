@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 SANDBOX = Path(__file__).resolve().parent
@@ -39,8 +39,8 @@ from dotenv import load_dotenv
 load_dotenv(CYBER_ROOT / ".env")
 
 import anthropic
-import cyber_planner as cp
 
+import cyber_planner as cp
 
 EVAL_SYSTEM_PROMPT = f"""你是一个长期记忆型个人助理评测代理。
 当前服务用户：{USER_NAME}。

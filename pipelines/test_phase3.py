@@ -27,9 +27,7 @@ test_phase3.py — Phase 3 验收测试（结构部分，不调 API）
 """
 
 import sys
-import io
 from pathlib import Path
-from unittest.mock import patch
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))

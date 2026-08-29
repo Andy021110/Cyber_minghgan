@@ -18,7 +18,6 @@ test_phase4.py — Phase 4 验收测试
   python3 pipelines/test_phase4.py
 """
 
-import json
 import sys
 from pathlib import Path
 
@@ -51,11 +50,14 @@ except Exception as e:
     sys.exit(1)
 
 from decision_log import (
-    write_pending, read_pending, count_pending,
-    write_approval_item, read_awaiting,
+    APPROVAL_PATH,
+    NOTIFICATIONS_PATH,
+    PENDING_PATH,
+    _read_all,
+    _rewrite,
+    read_awaiting,
     read_unconsumed_notifications,
-    _read_all, _rewrite,
-    PENDING_PATH, APPROVAL_PATH, NOTIFICATIONS_PATH,
+    write_pending,
 )
 
 # 记录测试前的 awaiting 和 notification 数量

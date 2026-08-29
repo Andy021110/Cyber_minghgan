@@ -11,9 +11,11 @@ test_review_dedup.py — /review 重复检测接入验收（C2）
   python3 pipelines/test_review_dedup.py
 """
 
-import sys, json, uuid as _uuid_mod
+import json
+import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).parent.parent
@@ -37,12 +39,16 @@ print("  /review 重复检测验收（C2）")
 print("══════════════════════════════════════\n")
 
 import anthropic
-import cyber_planner as cp
-from cyber_planner import CyberBrainStore, handle_review
 from decision_log import (
-    write_approval_item, write_pending, _read_all, _rewrite,
-    APPROVAL_PATH, PENDING_PATH,
+    APPROVAL_PATH,
+    PENDING_PATH,
+    _read_all,
+    _rewrite,
+    write_approval_item,
+    write_pending,
 )
+
+from cyber_planner import CyberBrainStore, handle_review
 
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"
 

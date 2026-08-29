@@ -2,9 +2,10 @@
 api/routes/review.py — /api/review/* 路由
 """
 
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
 
 router = APIRouter()
 
@@ -48,8 +49,8 @@ async def get_review_count():
 
 @router.post("/review/items/{item_id}/decide")
 async def decide_review_item(item_id: str, req: DecideRequest):
-    from cyber_planner import process_review_decision
     from api.main import _store
+    from cyber_planner import process_review_decision
 
     valid = {"approved_kg", "approved_log", "rejected"}
     if req.decision not in valid:

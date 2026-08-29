@@ -9,10 +9,10 @@ migrate_prune_fields.py — KG 字段迁移（Phase 7a）
     python3 pipelines/migrate_prune_fields.py --dry-run # 只打印，不写文件
 """
 
-import json
 import argparse
-from pathlib import Path
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 ROOT    = Path(__file__).parent.parent
 KG_PATH = ROOT / "yuanbao_cyber_minghan_kg.json"

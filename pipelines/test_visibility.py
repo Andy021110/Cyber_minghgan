@@ -1,5 +1,8 @@
 """test_visibility.py — visibility 字段功能测试"""
-import sys, json, tempfile, shutil, uuid as _uuid_mod
+import shutil
+import sys
+import tempfile
+import uuid as _uuid_mod
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -74,8 +77,9 @@ def test_visibility_persisted_to_file():
 # ── 场景 4：build_public_system_prompt 只含 public 节点 ──────────
 
 def test_public_prompt_filters_visibility():
-    import tempfile, shutil
+    import tempfile
     from pathlib import Path
+
     from cyber_planner import build_public_system_prompt
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -114,11 +118,15 @@ def test_public_prompt_filters_visibility():
 
 def test_process_review_decision_visibility():
     """验证 process_review_decision() 的 visibility 参数透传到创建的 KG 节点。"""
-    from cyber_planner import CyberBrainStore, process_review_decision
     from decision_log import (
-        write_approval_item, read_awaiting,
-        _read_all, _rewrite, APPROVAL_PATH,
+        APPROVAL_PATH,
+        _read_all,
+        _rewrite,
+        read_awaiting,
+        write_approval_item,
     )
+
+    from cyber_planner import CyberBrainStore, process_review_decision
 
     with tempfile.TemporaryDirectory() as tmp:
         kg_path = _make_tmp_kg(Path(tmp))

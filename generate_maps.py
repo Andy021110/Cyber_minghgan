@@ -10,10 +10,10 @@ GID remapping note:
   → JoshHouse tiles are remapped to SamHouse's canonical GID space before merging.
 """
 
-import xml.etree.ElementTree as ET
 import json
 import os
 import shutil
+import xml.etree.ElementTree as ET
 
 MAPS_SRC   = "/Users/minghan/Desktop/知识蒸馏/元宝-明翰/星露谷美术资源/Content (unpacked)/Maps"
 DEST_DIR   = "/Users/minghan/Desktop/知识蒸馏/元宝-明翰/frontend/public/assets/maps"

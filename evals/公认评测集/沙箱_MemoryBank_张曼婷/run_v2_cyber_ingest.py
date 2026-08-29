@@ -36,6 +36,7 @@ from dotenv import load_dotenv
 load_dotenv(CYBER_ROOT / ".env", override=True)
 
 import anthropic
+
 import cyber_planner as cp
 
 EXTRACT_SYSTEM = f"""你是「心智图谱写入筛选器」，服务于用户「{USER_NAME}」的长期记忆系统。

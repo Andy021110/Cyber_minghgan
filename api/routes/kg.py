@@ -2,8 +2,9 @@
 api/routes/kg.py — /api/kg/* 路由
 """
 
-from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
 
 router = APIRouter()
 
@@ -13,8 +14,8 @@ async def get_kg_nodes(
     layer:           Optional[str] = Query(None),
     includeArchived: bool          = Query(False),
 ):
-    from cyber_planner import get_kg_nodes as _get
     from api.main import _store
+    from cyber_planner import get_kg_nodes as _get
 
     valid_layers = {"Id", "Ego", "Superego"}
     if layer and layer not in valid_layers:
@@ -26,8 +27,8 @@ async def get_kg_nodes(
 
 @router.get("/kg/nodes/{node_id}")
 async def get_kg_node(node_id: str):
-    from cyber_planner import get_kg_node as _get
     from api.main import _store
+    from cyber_planner import get_kg_node as _get
 
     node = _get(_store, node_id)
     if node is None:
@@ -37,7 +38,7 @@ async def get_kg_node(node_id: str):
 
 @router.get("/kg/graph")
 async def get_kg_graph():
-    from cyber_planner import get_kg_graph as _get
     from api.main import _store
+    from cyber_planner import get_kg_graph as _get
 
     return _get(_store)
