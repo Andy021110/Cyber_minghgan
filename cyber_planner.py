@@ -14,7 +14,9 @@ cyber_planner.py
 
 import asyncio
 import json
+import math
 import os
+import re
 import shutil
 import sys
 import uuid as _uuid
@@ -108,6 +110,80 @@ _CHAT: dict = {
 }
 
 
+_PUNC_RE = re.compile(r"[\s，。？！、；：,.?!;:\"'（）()《》\[\]【】—…·]")
+
+
+def _normalize_text(s: str) -> str:
+    """去标点与空白，统一小写——让打分不受书写差异影响。"""
+    return _PUNC_RE.sub("", (s or "").lower())
+
+
+def keyword_score(query: str, text: str, n: int = 2) -> float:
+    """字符 n-gram 覆盖率打分，返回 0~1 的连续分数。
+
+    为什么不用 `query in text`：
+    中文不分词，用户提问是整句（"你还记得我喜欢喝什么咖啡吗"），
+    整句作为子串在原文里几乎必然不存在 → 命中率恒为 0。
+    实测 5 个自然问句 top5 命中 **0 条**（BC-001，已回放确认）。
+    叠加 sentence-transformers 未安装、vector_alpha 被强制为 0
+    （`__init__` 里 Zero provider 的兜底），**检索等于整个关闭**——
+    不是"效果差"，是"没有"。
+
+    改用字符 2-gram：query 与文档都切成长度 2 的滑动窗口，
+    用「命中的 gram 数 / query 的 gram 总数」作相似度。
+    无外部依赖、对中文有效，且**分数连续**，因此可用于设定弃权阈值
+    （对应竞品常见的 Abstention 失败模式：不该答时编一个）。
+
+    注意：单字查询（去标点后长度 < n）退化为子串匹配。
+    """
+    q, t = _normalize_text(query), _normalize_text(text)
+    if not q or not t:
+        return 0.0
+    if len(q) < n:
+        return 1.0 if q in t else 0.0
+    grams = [q[i:i + n] for i in range(len(q) - n + 1)]
+    return sum(1 for g in grams if g in t) / len(grams)
+
+
+def keyword_scores_idf(query: str, texts: list[str], n: int = 2) -> list[float]:
+    """对一批文档算 **IDF 加权** 的 n-gram 覆盖率，返回与 texts 等长的分数表。
+
+    为什么要加权：不加权时高频片段会淹没一切。实测「他喜欢喝咖啡吗」
+    在 KG 里根本没有咖啡相关内容，但因为大量文档含「喜欢」二字，
+    覆盖率仍能过 0.15 的门槛 → 返回 5 条不相关记忆。
+    这比不召回更糟：它让「该弃权时弃权」完全失效（Abstention 失败模式）。
+
+    IDF 让罕见片段（"咖啡"）权重高、高频片段（"喜欢"）权重低，
+    正是为此。公式用平滑 IDF：log((N+1)/(1+df)) + 1。
+    """
+    N = len(texts)
+    if N == 0:
+        return []
+    q = _normalize_text(query)
+    if not q:
+        return [0.0] * N
+    q_grams = set(q[i:i + n] for i in range(len(q) - n + 1)) or {q}
+
+    normed = [_normalize_text(t) for t in texts]
+    df: dict[str, int] = {}
+    for t in normed:
+        for g in set(t[i:i + n] for i in range(len(t) - n + 1)) or {t}:
+            df[g] = df.get(g, 0) + 1
+
+    idf = {g: math.log((N + 1) / (1 + df.get(g, 0))) + 1.0 for g in q_grams}
+
+    # 除以 gram 数而不是除以 idf 总和——**这条很关键**。
+    # 若除以 idf 总和，任何 query 全命中时都得 1.0，罕见词与高频词无法区分，
+    # 跨 query 的分数也就不可比，门槛形同虚设。除以 gram 数得到的是
+    # 「平均命中 IDF」，罕见词天然分高，分数因此可跨 query 比较。
+    scores = []
+    for t in normed:
+        t_grams = set(t[i:i + n] for i in range(len(t) - n + 1)) or {t}
+        hit = sum(w for g, w in idf.items() if g in t_grams)
+        scores.append(hit / len(q_grams))
+    return scores
+
+
 # ══════════════════════════════════════════════════════════════════
 #  CyberBrainStore — 纯函数 CRUD 层（Phase 2）
 # ══════════════════════════════════════════════════════════════════
@@ -128,11 +204,26 @@ class CyberBrainStore:
         kg_path: Path = KG_PATH,
         provider: EmbeddingProvider | None = None,
         vector_alpha: float = 0.4,
+        kw_min_score: float = 0.8,
     ):
         self._path = kg_path
         self._kg   = json.loads(kg_path.read_text(encoding="utf-8"))
         self.provider = provider or ZeroEmbeddingProvider()
         self.vector_alpha = 0.0 if isinstance(self.provider, ZeroEmbeddingProvider) else vector_alpha
+        # 关键词通路的最低分门槛：低于此值视为"没检索到"，直接不返回。
+        # 用途是让"该弃权时弃权"成为可能（对应 Abstention 类失败模式）。
+        #
+        # 0.8 的依据（实测，非拍脑袋）：10 个问题上测「平均命中 IDF」的 top1 分数，
+        #   有答案组：1.29 1.77 1.28 0.88 1.39   （最小 0.88）
+        #   无答案组：0.73 1.77 0.59 0.00 0.59
+        # 取 0.8 → 有答案 5/5 召回，无答案 4/5 正确弃权。
+        # 唯一的漏网是「我昨天吃了什么」（1.77），撞上了「饮食选择中的健康自我叙事」。
+        # 两组有重叠，**不存在完美阈值**。
+        #
+        # TODO(待标定)：样本仅 10 条，无答案组还是人工构造的。
+        # 需扩充 evals/标定集/检索门槛.jsonl 后重跑标定脚本。
+        # 未扩充前不要把 0.8 当结论用——它只是当前数据上的一个工作点。
+        self.kw_min_score = kw_min_score
 
     # ── 内部工具 ──────────────────────────────────────────────────
 
@@ -222,17 +313,15 @@ class CyberBrainStore:
         返回含 uuid 的精简摘要列表，供 LLM 阅读。
         命中节点自动更新 access_count 和 last_accessed_at。
         """
-        kw = keyword.lower()
         all_nodes = self._all_items()
         if not all_nodes:
             return []
 
-        keyword_scores = np.zeros(len(all_nodes), dtype=np.float32)
-        doc_texts: list[str] = []
-        for i, item in enumerate(all_nodes):
-            haystack = self._node_text(item).lower()
-            keyword_scores[i] = 1.0 if kw in haystack else 0.0
-            doc_texts.append(self._node_text(item))
+        # 整句布尔子串匹配在中文下恒不命中（BC-001），改用 IDF 加权的 2-gram
+        doc_texts = [self._node_text(item) for item in all_nodes]
+        keyword_scores = np.array(
+            keyword_scores_idf(keyword, doc_texts), dtype=np.float32
+        )
 
         # 向量召回（Zero provider 时 alpha=0，直接跳过）
         vector_scores = np.zeros(len(all_nodes), dtype=np.float32)
@@ -248,7 +337,8 @@ class CyberBrainStore:
         results = []
         hit_items = []
         for final, _kw, _vec, item in indexed[:limit]:
-            if final <= 0 and self.vector_alpha == 0:
+            # 纯关键词通路下，低于门槛的视为没检索到——宁可空手也不塞噪声
+            if self.vector_alpha == 0 and final < self.kw_min_score:
                 continue
             results.append({
                 "uuid":        item["uuid"],
