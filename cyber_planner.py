@@ -182,12 +182,39 @@ class CyberBrainStore:
     # ── 公开接口 ──────────────────────────────────────────────────
 
     def _node_text(self, item: dict) -> str:
-        """用于向量编码的节点文本。"""
-        return " ".join([
-            item.get("event_label", ""),
-            item.get("description", ""),
-            item.get("evidence", ""),
-        ]).strip()
+        """用于向量编码的节点文本。
+
+        两类条目字段名不同，都要覆盖：
+        - 动力学节点：event_label / description / evidence
+        - interactions：event / trigger / resolution（BC-003：曾因只认前者，
+          47 条 interactions 永远检索不到，是死数据）
+        """
+        return " ".join(
+            p for p in [
+                item.get("event_label", ""),
+                item.get("description", ""),
+                item.get("evidence", ""),
+                item.get("event", ""),
+                item.get("trigger", ""),
+                item.get("resolution", ""),
+            ] if p
+        ).strip()
+
+    def _all_items(self) -> list[dict]:
+        """检索范围 = 三层动力学节点 + 顶层 interactions。
+
+        注意 interactions 在 KG **顶层**（`kg["interactions"]`），
+        不在 `nodes.Cyber_Minghan` 下——所以 `_node_lists()` 永远看不到它。
+        """
+        items = [
+            item for lst in self._node_lists() for item in lst
+            if not item.get("archived")
+        ]
+        items += [
+            it for it in self._kg.get("interactions", [])
+            if not it.get("archived")
+        ]
+        return items
 
     def retrieve(self, keyword: str, limit: int = 10) -> list[dict]:
         """跨三层混合检索（关键词 + 本地向量）。
@@ -196,9 +223,7 @@ class CyberBrainStore:
         命中节点自动更新 access_count 和 last_accessed_at。
         """
         kw = keyword.lower()
-        all_nodes = [
-            item for lst in self._node_lists() for item in lst if not item.get("archived")
-        ]
+        all_nodes = self._all_items()
         if not all_nodes:
             return []
 
@@ -228,7 +253,7 @@ class CyberBrainStore:
             results.append({
                 "uuid":        item["uuid"],
                 "layer":       item.get("layer"),
-                "event_label": item.get("event_label"),
+                "event_label": item.get("event_label") or item.get("event", ""),
                 "description": item.get("description", "")[:80] + "…",
                 "created_at":  item.get("created_at", "时间未知"),
             })

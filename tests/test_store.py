@@ -96,3 +96,44 @@ def test_saved_file_is_valid_json_after_each_write(tmp_env):
         store.create(layer="Id", event_label=f"节点{i}", description="d", evidence="e")
         data = json.loads(tmp_env["kg_path"].read_text(encoding="utf-8"))
         assert "nodes" in data
+
+
+def _add_interaction(path, event, trigger, resolution):
+    """往 KG **顶层** interactions 塞一条（注意不在 nodes.Cyber_Minghan 下）。"""
+    import json
+    kg = json.loads(path.read_text(encoding="utf-8"))
+    kg.setdefault("interactions", []).append({
+        "event": event, "trigger": trigger, "resolution": resolution,
+        "batch_id": "test", "timestamp": "2026-01-01 00:00:00 UTC",
+        "round_refs": [], "uuid": f"test-{event}",
+    })
+    path.write_text(json.dumps(kg, ensure_ascii=False), encoding="utf-8")
+
+
+def test_retrieve_covers_interactions(tmp_env):
+    """BC-003 回归：顶层 interactions 必须能被检索到。
+
+    曾因 `_node_lists()` 只遍历 nodes 下三层，而 interactions 在 KG 顶层，
+    47 条事件性记忆一条都召回不到——是死数据。
+    """
+    _add_interaction(tmp_env["kg_path"], "测试专属事件",
+                     "独特触发词ZZQQ", "独特解决词JJXX")
+    hits = _store(tmp_env).retrieve("独特触发词ZZQQ", limit=5)
+    assert hits, "顶层 interactions 应能被检索到（BC-003）"
+    assert any("测试专属事件" in (h.get("event_label") or "") for h in hits)
+
+
+def test_retrieve_covers_interactions_resolution_field(tmp_env):
+    """resolution 字段也要参与匹配——光匹配 event 会漏掉「怎么解决的」。"""
+    _add_interaction(tmp_env["kg_path"], "某事件", "某触发", "独特解决词JJXX")
+    hits = _store(tmp_env).retrieve("独特解决词JJXX", limit=5)
+    assert hits, "interactions 的 resolution 字段应参与检索"
+
+
+def test_retrieve_still_covers_dynamics_layers(tmp_env):
+    """接入 interactions 不能挤掉原有三层——防「修一个坏一个」。"""
+    store = _store(tmp_env)
+    store.create(layer="Ego", event_label="原有节点标记PPKK",
+                 description="d", evidence="e")
+    hits = store.retrieve("原有节点标记PPKK", limit=5)
+    assert any("原有节点标记PPKK" in (h.get("event_label") or "") for h in hits)
