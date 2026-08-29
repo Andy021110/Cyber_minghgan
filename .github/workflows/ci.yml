@@ -21,9 +21,14 @@ jobs:
         run: |
           pip install --quiet -r requirements.txt -r requirements-dev.txt
       - name: Ruff lint (new code & tests)
-        run: ruff check tests/
+        # 只 gate 新代码与测试；存量 pipelines/ 仍有 tech debt，逐步清理后再纳入
+        run: ruff check tests/ agent/ memory/ api/deps.py api/routes/v1.py
       - name: Pytest (zero API calls)
         run: pytest tests/ -q
+      - name: Memory maintenance smoke (dry-run)
+        run: |
+          python pipelines/memory_maintenance.py forget
+          python pipelines/memory_maintenance.py conflicts
 
   evals-nightly:
     name: Evals Regression (nightly)

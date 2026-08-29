@@ -100,9 +100,10 @@ cyber_minghan/
 ├── evals/                    # 公开集 · 沙箱 · 产品契约（统一入口）
 ├── api/                      # FastAPI 入口与路由
 ├── frontend/                 # React + Phaser 客户端
-├── memory/                   # L0 episodic_store / tools / policy / embeddings
-├── pipelines/                # 蒸馏、HITL、批处理
-├── tests/                    # pytest（Mock LLM，零 API 调用）
+├── agent/                    # LangGraph 编排层（state / tools / memory / graph / runner）
+├── memory/                   # L0 episodic_store / tools / policy / embeddings / lifecycle / versioning
+├── pipelines/                # 蒸馏、HITL、批处理、记忆维护
+├── tests/                    # pytest（Mock LLM + FakeChatModel，零 API 调用）
 ├── cyber_planner.py          # Agent 核心（工具环 + KG）
 ├── health_coach.py           # 健康专项
 ├── Dockerfile                # 后端镜像
@@ -166,8 +167,8 @@ python3 cyber_planner.py
 
 ```bash
 pip install -r requirements-dev.txt
-pytest tests/ -q          # 37 passed，零 API 调用（FakeAnthropic Mock）
-ruff check tests/ memory/ cyber_planner.py api/main.py
+pytest tests/ -q          # 68 passed，零 API 调用（FakeAnthropic / FakeChatModel）
+ruff check tests/ memory/ agent/ api/ cyber_planner.py
 ```
 
 ### 5.7 Docker 一键起服务
@@ -186,6 +187,35 @@ export CYBER_EMBEDDING_PROVIDER=bge       # 首次运行会从 HuggingFace 下�
 ```
 
 启用后 L0 `retrieve_episode` 与 L1 `retrieve_memory` 均切换为 **keyword + vector 混合打分**（`vector_alpha` 可调，默认 0.4）。
+
+### 5.9 LangGraph 编排层（v1 API）
+
+对话编排已用 LangGraph 重写（设计依据见 [`docs/LangGraph编排设计.md`](docs/LangGraph编排设计.md)）：
+
+```text
+START → load_memory → agent →(写工具)→ hitl_gate ═interrupt═→ 人工审批 → agent
+                             ├─(读工具)→ read_tools ─────────────────────┘
+                             └─(无工具)→ persist（落 L0 + 压缩短期记忆）→ END
+```
+
+| 记忆类型 | 实现 | 作用域 |
+|---|---|---|
+| 短期（thread-scoped） | checkpointer + `working_summary` 滚动压缩 | 单会话，SQLite 持久化 |
+| 长期 · 语义 | L1 动力学 KG | 跨会话 |
+| 长期 · 情景 | L0 原文轮次 | 跨会话 |
+| 长期 · 程序 | persona / system prompt（后台反刍更新） | 全局 |
+
+HITL：写类工具必须经 `interrupt()` 暂停，人工用 `/api/v1/chat/resume` 决定
+`approved_kg`（写入图谱）/ `approved_log`（只记日志）/ `rejected`（拒绝）。
+
+```bash
+curl -X POST localhost:8000/api/v1/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"thread_id":"demo","message":"你还记得我喜欢什么吗"}'
+curl localhost:8000/api/v1/memory/demo     # 查看短期记忆快照
+python3 pipelines/memory_maintenance.py forget      # 遗忘候选（dry-run）
+python3 pipelines/memory_maintenance.py conflicts   # 标签冲突组
+```
 
 ---
 
@@ -238,8 +268,10 @@ flowchart LR
 | [`docs/PRD.md`](docs/PRD.md) | 产品需求、范围、成功指标 |
 | [`docs/TECH_SPEC.md`](docs/TECH_SPEC.md) | 前端与交互技术规范 |
 | [`docs/SYSTEM_DESIGN_V2.md`](docs/SYSTEM_DESIGN_V2.md) | 系统设计 |
+| [`docs/开发方案_企业级对齐.md`](docs/开发方案_企业级对齐.md) | 三阶段改造计划与实录（差距评分、决策记录） |
+| [`docs/LangGraph编排设计.md`](docs/LangGraph编排设计.md) | **LangGraph 编排：记忆分层映射、图结构、HITL 硬约束（附官方依据引用）** |
 | [`docs/USER_GUIDE_CRUD.md`](docs/USER_GUIDE_CRUD.md) | KG 操作指南 |
-| [`memory/`](memory/) | L0 实现与评测策略文案 |
+| [`memory/`](memory/) | L0 实现、embedding、遗忘（lifecycle）、冲突版本化（versioning） |
 | [`evals/README.md`](evals/README.md) | 公开集 / 沙箱 / 产品契约入口 |
 | [`docs/evals/`](docs/evals/) | 评测方案与迁入 handoff |
 
@@ -262,11 +294,13 @@ flowchart LR
 | Status | Item |
 |--------|------|
 | Done | L0+L1 双层、Tool Use、HITL、Web demo、公开集评测闭环 |
-| Done | 工程地基：37 个 pytest（Mock LLM）、ruff、GitHub Actions CI、Docker/compose |
+| Done | 工程地基：68 个 pytest（零 API 调用）、ruff、GitHub Actions CI、Docker/compose |
 | Done | 本地 BGE embedding + keyword/vector 混合检索（`memory/embeddings.py`） |
-| Next | 自动遗忘（importance 衰减 + compaction）、冲突版本化（supersede + HITL） |
-| Next | 混合检索 vs 纯关键词 的 LongMemEval 对比跑分 |
-| Later | LangGraph 编排重写、KG 迁 SQLite、多用户隔离 |
+| Done | 自动遗忘（`memory/lifecycle.py`：半衰期衰减 + 只归档可回滚）、冲突版本化（`memory/versioning.py`：supersede 链 + history） |
+| Done | **LangGraph 编排重写**（`agent/`）：短期/长期记忆分层、ToolNode、HITL `interrupt()`、v1 API |
+| Next | 混合检索 vs 纯关键词 的 LongMemEval 对比跑分（接入 nightly CI） |
+| Next | 统一错误处理、结构化日志 + token 成本追踪 |
+| Later | KG 迁 SQLite、多用户隔离、LangGraph 图可视化 |
 
 ---
 
