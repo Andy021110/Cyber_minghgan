@@ -1,0 +1,28 @@
+[project]
+name = "cyber-minghan"
+version = "0.1.0"
+description = "长期记忆个性化对话 Agent：L0 原文情景记忆 + L1 动力学知识图谱 + HITL 写入纪律"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q --disable-warnings"
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+check_untyped_defs = false
+
+[tool.coverage.run]
+source = ["cyber_planner", "health_coach", "api", "pipelines"]
+omit = ["*/test_*"]

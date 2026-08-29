@@ -50,3 +50,7 @@ frontend/.env
 # IDE
 .vscode/
 .idea/
+
+# ===== 虚拟环境 =====
+.venv/
+venv/
