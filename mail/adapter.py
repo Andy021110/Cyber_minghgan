@@ -89,6 +89,30 @@ def _body(msg, limit: int = 400) -> str:
     return " ".join(content.split())[:limit]
 
 
+def _declare_identity(conn, addr: str) -> None:
+    """向服务器声明客户端身份（IMAP ID 命令）。
+
+    网易（163 / Coremail）**强制要求**这一步，否则登录能过但读不了信，
+    报错是：
+        EXAMINE Unsafe Login. Please contact kefu@188.com for help
+    第一次遇到时很容易误判成授权码错误，实际是缺了这条命令。
+
+    实现上绕开了 imaplib 的响应解析：它的状态机不认识 ID 的响应格式
+    （会抛 KeyError / abort），所以手动发命令、手动消费两行响应。
+    注意 tag 必须是 str，若残留 b'' 引号会让服务器回的 tag 对不上。
+    """
+    try:
+        tag = conn._new_tag().decode()
+        conn.send(
+            f'{tag} ID ("name" "cyber-minghan" "version" "1.0" '
+            f'"vendor" "minghan" "contact" "{addr}")\r\n'.encode()
+        )
+        conn.readline()               # * ID (...)
+        conn.readline()               # <tag> OK ID completed
+    except Exception:
+        pass                          # 声明失败不致命，让后续流程自己报错
+
+
 def fetch_recent(provider: str, limit: int = 5, folder: str = "INBOX") -> list[dict]:
     """拉取最近 N 封邮件。**只读**，不会把邮件标为已读。"""
     addr, pwd = _creds(provider)
@@ -97,6 +121,7 @@ def fetch_recent(provider: str, limit: int = 5, folder: str = "INBOX") -> list[d
     out: list[dict] = []
     with imaplib.IMAP4_SSL(host, port) as m:
         m.login(addr, pwd)
+        _declare_identity(m, addr)    # 网易要求，其他服务商无害
         # readonly=True 是关键：避免"看一眼"就把未读变已读
         typ, _ = m.select(folder, readonly=True)
         if typ != "OK":
