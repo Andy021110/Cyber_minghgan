@@ -116,6 +116,36 @@ _CHAT: dict = {
 }
 
 
+# ── 来源可信度分级（降序，越靠后越不可信）──────────────────────────
+#
+# 为什么要有这个（BC-011）：写入端原本不记录"这条内容从哪来"，
+# 于是任何能跟 Agent 说上话的人都能往记忆里塞东西，而记忆会被当作
+# 可信输入去驱动后续行为。竞品实测的后果：
+#   MINJA        仅靠对话交互即可 98.2% 注入恶意记录
+#   Trojan Hippo 一次不可信工具调用植入休眠 payload，
+#                跨越 100 个正常会话后在敏感话题触发外传
+#   AgentPoison  <0.1% 的投毒率即可劫持，且功能测试看不出来
+# 一旦 Agent 具备工具调用能力，被投毒的记忆就是远程控制面。
+#
+# 硬约束：TRUST_UNTRUSTED 的记忆**不得驱动工具调用**，只可作参考文本。
+TRUST_SELF = "self"                    # 用户本人明确陈述
+TRUST_CONVERSATION = "conversation"    # 对话过程中提取（默认）
+TRUST_EXTERNAL = "external"            # 外部导入：邮件 / 网页 / 文件
+TRUST_UNTRUSTED = "untrusted"          # 不可信输入：第三方内容，待验证
+
+TRUST_ORDER = (TRUST_SELF, TRUST_CONVERSATION, TRUST_EXTERNAL, TRUST_UNTRUSTED)
+TRUST_RANK = {t: i for i, t in enumerate(TRUST_ORDER)}
+
+
+def trust_of(node: dict) -> str:
+    """取节点的可信度。**缺失字段时按 conversation 处理**（既有 146 条没这字段）。
+
+    为什么不默认 untrusted：那会让整个历史记忆库一步掉到最低档，
+    等于用一次改动废掉全部既有数据。conversation 才是它们的真实来源。
+    """
+    t = (node or {}).get("source_trust")
+    return t if t in TRUST_RANK else TRUST_CONVERSATION
+
 
 class CyberBrainStore:
     """KG 数据原子化 CRUD 接口，设计为 Tool Use 的底层实现。"""
@@ -244,6 +274,7 @@ class CyberBrainStore:
 
     def retrieve(
         self, keyword: str, limit: int = 10, audience: str = "internal",
+        min_trust: str | None = None,
     ) -> list[dict]:
         """跨三层混合检索（关键词 + 本地向量）。
         匹配字段：event_label / description / evidence / event / trigger / resolution。
@@ -270,6 +301,21 @@ class CyberBrainStore:
             raise ValueError(
                 f"audience 必须是 'internal' 或 'external'，收到 {audience!r}"
             )
+
+        # 按来源可信度过滤（BC-011）。min_trust 是**最低可接受档位**：
+        # 传 TRUST_SELF 就只要本人陈述，传 TRUST_EXTERNAL 则排除 untrusted。
+        # 典型用法：驱动工具调用前用 min_trust=TRUST_EXTERNAL，
+        # 确保不可信来源的记忆不能左右 Agent 的行为。
+        if min_trust is not None:
+            if min_trust not in TRUST_RANK:
+                raise ValueError(
+                    f"非法 min_trust: {min_trust!r}，合法值：{list(TRUST_ORDER)}"
+                )
+            threshold = TRUST_RANK[min_trust]
+            all_nodes = [
+                n for n in all_nodes if TRUST_RANK[trust_of(n)] <= threshold
+            ]
+
         if not all_nodes:
             return []
 
@@ -327,12 +373,23 @@ class CyberBrainStore:
         importance: int = 5,
         source_mode: str = "cyber_planner",
         visibility: str = "private",
+        source_trust: str = TRUST_CONVERSATION,
     ) -> dict:
-        """在指定层级追加新节点（严格校验 layer 合法性），返回含 UUID 的完整节点。"""
+        """在指定层级追加新节点（严格校验 layer 合法性），返回含 UUID 的完整节点。
+
+        source_trust —— **这条记忆从哪来、可不可信**（BC-011）。
+        外部导入（邮件/网页/文件）必须显式标 `TRUST_EXTERNAL`；
+        来源不明或来自第三方的一律标 `TRUST_UNTRUSTED`，
+        这类记忆不得驱动工具调用，只能作为参考文本。
+        """
         layer_key = self._LAYER_NAME_MAP.get(layer)
         if not layer_key:
             raise ValueError(
                 f"非法 layer: {layer!r}，合法值：{list(self._LAYER_NAME_MAP)}"
+            )
+        if source_trust not in TRUST_RANK:
+            raise ValueError(
+                f"非法 source_trust: {source_trust!r}，合法值：{list(TRUST_ORDER)}"
             )
         node = {
             "uuid":             _uuid.uuid4().hex,
@@ -351,6 +408,7 @@ class CyberBrainStore:
             "archive_reason":   None,
             "source_mode":      source_mode,
             "visibility":       visibility,
+            "source_trust":     source_trust,
         }
         self._kg["nodes"]["Cyber_Minghan"][layer_key].append(node)
         self._save()
