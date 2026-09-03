@@ -46,12 +46,29 @@ STRONG = {
                 r"邀请.{0,6}(面试|测评)|schedule\s+(an?\s+)?interview",
 }
 
+# 主流个人邮箱域名。来自这些域名的邮件**大概率是真人手写**，
+# 与机构群发不是一个分量（用户 2026-09-03 指出）。
+PERSONAL_DOMAINS = frozenset({
+    "gmail.com", "163.com", "126.com", "qq.com", "foxmail.com",
+    "outlook.com", "hotmail.com", "live.com", "yahoo.com",
+    "icloud.com", "me.com", "sina.com", "sohu.com", "yeah.net",
+})
+
 # 弱信号：值得知道，但不急 → DIGEST
 WEAK = {
     "安全提醒": r"security|alert|安全提醒|新设备|异常登录|两步验证|2fa|password\s+changed",
     "含验证码": r"verification\s+code|confirmation\s+code|验证码|确认码|one-time|\botp\b",
     "账务变动": r"receipt|invoice|credit\s+advice|转账|存款通知|账单|扣款",
     "需要回复": r"reply\s+requested|please\s+confirm|请.{0,4}(确认|回复)|待确认",
+    # 下面两条是 2026-09-03 真实验收时发现的漏报：
+    # ① 4 封 GitHub「Run failed: CI - main」被判 IGNORE——自己的项目 CI 挂了
+    #    却不知道，这是典型的该知道而没知道。
+    "构建异常": r"run\s+failed|build\s+failed|ci.{0,12}fail|workflow.{0,10}fail|"
+                r"deploy.{0,8}fail|构建失败|部署失败|测试未通过",
+    # ② 2 封北邮母校邮件（毕业生邀请信、邀请参与评价）被判 IGNORE。
+    #    含"邀请/评价/问卷"这类响应请求，属于有事要你做。
+    "邀请问卷": r"邀请|invitation|rsvp|问卷|survey|恳请|"
+                r"请.{0,6}(参加|评价|填写|参与)",
 }
 
 # 降权信号：明确不需要你行动 → IGNORE
@@ -77,11 +94,39 @@ def _domain(mail: dict) -> str:
     return m.group(1) if m else (frm or "unknown")
 
 
+def _addr(field: str) -> str:
+    """从 "Name <a@b.com>" 或裸 "a@b.com" 里抽出邮箱地址。"""
+    m = re.search(r"<([^>]+)>|([^\s<>]+@[^\s<>]+)", field or "")
+    if not m:
+        return ""
+    return (m.group(1) or m.group(2) or "").strip().lower()
+
+
+def is_self_sent(mail: dict) -> bool:
+    """是不是自己发给自己（测试邮件、备份、多设备同步）。
+
+    必须排除：否则你自发的一封测试信会被当成"真人来信"，
+    判定层自己给自己推通知，很荒谬。
+    """
+    frm, to = _addr(mail.get("from")), _addr(mail.get("to"))
+    return bool(frm) and frm == to
+
+
+def is_personal(mail: dict) -> bool:
+    """发件人是否来自个人邮箱域名，且不是自己发的。"""
+    if is_self_sent(mail):
+        return False
+    dom = re.search(r"@([\w.\-]+)", _addr(mail.get("from")))
+    return bool(dom) and dom.group(1) in PERSONAL_DOMAINS
+
+
 def signals(mail: dict) -> list[str]:
     """识别一封邮件命中的所有信号。"""
     text = f"{mail.get('subject', '')} {mail.get('body', '')}".lower()
-    return (_matches(STRONG, text) + _matches(WEAK, text)
-            + _matches(NOISE, text))
+    out = _matches(STRONG, text) + _matches(WEAK, text) + _matches(NOISE, text)
+    if is_personal(mail):
+        out.append("个人来信")
+    return out
 
 
 def classify(mail: dict, weights: dict[str, int] | None = None) -> str:
@@ -103,8 +148,15 @@ def classify(mail: dict, weights: dict[str, int] | None = None) -> str:
     elif noise:
         level = IGNORE
     else:
-        # 无任何信号：真人来信默认进汇总，群发默认忽略
-        level = IGNORE if noise or "no-reply" in (mail.get("from") or "").lower() else DIGEST
+        # 无任何信号：个人来信进汇总，机构群发沉底。
+        # 不能一律进汇总——否则半天汇总会被无信号的机构邮件塞满，
+        # 真要看的东西反而被淹掉。
+        level = DIGEST if is_personal(mail) else IGNORE
+
+    # 个人来信**保底进汇总**：真人手写的东西不该被沉到 IGNORE。
+    # 注意 is_personal 已排除自发，否则自己的测试信会触发这条。
+    if level == IGNORE and is_personal(mail):
+        level = DIGEST
 
     # 反馈权重：只降不升
     adj = (weights or {}).get(_domain(mail), 0)

@@ -12,7 +12,8 @@ import pytest
 
 from mail.triage import (
     DIGEST, IGNORE, NOW,
-    _domain, classify, load_weights, record_feedback, signals, triage,
+    _addr, _domain, classify, is_self_sent, load_weights,
+    record_feedback, signals, triage,
 )
 
 
@@ -75,8 +76,12 @@ def test_pure_noreply_no_signal_is_ignored():
 # ── 保守原则：拿不准不打断 ──
 
 def test_real_person_no_signal_is_digest():
-    """真人来信即使没命中任何信号，也进汇总而不是忽略。"""
-    m = mail("hi", "just saying hello", frm="friend@example.com")
+    """真人来信即使没命中任何信号，也进汇总而不是忽略。
+
+    必须用真实个人邮箱域名——"真人"的判据是发件人域名，
+    用 example.com 这类测试域名测不出这条规则。
+    """
+    m = mail("hi", "just saying hello", frm="friend@gmail.com")
     assert classify(m) == DIGEST
 
 
@@ -243,3 +248,64 @@ def test_other_subscription_still_now(tmp_path):
     other = mail("Your subscription will expire", "renew",
                  frm="billing@important-service.example.com")
     assert classify(other, w) == NOW
+
+
+# ── 个人邮箱（用户 2026-09-03：这类应该更重要）──
+
+def test_personal_mail_is_never_ignored():
+    """真人用个人邮箱写的信，再没信号也不该沉到 IGNORE。"""
+    m = mail("hi there", "long time no see", frm="friend@gmail.com")
+    assert classify(m) != IGNORE
+    assert "个人来信" in signals(m)
+
+
+def test_self_sent_is_not_personal():
+    """自己发给自己不算"真人来信"——否则判定层会给自己推通知。"""
+    m = mail("test", "test", frm="me@gmail.com")
+    m["to"] = "me@gmail.com"
+    assert is_self_sent(m) is True
+    assert "个人来信" not in signals(m)
+
+
+def test_personal_with_strong_signal_still_now():
+    """个人邮箱 + 面试关键词 → 照常 NOW。"""
+    m = mail("面试邀请", "请安排时间", frm="hr@company.com")
+    m["from"] = "someone@gmail.com"
+    assert classify(m) == NOW
+
+
+def test_corp_bulk_without_signal_can_be_ignored():
+    """机构群发无信号 → 可以沉底（与个人来信区别对待）。"""
+    m = mail("Weekly update", "nothing actionable",
+             frm="news@bigcorp.example.com")
+    assert classify(m) == IGNORE
+
+
+def test_addr_extraction():
+    assert _addr("Name <a@b.com>") == "a@b.com"
+    assert _addr("a@b.com") == "a@b.com"
+    assert _addr("") == ""
+
+
+# ── 真实验收发现的漏报（必须守住）──
+
+def test_ci_failure_is_not_ignored():
+    """GitHub CI 挂了不该被忽略——真实验收时发现 4 封被误杀。"""
+    m = mail("[repo] Run failed: CI - main", "The workflow failed.",
+             frm="notifications@github.com")
+    assert classify(m) != IGNORE
+    assert "构建异常" in signals(m)
+
+
+def test_invitation_is_not_ignored():
+    """母校邀请信不该被忽略——真实验收时发现 2 封被误杀。"""
+    m = mail("致2025届高明翰同学的一封毕业生邀请信", "邀请您参加",
+             frm="invitation@mycoss.example.com")
+    assert classify(m) != IGNORE
+    assert "邀请问卷" in signals(m)
+
+
+def test_survey_request_is_not_ignored():
+    m = mail("母校再次邀请您积极参与评价", "请填写问卷",
+             frm="invitation@mycoss.example.com")
+    assert classify(m) != IGNORE
