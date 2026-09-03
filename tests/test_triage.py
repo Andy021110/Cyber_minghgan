@@ -192,3 +192,54 @@ def test_demoted_items_are_marked():
              for _ in range(2)]
     demoted = [m for m in triage(mails)[DIGEST] if m.get("deduped")]
     assert len(demoted) == 1
+
+
+# ── 面试进展（用户 2026-09-03 说这类最重要）──
+
+def test_interview_invitation_is_now():
+    m = mail("Interview invitation", "We'd like to schedule an interview.",
+             frm="hr@company.example.com")
+    assert classify(m) == NOW
+    assert "面试进展" in signals(m)
+
+
+def test_written_test_is_now():
+    m = mail("笔试通知", "请于本周完成在线测评", frm="recruiter@corp.example.com")
+    assert classify(m) == NOW
+
+
+def test_offer_letter_is_now():
+    m = mail("Offer letter", "We are pleased to offer you the position.")
+    assert classify(m) == NOW
+
+
+def test_job_platform_blast_is_not_now():
+    """招聘平台的批量职位推荐不该算——实测 Jobsdb 那种就是这种。
+
+    它含 job / programme / recommendations，但不含 interview / 面试。
+    这正是"面试进展"刻意不用 job / 职位 / 招聘 这些词的原因。
+    """
+    m = mail("IT Operations Graduate Programme - Hong Kong",
+             "View job recommendations just for you",
+             frm="noreply@e.jobsdb.example.com")
+    assert classify(m) != NOW
+
+
+# ── 反馈权重作用于真实域名 ──
+
+def test_feedback_demotes_subscription_notice(tmp_path):
+    """用户说 OnlyFans 订阅过期不重要 → 该域名降权后不应再进 NOW。"""
+    m = mail("Your Subscription Will Expire", "renew to keep access",
+             frm="no-reply@notify.onlyfans.example.com")
+    assert classify(m) == NOW                      # 降权前
+    w = record_feedback(m, tmp_path / "w.json", delta=-1)
+    assert classify(m, w) == DIGEST                # 降权后
+
+
+def test_other_subscription_still_now(tmp_path):
+    """降权是**针对域名**的，不能误伤其他服务的订阅提醒。"""
+    w = record_feedback({"from": "no-reply@notify.onlyfans.example.com"},
+                        tmp_path / "w.json", delta=-1)
+    other = mail("Your subscription will expire", "renew",
+                 frm="billing@important-service.example.com")
+    assert classify(other, w) == NOW

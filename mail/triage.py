@@ -26,6 +26,9 @@ from pathlib import Path
 
 NOW, DIGEST, IGNORE = "NOW", "DIGEST", "IGNORE"
 
+# 反馈权重默认存放位置。含用户真实发件人域名，已在 .gitignore 中排除。
+DEFAULT_WEIGHTS_PATH = Path(__file__).parent / "weights.json"
+
 # 强信号：明确要求你行动，或有实际后果 → 升到 NOW
 STRONG = {
     "付款异常": r"payment\s+(unsuccessful|fail|declin)|unsuccessful|declined|"
@@ -33,6 +36,14 @@ STRONG = {
     "订阅时限": r"(subscription|trial|plan).{0,20}(expire|expir|end|renew)|"
                 r"will\s+expire|has\s+expired|即将到期|已过期|续费",
     "账户异常": r"unusual\s+activity|suspended|locked|账户.{0,4}(异常|冻结)|停用",
+    # 面试/笔试/录用：用户 2026-09-03 明确说这类最重要。
+    # 用 interview / 面试 / 笔试 / 测评 / offer 这类**进展性**词汇，
+    # 刻意不用 job / 职位 / 招聘 —— 那些词命中率高但都是招聘平台的
+    # 批量推荐（实测 Jobsdb 那种 noreply 推荐信就含 job/programme），
+    # 混进来就变成噪音。进展性词汇天然能区分"HR 找你"和"平台群发"。
+    "面试进展": r"interview|面试|笔试|online\s+assessment|测评|"
+                r"offer\s+letter|录用|next\s+round|进入.{0,4}(面试|下一轮)|"
+                r"邀请.{0,6}(面试|测评)|schedule\s+(an?\s+)?interview",
 }
 
 # 弱信号：值得知道，但不急 → DIGEST

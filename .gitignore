@@ -70,3 +70,6 @@ evals/**/PerLTQA/Dataset/**/*.json
 *.kg.json.tmp
 yuanbao_cyber_minghan_kg.json.bak
 *.json.tmp
+
+# 邮件判定权重（含真实发件人域名）
+mail/weights.json
