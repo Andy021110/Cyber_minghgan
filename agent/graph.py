@@ -24,7 +24,8 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode
 from langgraph.types import Command, interrupt
 
-from agent.memory import compact, retrieve_long_term
+from agent.citations import validate_citations
+from agent.memory import retrieve_long_term_with_refs
 from agent.state import CyberState
 from agent.tools import WRITE_TOOL_NAMES, build_tools, to_anthropic_tools
 
@@ -91,8 +92,8 @@ def build_graph(
     def load_memory(state: CyberState) -> dict:
         """注入长期记忆检索结果。只读，无副作用。"""
         query = _last_human_text(state["messages"])
-        retrieved = retrieve_long_term(query, store, episodic)
-        return {"retrieved": retrieved}
+        retrieved, refs = retrieve_long_term_with_refs(query, store, episodic)
+        return {"retrieved": retrieved, "retrieved_refs": refs}
 
     def agent_node(state: CyberState) -> dict:
         """LLM 决策节点：决定说话还是调工具。"""
@@ -156,6 +157,31 @@ def build_graph(
 
         return Command(goto="agent", update={"messages": results})
 
+    def verify(state: CyberState) -> dict:
+        """回答落盘前校验引用（A2 压幻觉）。
+
+        只做校验与标注，**绝不自动改写内容**——自动改写会引入新的幻觉
+        （改出来的话同样没人验证过），而且用户不知道发生过什么。
+        非法引用的处理交给上层决定：提示用户、或要求重新生成。
+
+        注意这里拦的是 8月9日跑分里那类 HALLUC_EMPTY：记忆库为空时模型
+        照样编出"北邮，北京邮电大学"。检索层对这种情况无能为力（无米下锅），
+        只有生成层的引用校验能发现——它拿不出任何 [ref:]。
+        """
+        msgs = list(state["messages"])
+        answer = ""
+        for m in reversed(msgs):
+            if getattr(m, "type", "") == "ai":
+                answer = m.content if isinstance(m.content, str) else ""
+                break
+        if not answer:
+            return {}
+        return {
+            "citation_check": validate_citations(
+                answer, state.get("retrieved_refs", [])
+            )
+        }
+
     def persist(state: CyberState) -> dict:
         """回合结束：L0 落盘 + 短期记忆压缩。"""
         msgs = list(state["messages"])
@@ -195,6 +221,7 @@ def build_graph(
     g.add_node("agent", agent_node)
     g.add_node("read_tools", read_node)
     g.add_node("hitl_gate", hitl_gate)
+    g.add_node("verify", verify)
     g.add_node("persist", persist)
 
     g.add_edge(START, "load_memory")
@@ -202,9 +229,10 @@ def build_graph(
     g.add_conditional_edges(
         "agent",
         route_after_agent,
-        {"read_tools": "read_tools", "hitl_gate": "hitl_gate", "persist": "persist"},
+        {"read_tools": "read_tools", "hitl_gate": "hitl_gate", "persist": "verify"},
     )
     g.add_edge("read_tools", "agent")
+    g.add_edge("verify", "persist")
     g.add_edge("persist", END)
 
     return g.compile(checkpointer=checkpointer or InMemorySaver())

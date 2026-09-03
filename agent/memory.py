@@ -54,18 +54,44 @@ def retrieve_long_term(
     l0_limit: int = 5,
 ) -> str:
     """混合检索 L1 + L0，返回可直接注入 system prompt 的文本块。"""
+    text, _ = retrieve_long_term_with_refs(
+        query, store, episodic, l1_limit, l0_limit
+    )
+    return text
+
+
+def retrieve_long_term_with_refs(
+    query: str,
+    store: Any,
+    episodic: Any,
+    l1_limit: int = 5,
+    l0_limit: int = 5,
+) -> tuple[str, list[str]]:
+    """同上，但同时返回本轮检索到的**引用标识列表**。
+
+    refs 是 A2 引用校验的依据：回答里出现的 `[ref:xxx]` 必须来自这个列表，
+    否则就是凭空编造。
+
+    这条针对的是 8月9日 A 类跑分暴露的 HALLUC_EMPTY——记忆库为空时，
+    模型照样答出"北邮，北京邮电大学"。那种情况检索层根本无从拦截
+    （无米下锅），只能靠生成层的引用校验：拿不出 [ref:] 就判定非法。
+    """
     sections: list[str] = []
+    refs: list[str] = []
     if store is not None:
         hits = store.retrieve(query, limit=l1_limit)
         text = _format_l1(hits, l1_limit)
         if text:
             sections.append(f"【L1 语义记忆 · 命中 {len(hits)}】\n{text}")
+            refs += [short_uuid(h.get("uuid", ""))
+                     for h in hits if h.get("uuid")]
     if episodic is not None:
         hits = episodic.search(query, limit=l0_limit)
         text = _format_l0(hits, l0_limit)
         if text:
             sections.append(f"【L0 情景记忆 · 命中 {len(hits)}】\n{text}")
-    return "\n\n".join(sections)
+            refs += [h.get("eid", "") for h in hits if h.get("eid")]
+    return "\n\n".join(sections), refs
 
 
 COMPACT_SYSTEM = (
