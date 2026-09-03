@@ -73,3 +73,7 @@ yuanbao_cyber_minghan_kg.json.bak
 
 # 邮件判定权重（含真实发件人域名）
 mail/weights.json
+
+# 定时检查的运行状态与输出（含邮件信息）
+mail/state.json
+mail/outbox.log
