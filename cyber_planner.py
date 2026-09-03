@@ -147,6 +147,40 @@ def trust_of(node: dict) -> str:
     return t if t in TRUST_RANK else TRUST_CONVERSATION
 
 
+# ── 去重阈值（BC-012）──────────────────────────────────────────────
+#
+# 这个值定得**极高**，是实测得出的，不是保守过头：
+# 在真实 146 条记忆上测「每条最相似邻居」的分数分布——
+#     中位数 0.612 / 90 分位 0.927 / 最高 1.206
+# 人工核对最高分的三对（1.206 / 1.153 / 1.125）**没有一对是真重复**：
+#     存在焦虑 ↔ 应然焦虑        （两个不同心理状态，都提到"存在性茫然"）
+#     自我观察退缩 ↔ 自我批判羞耻（相关但不同的节点）
+#     里比多失控 ↔ 原始力比多固着（一个是失控体验，一个是青春期固着）
+# 根因：全库都是精神分析文本，力比多/超我/Ego 这类术语到处出现，
+# 字符 2-gram 会被它们主导，"主题相关"于是被误判成"内容重复"。
+#
+# 结论：**当前的 IDF 2-gram 相似度不足以支撑语义去重**。
+# 去重要判断"是不是同一件事"，比检索要判断的"相不相关"严格得多。
+# 在拿到语义向量之前，只做**精确匹配**（event_label 完全相同），
+# 宁可漏合并，绝不误合并——误合并会直接毁掉记忆，且不可逆。
+DUP_SIMILARITY_THRESHOLD = 10.0   # 实测最高仅 1.206，此值等于关闭相似度判重
+
+
+class DuplicateNodeError(RuntimeError):
+    """写入时检测到重复节点。
+
+    刻意抛异常而不是"静默返回已有节点"——后者会让调用方以为写入成功了，
+    而实际上什么都没发生。是否更新、是否忽略，应该由调用方决定。
+    """
+
+    def __init__(self, existing: dict):
+        self.existing = existing
+        super().__init__(
+            f"疑似重复节点已存在：{existing.get('event_label', '')!r} "
+            f"(uuid={existing.get('uuid', '')[:8]})"
+        )
+
+
 class CyberBrainStore:
     """KG 数据原子化 CRUD 接口，设计为 Tool Use 的底层实现。"""
 
@@ -256,25 +290,44 @@ class CyberBrainStore:
             ] if p
         ).strip()
 
-    def _all_items(self) -> list[dict]:
+    def _all_items(self, include_archived: bool = False) -> list[dict]:
         """检索范围 = 三层动力学节点 + 顶层 interactions。
 
         注意 interactions 在 KG **顶层**（`kg["interactions"]`），
         不在 `nodes.Cyber_Minghan` 下——所以 `_node_lists()` 永远看不到它。
+
+        include_archived: 是否包含已归档节点。默认排除；
+        但历史查询需要它——supersede 会把旧节点归档，若这里一律滤掉，
+        `retrieve(include_superseded=True)` 就永远取不到旧值。
         """
+        def _keep(n: dict) -> bool:
+            return True if include_archived else not n.get("archived")
+
         items = [
-            item for lst in self._node_lists() for item in lst
-            if not item.get("archived")
+            item for lst in self._node_lists() for item in lst if _keep(item)
         ]
         items += [
-            it for it in self._kg.get("interactions", [])
-            if not it.get("archived")
+            it for it in self._kg.get("interactions", []) if _keep(it)
         ]
         return items
 
+    def supersede(self, old_uuid: str, new_fields: dict, **kwargs) -> dict:
+        """用新节点取代旧节点（BC-005 的接入入口）。
+
+        底层逻辑 `memory.versioning.supersede` 早就写好了，
+        但**一次都没被调用过**（0/146）——模块存在不等于功能存在。
+        这里只是给 store 挂个便捷入口，让调用方不必先 import versioning。
+
+        效果：旧节点被归档并指向新节点，新节点记录 supersedes。
+        之后 `retrieve` 默认只返回新值（见 include_superseded）。
+        """
+        from memory.versioning import supersede as _supersede
+
+        return _supersede(self, old_uuid, new_fields, **kwargs)
+
     def retrieve(
         self, keyword: str, limit: int = 10, audience: str = "internal",
-        min_trust: str | None = None,
+        min_trust: str | None = None, include_superseded: bool = False,
     ) -> list[dict]:
         """跨三层混合检索（关键词 + 本地向量）。
         匹配字段：event_label / description / evidence / event / trigger / resolution。
@@ -294,7 +347,9 @@ class CyberBrainStore:
         当前 146 个节点里 139 个没有该字段，所以 external 现在会返回空——
         这是刻意的安全默认，补全标注后才有内容。
         """
-        all_nodes = self._all_items()
+        # supersede 会归档旧节点，所以历史查询要连归档的一起取，
+        # 否则 include_superseded 形同虚设。
+        all_nodes = self._all_items(include_archived=include_superseded)
         if audience == "external":
             all_nodes = [n for n in all_nodes if n.get("visibility") == "public"]
         elif audience != "internal":
@@ -315,6 +370,14 @@ class CyberBrainStore:
             all_nodes = [
                 n for n in all_nodes if TRUST_RANK[trust_of(n)] <= threshold
             ]
+
+        # 被取代的旧值默认不返回（BC-005 的核心价值）。
+        # 问"我现在在哪工作"时，半年前那条旧记录不该冒出来——
+        # 这正是竞品 Mem0 栽的坑（新旧并存，检索返回旧的，issue #4956）。
+        # 但历史语义查询（"我以前是做什么的"）需要旧值，
+        # 所以留了 include_superseded=True 开关。
+        if not include_superseded:
+            all_nodes = [n for n in all_nodes if not n.get("superseded_by")]
 
         if not all_nodes:
             return []
@@ -363,6 +426,48 @@ class CyberBrainStore:
 
         return results
 
+    def find_duplicates(
+        self,
+        event_label: str,
+        description: str = "",
+        layer: str | None = None,
+        threshold: float = DUP_SIMILARITY_THRESHOLD,
+    ) -> list[dict]:
+        """找出与待写入内容重复的节点（BC-012）。
+
+        两级判定：
+        1. **event_label 完全相同**（去空白后）→ 判定重复。零误判，这是主力。
+        2. 相似度 >= threshold → 疑似重复。
+           默认阈值高到实际不触发，原因见 DUP_SIMILARITY_THRESHOLD 的注释：
+           实测最高相似度的几对都不是真重复，只是精神分析术语雷同。
+
+        返回空列表表示"没有重复，可以新增"。
+        """
+        label = (event_label or "").strip()
+        if not label:
+            return []
+
+        cands = self._all_items()
+        if layer:
+            # 注意：节点里存的 layer 是**原值**（"Ego"），不是映射后的
+            # 键名（"Ego_Dynamics"）。用键名过滤会永远匹配不上，
+            # 表现为"查重查不到"——这个 bug 是被测试抓出来的。
+            cands = [n for n in cands if n.get("layer") == layer]
+
+        exact = [n for n in cands
+                 if (n.get("event_label") or "").strip() == label]
+        if exact:
+            return exact
+
+        # 相似度判重：默认关闭，只有显式调低 threshold 才会启用
+        if not description or threshold >= DUP_SIMILARITY_THRESHOLD:
+            return []
+        texts = [self._node_text(n) for n in cands]
+        if not texts:
+            return []
+        sims = keyword_scores_idf(description, texts)
+        return [n for n, s in zip(cands, sims) if s >= threshold]
+
     def create(
         self,
         layer: str,
@@ -374,6 +479,7 @@ class CyberBrainStore:
         source_mode: str = "cyber_planner",
         visibility: str = "private",
         source_trust: str = TRUST_CONVERSATION,
+        check_duplicate: bool = False,
     ) -> dict:
         """在指定层级追加新节点（严格校验 layer 合法性），返回含 UUID 的完整节点。
 
@@ -381,7 +487,14 @@ class CyberBrainStore:
         外部导入（邮件/网页/文件）必须显式标 `TRUST_EXTERNAL`；
         来源不明或来自第三方的一律标 `TRUST_UNTRUSTED`，
         这类记忆不得驱动工具调用，只能作为参考文本。
+
+        check_duplicate —— 写入前查重（BC-012）。默认 **关闭**以保持向后兼容；
+        开启后若发现重复会抛 `DuplicateNodeError`，由调用方决定更新还是忽略。
         """
+        if check_duplicate:
+            dups = self.find_duplicates(event_label, description, layer)
+            if dups:
+                raise DuplicateNodeError(dups[0])
         layer_key = self._LAYER_NAME_MAP.get(layer)
         if not layer_key:
             raise ValueError(
