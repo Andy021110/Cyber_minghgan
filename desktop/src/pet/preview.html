@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>形象帧预览 · 帮你挑动画</title>
+<style>
+  /*
+   帧预览页：把 sprite sheet 的每一帧摊开摆出来，标上行号列号。
+   用途：你直接看哪一行是"待机"、哪行是"走路"，然后改 config/character.json。
+   浏览器直接打开即可，不需要 Electron。
+  */
+  body {
+    margin: 24px;
+    background: #F5F4F1;
+    font: 400 13px/1.6 -apple-system, system-ui, sans-serif;
+    color: #2C2C2A;
+  }
+  h1 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .hint { color: #5F5E5A; margin-bottom: 20px; }
+  .grid { display: flex; flex-direction: column; gap: 6px; }
+  .row { display: flex; gap: 6px; align-items: center; }
+  .rowno {
+    width: 44px; color: #5F5E5A; font-size: 12px;
+    flex: none;
+  }
+  .frame {
+    width: 96px; height: 96px;
+    border: 1px solid #D3D1C7;
+    border-radius: 4px;
+    background-image: url('assets/pet_v2.png');
+    background-repeat: no-repeat;
+    background-size: 384px 864px;     /* 4列x96  9行x96 (32px * 3倍) */
+    image-rendering: pixelated;
+    flex: none;
+  }
+  .row:hover .frame { border-color: #3D8A5A; }
+</style>
+</head>
+<body>
+  <h1>形象帧预览</h1>
+  <p class="hint">
+    每一格标注了 <b>行-列</b>。看中哪一行做待机/动作，把行号填进
+    <code>desktop/config/character.json</code> 的 <code>animations</code> 里即可，不用改代码。
+  </p>
+  <div class="grid" id="grid"></div>
+
+<script>
+// 4 列 × 9 行，每帧 32×32，显示时放大 3 倍 → 每格 96×96
+const COLS = 4, ROWS = 9, SCALE = 3, SIZE = 32 * SCALE;
+
+const grid = document.getElementById('grid');
+for (let r = 0; r < ROWS; r++) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  const label = document.createElement('div');
+  label.className = 'rowno';
+  label.textContent = `行${r}`;
+  row.appendChild(label);
+
+  for (let c = 0; c < COLS; c++) {
+    const f = document.createElement('div');
+    f.className = 'frame';
+    f.title = `行${r} 列${c}`;
+    f.style.backgroundPosition = `-${c * SIZE}px -${r * SIZE}px`;
+    row.appendChild(f);
+  }
+  grid.appendChild(row);
+}
+</script>
+</body>
+</html>

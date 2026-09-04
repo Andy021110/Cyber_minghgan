@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>赛博明翰 · 桌宠</title>
+<style>
+  /*
+   桌宠渲染页。
+
+   关键：整个页面背景必须完全透明，只有角色可见——桌宠的"悬浮感"全靠这个。
+   动画用 CSS sprite：把 sprite sheet 当作背景图，靠 background-position 逐帧平移，
+   steps() 保证是"跳帧"而不是"滑动"，这才是像素动画该有的样子。
+  */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: transparent;
+    overflow: hidden;
+    /* 禁止拖动选中文字，否则拖桌宠时会误选 */
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  #pet {
+    width: var(--fw);
+    height: var(--fh);
+    background-image: var(--sprite);
+    background-repeat: no-repeat;
+    background-size: calc(var(--cols) * var(--fw)) calc(var(--rows) * var(--fh));
+    image-rendering: pixelated;      /* 放大时保持像素感，不做模糊插值 */
+    animation: play var(--dur) steps(var(--frames)) infinite;
+    animation-timing-function: steps(var(--frames), end);
+  }
+
+  @keyframes play {
+    from { background-position: 0 calc(-1 * var(--row) * var(--fh)); }
+    to   { background-position: calc(-1 * var(--frames) * var(--fw))
+                                calc(-1 * var(--row) * var(--fh)); }
+  }
+
+  /* 有要紧的事：轻微跳动 + 红色角标 */
+  #pet.alert { animation: play var(--dur) steps(var(--frames)) infinite, hop 0.6s ease-in-out infinite; }
+
+  @keyframes hop {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  #badge {
+    position: absolute;
+    top: 2px; right: 2px;
+    min-width: 18px; height: 18px;
+    border-radius: 9px;
+    background: #D85A30;
+    color: #fff;
+    font: 500 11px/18px -apple-system, system-ui, sans-serif;
+    text-align: center;
+    padding: 0 5px;
+    display: none;
+  }
+  #badge.show { display: block; }
+</style>
+</head>
+<body>
+  <div id="pet"></div>
+  <div id="badge"></div>
+
+<script>
+/*
+  形象由 config/character.json 驱动——换形象 = 换图 + 改配置，这里的代码不用动。
+
+  交互的关键难点：**鼠标穿透与可点击是矛盾的**。
+  设了穿透就点不到它，不设就挡住你干活。做法是动态切换：鼠标移到角色上就取消穿透，
+  移开就恢复。这段逻辑在主进程（main.js）配合完成，这里只负责告诉主进程"鼠标进来了/出去了"。
+*/
+const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
+
+const pet = document.getElementById('pet');
+const badge = document.getElementById('badge');
+
+let cfg = {};
+try {
+  const p = path.join(__dirname, '../../config/character.json');
+  cfg = JSON.parse(fs.readFileSync(p, 'utf-8'));
+} catch (e) {
+  console.error('读不到 character.json', e);
+}
+
+const SCALE = cfg.frame?.scale ?? 3;
+const FW = (cfg.frame?.width ?? 32) * SCALE;
+const FH = (cfg.frame?.height ?? 32) * SCALE;
+
+function applyAnimation(name) {
+  const a = cfg.animations?.[name];
+  if (!a) return;
+  pet.style.setProperty('--fw', FW + 'px');
+  pet.style.setProperty('--fh', FH + 'px');
+  pet.style.setProperty('--cols', cfg.frame?.cols ?? 4);
+  pet.style.setProperty('--rows', cfg.frame?.rows ?? 9);
+  pet.style.setProperty('--row', a.row);
+  pet.style.setProperty('--frames', a.frames);
+  pet.style.setProperty('--dur', (a.frames / a.fps) + 's');
+  pet.style.setProperty('--sprite', `url("${cfg.sprite}")`);
+}
+
+// 首屏：按默认动画启动，并把窗口尺寸告诉主进程（不同形象尺寸可能不同）
+applyAnimation(cfg.defaultAnimation ?? 'idle');
+ipcRenderer.send('pet:ready', { w: FW, h: FH });
+
+// 鼠标进入/离开 → 通知主进程切换穿透状态
+pet.addEventListener('mouseenter', () => ipcRenderer.send('pet:hover', true));
+pet.addEventListener('mouseleave', () => ipcRenderer.send('pet:hover', false));
+
+// 点击 → 唤起主界面
+pet.addEventListener('click', () => ipcRenderer.send('pet:click'));
+pet.addEventListener('dblclick', () => {
+  applyAnimation('blink');
+  setTimeout(() => applyAnimation(cfg.defaultAnimation ?? 'idle'), 900);
+});
+
+// 接收主进程推来的状态
+ipcRenderer.on('pet:state', (_e, state) => {
+  if (state?.urgent > 0) {
+    badge.textContent = state.urgent;
+    badge.classList.add('show');
+    pet.classList.add('alert');
+  } else {
+    badge.classList.remove('show');
+    pet.classList.remove('alert');
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "_comment": "换虚拟形象只改这个文件 + 换图片，不用动代码。",
+
+  "name": "赛博明翰 v2",
+  "sprite": "assets/pet_v2.png",
+
+  "frame": {
+    "width": 32,
+    "height": 32,
+    "cols": 4,
+    "rows": 9,
+    "scale": 3
+  },
+
+  "animations": {
+    "_comment": "row 是第几行(0起)，frames 用几帧，fps 每秒几帧。看 preview.html 能直接看到每一行长什么样，改完刷新桌宠即可。",
+    "idle":  { "row": 0, "frames": 4, "fps": 2, "loop": true },
+    "blink": { "row": 4, "frames": 4, "fps": 6, "loop": false },
+    "alert": { "row": 8, "frames": 4, "fps": 8, "loop": true }
+  },
+
+  "defaultAnimation": "idle",
+
+  "interaction": {
+    "click": "openMainWindow",
+    "doubleClick": "playBlink",
+    "drag": true,
+    "rightClick": "showMenu"
+  },
+
+  "window": {
+    "width": 96,
+    "height": 96,
+    "opacityWhenIdle": 1.0
+  }
+}
