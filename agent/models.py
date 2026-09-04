@@ -38,9 +38,24 @@ class FakeChatModel:
 def _to_anthropic_messages(
     messages: list[AnyMessage],
 ) -> tuple[str, list[dict]]:
-    """LangChain 消息 → Anthropic API 格式（system 单独抽出）。"""
+    """LangChain 消息 → Anthropic API 格式（system 单独抽出）。
+
+    关键约束：**同一条 assistant 消息里的所有 tool_use，必须在紧邻的
+    下一条 user 消息里配齐全部 tool_result**——缺一个就 400 报错。
+
+    所以连续的 tool 消息必须**累积**，遇到非 tool 消息时一次性 flush 成
+    单条 user 消息。若各自转成独立的 user 消息，一轮调 2 个工具就变成
+    「assistant[2 个 tool_use] → user[result1] → user[result2]」，
+    第二个 tool_use 找不到紧邻的 result，API 直接拒绝（BC-015）。
+    """
     system_parts: list[str] = []
     out: list[dict] = []
+    pending_tools: list[dict] = []
+
+    def _flush_tools() -> None:
+        if pending_tools:
+            out.append({"role": "user", "content": list(pending_tools)})
+            pending_tools.clear()
 
     for m in messages:
         role = getattr(m, "type", "")
@@ -48,23 +63,20 @@ def _to_anthropic_messages(
             system_parts.append(str(m.content))
             continue
         if role == "human":
+            _flush_tools()
             out.append({"role": "user", "content": str(m.content)})
             continue
         if role == "tool":
-            out.append(
+            pending_tools.append(
                 {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": m.tool_call_id,
-                            "content": str(m.content),
-                        }
-                    ],
+                    "type": "tool_result",
+                    "tool_use_id": m.tool_call_id,
+                    "content": str(m.content),
                 }
             )
             continue
         if role == "ai":
+            _flush_tools()
             blocks: list[dict] = []
             text = m.content if isinstance(m.content, str) else ""
             if text:
@@ -83,8 +95,10 @@ def _to_anthropic_messages(
             out.append({"role": "assistant", "content": blocks})
             continue
         # 兜底：未知类型当作用户消息
+        _flush_tools()
         out.append({"role": "user", "content": str(getattr(m, "content", ""))})
 
+    _flush_tools()          # 结尾若还挂着 tool_result 不能丢
     return "\n".join(system_parts), out
 
 
