@@ -34,16 +34,26 @@ STRONG = {
     "付款异常": r"payment\s+(unsuccessful|fail|declin)|unsuccessful|declined|"
                 r"支付.{0,4}(失败|异常)|扣款失败|欠款|逾期",
     "订阅时限": r"(subscription|trial|plan).{0,20}(expire|expir|end|renew)|"
-                r"will\s+expire|has\s+expired|即将到期|已过期|续费",
+                r"will\s+expire|has\s+expired|即将到期|已过期|(?<!手)续费",
+    # 「续费」必须写成 (?<!手)续费 —— 中文没有词边界，直接写会匹配到
+    # 「手续费」里的子串。实测踩到：ZA Bank 的「淘宝 0 手续费优惠」
+    # 因此被误判成订阅到期（BC-016）。
     "账户异常": r"unusual\s+activity|suspended|locked|账户.{0,4}(异常|冻结)|停用",
     # 面试/笔试/录用：用户 2026-09-03 明确说这类最重要。
     # 用 interview / 面试 / 笔试 / 测评 / offer 这类**进展性**词汇，
     # 刻意不用 job / 职位 / 招聘 —— 那些词命中率高但都是招聘平台的
     # 批量推荐（实测 Jobsdb 那种 noreply 推荐信就含 job/programme），
     # 混进来就变成噪音。进展性词汇天然能区分"HR 找你"和"平台群发"。
-    "面试进展": r"interview|面试|笔试|online\s+assessment|测评|"
+    # 英文 interview 必须搭配动作词，不能单独出现——
+    # 实测踩到：McKinsey 的「An interview with...」是**访谈文章**，
+    # 单独写 interview 会误判成面试通知（BC-016）。
+    # 中文「面试/笔试/测评/录用」本身语义明确，无需搭配。
+    "面试进展": r"interview\s+(invitation|scheduled|confirmed|reminder|request)|"
+                r"(invite|inviting|schedule|arrange).{0,25}interview|"
+                r"interview\s+with\s+(you|our\s+team)|"
+                r"面试|笔试|online\s+assessment|测评|"
                 r"offer\s+letter|录用|next\s+round|进入.{0,4}(面试|下一轮)|"
-                r"邀请.{0,6}(面试|测评)|schedule\s+(an?\s+)?interview",
+                r"邀请.{0,6}(面试|测评)",
 }
 
 # 主流个人邮箱域名。来自这些域名的邮件**大概率是真人手写**，
@@ -135,8 +145,14 @@ def classify(mail: dict, weights: dict[str, int] | None = None) -> str:
     weights: 反馈权重（域名 -> 调整值，负=用户觉得不重要）。
     只能让档位**下降一档**，不能上升——宁可漏不要吵。
     """
-    text = f"{mail.get('subject', '')} {mail.get('body', '')}".lower()
-    strong = _matches(STRONG, text)
+    subject = (mail.get("subject") or "")
+    text = f"{subject} {mail.get('body', '')}".lower()
+
+    # 强信号**只扫主题**。原因（BC-016）：营销邮件正文动辄几千字，
+    # 什么词都可能出现，扫全文必然误触发。升级到「要紧」需要主题明确表态，
+    # 主题的措辞也是发件人最想让你看到的部分，用它判断最准。
+    # 弱信号仍扫全文——它只是进汇总，宁可宽一些。
+    strong = _matches(STRONG, subject.lower())
     weak = _matches(WEAK, text)
     noise = _matches(NOISE, text)
 

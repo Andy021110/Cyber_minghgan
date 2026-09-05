@@ -309,3 +309,58 @@ def test_survey_request_is_not_ignored():
     m = mail("母校再次邀请您积极参与评价", "请填写问卷",
              frm="invitation@mycoss.example.com")
     assert classify(m) != IGNORE
+
+
+# ── BC-016：线上跑一天暴露的两处误报，必须守住 ──
+
+def test_handling_fee_is_not_renewal():
+    """「手续费」包含「续费」子串——中文没有词边界，这是踩过的坑。
+
+    实测：ZA Bank 的「淘宝 0 手续费优惠」因此被误判成订阅到期。
+    """
+    m = mail("淘宝 0 手续费优惠 扫货更划算", "各种促销内容")
+    assert "订阅时限" not in signals(m)
+    assert classify(m) != NOW
+
+
+def test_real_renewal_still_caught():
+    """修掉误报的同时，真的续费提醒不能被误伤。"""
+    m = mail("您的会员即将续费", "将于明日扣款")
+    assert "订阅时限" in signals(m)
+
+
+def test_interview_article_is_not_interview_invitation():
+    """麦肯锡的访谈文章不是面试通知。
+
+    实测：「The power of purpose, culture, and grit: An interview with...」
+    单独出现 interview 会误判。必须要求搭配动作词。
+    """
+    m = mail("The power of purpose, culture, and grit: An interview with the CEO",
+             "In this interview, he shares his views.",
+             frm="publishing@email.mckinsey.com")
+    assert "面试进展" not in signals(m)
+    assert classify(m) != NOW
+
+
+def test_real_interview_invitation_still_caught():
+    """真的面试邀请不能被上面那条规则误伤。"""
+    for subj in ["Interview invitation from ByteDance",
+                 "We'd like to schedule an interview with you",
+                 "面试邀请：请确认时间"]:
+        assert "面试进展" in signals(mail(subj, "")), subj
+
+
+def test_strong_signal_looks_at_subject_only():
+    """强信号只扫主题：正文里的关键词不该把邮件抬进 NOW。
+
+    营销邮件正文动辄几千字，扫全文必然误触发（BC-016 的根因）。
+    """
+    m = mail("本周精选好文推荐",
+             "顺便提一句，您的 payment was declined，不过这是正文测试内容")
+    assert classify(m) != NOW, "正文里的关键词不该触发 NOW"
+
+
+def test_weak_signal_still_scans_body():
+    """弱信号仍扫全文——它只进汇总，宁可宽一些。"""
+    m = mail("本周动态", "您有一笔新的账单已生成")
+    assert "账务变动" in signals(m)
