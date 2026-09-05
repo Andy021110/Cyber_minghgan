@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>虚拟形象 · 抠图效果预览</title>
+<style>
+  body {
+    margin: 24px;
+    background: #F5F4F1;
+    font: 400 14px/1.6 -apple-system, system-ui, sans-serif;
+    color: #2C2C2A;
+  }
+  h1 { font-size: 16px; font-weight: 500; }
+  .hint { color: #5F5E5A; margin-bottom: 18px; }
+  .row { display: flex; gap: 20px; }
+  .card { text-align: center; }
+  /* 棋盘格：透明区域的通用可视化方式 */
+  .img {
+    width: 190px;
+    border-radius: 8px;
+    background:
+      repeating-conic-gradient(#E8E8E6 0% 25%, #FFFFFF 0% 50%) 0 0 / 20px 20px;
+    border: 1px solid #D3D1C7;
+  }
+  .label { margin-top: 8px; color: #5F5E5A; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>虚拟形象 · 抠图效果</h1>
+  <p class="hint">棋盘格 = 透明区域。检查：边缘有没有白边残留、HKU 字样和鞋是否完整。</p>
+  <div class="row">
+    <div class="card"><img class="img" src="../../../frontend/public/assets/mascot/front.png"><div class="label">正面（桌宠默认用这张）</div></div>
+    <div class="card"><img class="img" src="../../../frontend/public/assets/mascot/side.png"><div class="label">侧面</div></div>
+    <div class="card"><img class="img" src="../../../frontend/public/assets/mascot/back.png"><div class="label">背面</div></div>
+  </div>
+</body>
+</html>

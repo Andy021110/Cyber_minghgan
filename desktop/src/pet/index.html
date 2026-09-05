@@ -22,6 +22,14 @@
     cursor: default;
   }
 
+  /* 单帧立绘模式：形象是整张图而非 sprite sheet 时走这里 */
+  #pet.static {
+    background-size: contain;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    animation: none;
+  }
+
   #pet {
     width: var(--fw);
     height: var(--fh);
@@ -94,6 +102,16 @@ const FW = (cfg.frame?.width ?? 32) * SCALE;
 const FH = (cfg.frame?.height ?? 32) * SCALE;
 
 function applyAnimation(name) {
+  // 单帧立绘模式：没有 animations 配置时，直接把整张图当形象显示
+  if (cfg.mode === 'static') {
+    pet.classList.add('static');
+    const h = cfg.displayHeight ?? 140;
+    pet.style.setProperty('--fw', Math.round(h * 0.5) + 'px');
+    pet.style.setProperty('--fh', h + 'px');
+    pet.style.setProperty('--sprite', `url("${cfg.sprite}")`);
+    ipcRenderer.send('pet:ready', { w: Math.round(h * 0.5), h });
+    return;
+  }
   const a = cfg.animations?.[name];
   if (!a) return;
   pet.style.setProperty('--fw', FW + 'px');
@@ -117,6 +135,7 @@ pet.addEventListener('mouseleave', () => ipcRenderer.send('pet:hover', false));
 // 点击 → 唤起主界面
 pet.addEventListener('click', () => ipcRenderer.send('pet:click'));
 pet.addEventListener('dblclick', () => {
+  if (cfg.mode === 'static') return;
   applyAnimation('blink');
   setTimeout(() => applyAnimation(cfg.defaultAnimation ?? 'idle'), 900);
 });
